@@ -3,7 +3,7 @@ import java.io.*;
 import java.net.*;
 
 public class TranslationHandler {
-    private final String apiKey = "API Key here (temporary)";
+    private final String apiKey = "YOUR API KEY";
     // TODO: MOVE THIS TO A SEPARATE TOKEN FILE
 
     public void addWord(String word) {

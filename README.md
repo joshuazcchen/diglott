@@ -6,10 +6,10 @@ This is being made as a part of CSC207 as a course final project.
 ____
 ### Group Members
 ____
-Syed Mustafa "مُوصِي" Ali Najafi Hassani
-Joshua
-Roy
-Nehan
+- Mustafa
+- Joshua
+- Roy
+- Nehan
 ____
 ### User Stories
 ____

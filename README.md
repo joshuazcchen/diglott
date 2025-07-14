@@ -19,4 +19,4 @@ ____
 
 **Roy:** As a reader, I want to be able to upload a .txt, .pdf or .epub file so I can learn using my own material.
 
-**Nehan:** are you squibbing me rn
+**Nehan:** As someone who often loses motivation with flashcard apps, Nehan wants to be able to read a mystery novel in English that gradually weaves in Spanish words. He would like to control the speed of replacement so that basic nouns are swapped in earlier pages, and more complex words appear later. This gradual immersion would help him build vocabulary naturally while staying engaged with the story. 

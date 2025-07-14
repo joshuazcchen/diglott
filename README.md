@@ -13,6 +13,8 @@ ____
 ____
 ### User Stories
 ____
+**Team:** We want to be able to teach languages via the diglot weave method of language learning wherein you replace words slowly throughout a book. 
+
 **Mustafa:** As a Persian that doesn’t know Persian, I would love another an indirect way to learn a language while simultaneously enjoying a good read. However, reading a language with a different script can feel less natural when reading non-Latin (non-Roman) scripts, so I need to be able to read the text in the Latin (Roman) alphabet.
 
 **Joshua:** As a profound Duolingo user (I maxed out Duolingo Chinese, French and German), I would love an alternative way to learn languages without risking my life with a green bird. I would like to be able to translate between non-english languages so as to improve both my reading in existing languages, as well as learn a new language simultaneously.

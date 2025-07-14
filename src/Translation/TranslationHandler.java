@@ -3,8 +3,7 @@ import java.io.*;
 import java.net.*;
 
 public class TranslationHandler {
-    private final String apiKey = "API Key here (temporary)";
-    // TODO: MOVE THIS TO A SEPARATE TOKEN FILE
+    private final String apiKey = "980722f5-7ac0-4e25-83b4-cfc30f1cb65c:fx";
 
     public void addWord(String word) {
         String url = "https://api-free.deepl.com/v2/translate";

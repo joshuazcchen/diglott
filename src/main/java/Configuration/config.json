@@ -1,0 +1,7 @@
+{
+  "api_key": "none",
+  "speed": 1,
+  "target_language": "fr",
+  "logs": "debug",
+  "page_length": 100
+}

@@ -1,17 +1,22 @@
 package Translation;
+
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
+
+import Configuration.ConfigDataRetriever;
 
 public class TranslationHandler {
-    private final String apiKey = "YOUR API KEY";
-    // TODO: MOVE THIS TO A SEPARATE TOKEN FILE
+    private final String apiKey = ConfigDataRetriever.get("api_key");
 
-    public void addWord(String word) {
+    public void addWord(String word) throws Exception {
         String url = "https://api-free.deepl.com/v2/translate";
-
+        if (apiKey.equals("none")) {
+            throw new Exception("Missing API Key");
+        }
         try {
-            String urlParams = "auth_key=" + URLEncoder.encode(apiKey, "UTF-8") +
-                    "&text=" + URLEncoder.encode(word, "UTF-8") +
+            String urlParams = "auth_key=" + URLEncoder.encode(apiKey, StandardCharsets.UTF_8) +
+                    "&text=" + URLEncoder.encode(word, StandardCharsets.UTF_8) +
                     "&target_lang=ZH";
 
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
@@ -33,7 +38,7 @@ public class TranslationHandler {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         TranslationHandler th = new TranslationHandler();
         th.addWord("test");
     }

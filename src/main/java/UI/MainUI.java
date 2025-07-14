@@ -79,6 +79,8 @@ public class MainUI extends JFrame {
                 ex.printStackTrace();
             } catch (IllegalArgumentException ex) {
                 JOptionPane.showMessageDialog(this, "Unsupported file format.");
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
             }
         });
     }

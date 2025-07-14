@@ -17,7 +17,7 @@ public class TranslationHandler {
         try {
             String urlParams = "auth_key=" + URLEncoder.encode(apiKey, StandardCharsets.UTF_8) +
                     "&text=" + URLEncoder.encode(word, StandardCharsets.UTF_8) +
-                    "&target_lang=ZH";
+                    "&target_lang=" + ConfigDataRetriever.get("target_language");
 
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestMethod("POST");

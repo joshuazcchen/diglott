@@ -1,9 +1,9 @@
 package Translation;
 
-import UI.MainUI;
+import UI.LoginUI;
 
 public class Main {
     public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(MainUI::new);
+        new LoginUI().setVisible(true);
     }
 }

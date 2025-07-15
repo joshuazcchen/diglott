@@ -195,7 +195,6 @@ public class MainUI extends JFrame {
         repaint();
     }
 
-    // ⭐ Applies theme to all child components
     private void applyThemeRecursive(Component component, Color bg, Color fg) {
         if (component instanceof JPanel || component instanceof JFrame || component instanceof JScrollPane) {
             component.setBackground(bg);

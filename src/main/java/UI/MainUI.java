@@ -1,5 +1,7 @@
 package UI;
 
+import Book.Book;
+import Book.BookBuilder;
 import Book.BookImporter;
 import Book.BookImporterFactory;
 import Translation.TranslationHandler;
@@ -71,16 +73,20 @@ public class MainUI extends JFrame {
                 String content = importer.importBook(selectedFile);
 
                 TranslationHandler translationHandler = new TranslationHandler();
-                translationHandler.addWord(content);
+                String translatedContent = translationHandler.translateText(content);
 
-                JOptionPane.showMessageDialog(this, "Successfully imported and translated: " + selectedFile.getAbsolutePath());
+                Book book = BookBuilder.createBookFromContent(translatedContent);
+                new BookViewerUI(book);
+
+                JOptionPane.showMessageDialog(this, "Successfully translated and opened book.");
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, "Failed to import file: " + selectedFile.getAbsolutePath());
                 ex.printStackTrace();
             } catch (IllegalArgumentException ex) {
                 JOptionPane.showMessageDialog(this, "Unsupported file format.");
             } catch (Exception ex) {
-                throw new RuntimeException(ex);
+                JOptionPane.showMessageDialog(this, "Translation failed: " + ex.getMessage());
+                ex.printStackTrace();
             }
         });
     }

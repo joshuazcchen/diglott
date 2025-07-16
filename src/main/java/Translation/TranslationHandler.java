@@ -5,11 +5,20 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 
 import Configuration.ConfigDataRetriever;
+import org.json.JSONObject;
 
 public class TranslationHandler {
-    private final String apiKey = ConfigDataRetriever.get("api_key");
+    private final String apiKey;
 
-    public void addWord(String word) throws Exception {
+    public TranslationHandler(String apiKey) {
+        if (apiKey == null || apiKey.trim().isEmpty() || apiKey.equals("none")) {
+            this.apiKey = ConfigDataRetriever.get("api_key");  // fallback to config
+        } else {
+            this.apiKey = apiKey;
+        }
+    }
+
+    public String addWord(String word) throws Exception {
         String url = "https://api-free.deepl.com/v2/translate";
         if (apiKey.equals("none")) {
             throw new Exception("Missing API Key");
@@ -32,15 +41,17 @@ public class TranslationHandler {
             String response = in.lines().reduce("", (a, b) -> a + b);
 
             System.out.println("DeepL response: " + response);
+            // extract actual translation from JSON response:
+            JSONObject responseJson = new JSONObject(response);
+            return responseJson.getJSONArray("translations")
+                    .getJSONObject(0)
+                    .getString("text");
 
         } catch (Exception e) {
             e.printStackTrace();
+            throw new Exception("Translation failed: " + e.getMessage());
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        TranslationHandler th = new TranslationHandler();
-        th.addWord("test");
-    }
 }
 

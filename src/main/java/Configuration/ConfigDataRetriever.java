@@ -56,4 +56,14 @@ public class ConfigDataRetriever {
             throw new RuntimeException("Failed to save config file: " + e.getMessage(), e);
         }
     }
+
+    public static int getFontSize() {
+        return config.getInt("font_size");
+    }
+
+    public static void setFontSize(int size) {
+        config.put("font_size", size);
+        saveConfig();
+    }
+
 }

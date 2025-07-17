@@ -7,12 +7,15 @@ import javax.swing.*;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class PageUI extends JFrame {
     private int currentPage;
     private List<Page> pages;
     private JEditorPane content;
+    private JButton backButton;
     private boolean darkMode;
 
     public PageUI(List<Page> pageSet, boolean darkMode) {
@@ -58,11 +61,17 @@ public class PageUI extends JFrame {
         nextPage.setEnabled(pages.size() > 1);
         previousPage.setEnabled(false);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        backButton = new JButton("Back to Main Page");
+        buttonPanel.add(backButton);
         buttonPanel.add(previousPage);
         buttonPanel.add(nextPage);
         add(buttonPanel, BorderLayout.SOUTH);
 
+        backButton.addActionListener(e -> {
+            dispose();
+            new MainUI(ConfigDataRetriever.get("api_key"));
+        });
         // Apply dark mode theme to buttons and panel
         if (darkMode) {
             applyDarkTheme(buttonPanel, nextPage, previousPage);
@@ -87,6 +96,30 @@ public class PageUI extends JFrame {
             }
             if (currentPage == 0) {
                 previousPage.setEnabled(false);
+            }
+        });
+        content.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (currentPage < pages.size() - 1) {
+                        currentPage++;
+                        updateContent();
+                        previousPage.setEnabled(true);
+                    }
+                    if (currentPage == pages.size() - 1) {
+                        nextPage.setEnabled(false);
+                    }
+                } else if (e.getButton() == MouseEvent.BUTTON3) {
+                    if (currentPage > 0) {
+                        currentPage--;
+                        updateContent();
+                        nextPage.setEnabled(true);
+                    }
+                    if (currentPage == 0) {
+                        previousPage.setEnabled(false);
+                    }
+                }
             }
         });
     }

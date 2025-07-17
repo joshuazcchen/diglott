@@ -3,82 +3,40 @@ package UI;
 import Book.BookImporter;
 import Book.BookImporterFactory;
 import Book.PageFactory;
+import Book.Page;
 import Configuration.ConfigDataRetriever;
+import Configuration.LanguageCodes;
 import Translation.StoredWords;
 import Translation.TranslatePage;
-import Book.Page;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
 
 public class MainUI extends JFrame {
-    private JButton fromLangButton;
-    private JButton toLangButton;
-    private JButton pickFileButton;
-    private JButton startButton;
-    private JButton closeButton;
+    private JButton pickFileButton, startButton, closeButton, logoutButton;
     private JToggleButton darkModeToggle;
-    private JButton logoutButton;
 
     private File selectedFile;
     private String bookText;
     private boolean darkMode;
     private List<Page> pages;
 
-    private PageFactory pageFactory;
-    private final StoredWords storedWords = new StoredWords();
+    private JComboBox<String> inputLangBox;
+    private JComboBox<String> targetLangBox;
+    private JComboBox<Integer> speedBox;
 
-    private static final Map<String, String> LANGUAGES = new LinkedHashMap<>() {{
-        put("Arabic", "ar");
-        put("Bulgarian", "bg");
-        put("Czech", "cs");
-        put("Danish", "da");
-        put("German", "de");
-        put("Greek", "el");
-        put("English (Britain)", "en-gb");
-        put("English (American)", "en-us");
-        put("Spanish", "es");
-        put("Estonian", "et");
-        put("Finnish", "fi");
-        put("French", "fr");
-        put("Hungarian", "hu");
-        put("Indonesian", "id");
-        put("Italian", "it");
-        put("Japanese", "ja");
-        put("Korean", "ko");
-        put("Lithuanian", "lt");
-        put("Latvian", "lv");
-        put("Norwegian (Bokmål)", "nb");
-        put("Dutch", "nl");
-        put("Polish", "pl");
-        put("Portuguese (Brazilian)", "pt-br");
-        put("Portuguese (European)", "pt-pt");
-        put("Romanian", "ro");
-        put("Russian", "ru");
-        put("Slovak", "sk");
-        put("Slovenian", "sl");
-        put("Swedish", "sv");
-        put("Turkish", "tr");
-        put("Ukrainian", "uk");
-        put("Chinese", "zh");
-        put("Chinese (simplified)", "zh-hans");
-        put("Chinese (traditional)", "zh-hant");
-    }};
+    private final StoredWords storedWords = new StoredWords();
 
     public static MainUI createInstance(String apiKey) {
         String savedKey = null;
         try {
             savedKey = ConfigDataRetriever.get("api_key");
-        } catch (Exception e) {
-        }
+        } catch (Exception ignored) {}
 
         if (savedKey != null && !savedKey.trim().isEmpty() && !savedKey.equals("none")) {
             return new MainUI(savedKey);
@@ -91,29 +49,31 @@ public class MainUI extends JFrame {
         }
     }
 
-    private MainUI(String apiKey) {
+    MainUI(String apiKey) {
         try {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) {}
 
+        ConfigDataRetriever.set("api_key", apiKey);
         setupUI();
     }
 
     private void setupUI() {
         String darkModeStr = ConfigDataRetriever.get("dark_mode");
-        darkMode = (darkModeStr != null) ? Boolean.parseBoolean(darkModeStr) : false;
+        darkMode = darkModeStr != null && Boolean.parseBoolean(darkModeStr);
 
         setTitle("Diglott Translator");
         setSize(500, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        fromLangButton = new JButton("From Language (Coming soon)");
-        fromLangButton.setEnabled(false);
+        inputLangBox = new JComboBox<>(new String[]{"en"}); // TODO: support LANGUAGES.keySet() if needed
+        targetLangBox = new JComboBox<>(LanguageCodes.LANGUAGES.keySet().toArray(new String[0]));
+        speedBox = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
 
-        toLangButton = new JButton("To Language");
-        toLangButton.setEnabled(true); // now enabled!
+        inputLangBox.setSelectedItem("en-us");  // Default input language
+        targetLangBox.setSelectedItem(ConfigDataRetriever.get("target_language"));
+        speedBox.setSelectedItem(ConfigDataRetriever.getSpeed());
 
         pickFileButton = new JButton("Pick File");
         startButton = new JButton("Start");
@@ -122,18 +82,41 @@ public class MainUI extends JFrame {
         darkModeToggle.setSelected(darkMode);
         logoutButton = new JButton("Logout");
 
-        JPanel buttonPanel = new JPanel(new GridLayout(5, 2, 10, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 20));
+        JPanel langPanel = new JPanel();
+        langPanel.setLayout(new BoxLayout(langPanel, BoxLayout.Y_AXIS));
+        langPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        buttonPanel.add(fromLangButton);
-        buttonPanel.add(toLangButton);
+        JPanel languageRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        languageRow.add(new JLabel("From:"));
+        languageRow.add(inputLangBox);
+        languageRow.add(Box.createHorizontalStrut(20));
+        languageRow.add(new JLabel("To:"));
+        languageRow.add(targetLangBox);
+
+        JPanel speedRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        speedRow.add(new JLabel("Speed:"));
+        speedRow.add(speedBox);
+
+        langPanel.add(languageRow);
+        langPanel.add(speedRow);
+
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 20));
         buttonPanel.add(pickFileButton);
         buttonPanel.add(startButton);
         buttonPanel.add(closeButton);
         buttonPanel.add(darkModeToggle);
-        buttonPanel.add(logoutButton);
 
-        add(buttonPanel);
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.add(logoutButton);
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.add(langPanel, BorderLayout.NORTH);
+        mainPanel.add(buttonPanel, BorderLayout.CENTER);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        add(mainPanel);
         setVisible(true);
         addListeners();
         applyTheme();
@@ -145,16 +128,8 @@ public class MainUI extends JFrame {
             fileChooser.setDialogTitle("Select a text or EPUB file");
 
             fileChooser.setAcceptAllFileFilterUsed(false);
-            fileChooser.addChoosableFileFilter(
-                    new javax.swing.filechooser.FileNameExtensionFilter("Text Files", "txt"));
-            fileChooser.addChoosableFileFilter(
-                    new javax.swing.filechooser.FileNameExtensionFilter("EPUB Files", "epub"));
-            fileChooser.addChoosableFileFilter(
-                    new javax.swing.filechooser.FileNameExtensionFilter("All Supported", "txt", "epub"));
-
-            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            fileChooser.setFileHidingEnabled(false);
-            fileChooser.setMultiSelectionEnabled(false);
+            fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Text Files", "txt"));
+            fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("EPUB Files", "epub"));
 
             int option = fileChooser.showOpenDialog(this);
             if (option == JFileChooser.APPROVE_OPTION) {
@@ -162,10 +137,8 @@ public class MainUI extends JFrame {
                 try {
                     BookImporter importer = BookImporterFactory.getImporter(selectedFile);
                     bookText = importer.importBook(selectedFile);
-                    List<String> words = new ArrayList<>();
-                    words.addAll(Arrays.asList(bookText.split(" ")));
-                    this.pages = PageFactory.paginate(words,
-                            ConfigDataRetriever.getInt("page_length"));
+                    List<String> words = new ArrayList<>(Arrays.asList(bookText.split(" ")));
+                    this.pages = PageFactory.paginate(words, ConfigDataRetriever.getInt("page_length"));
                     JOptionPane.showMessageDialog(this, "Book loaded successfully!");
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -179,6 +152,13 @@ public class MainUI extends JFrame {
                 JOptionPane.showMessageDialog(this, "Please load a book first.");
                 return;
             }
+
+            String targetLang = (String) targetLangBox.getSelectedItem();
+            int speed = (int) speedBox.getSelectedItem();
+
+            ConfigDataRetriever.set("target_language", targetLang);
+            ConfigDataRetriever.set("speed", String.valueOf(speed));
+            ConfigDataRetriever.saveConfig();
 
             TranslatePage translatePage = new TranslatePage(storedWords);
             for (Page page : pages) {
@@ -194,13 +174,6 @@ public class MainUI extends JFrame {
 
         closeButton.addActionListener(e -> dispose());
 
-        darkModeToggle.addActionListener(e -> {
-            darkMode = darkModeToggle.isSelected();
-            ConfigDataRetriever.set("dark_mode", String.valueOf(darkMode));
-            ConfigDataRetriever.saveConfig();
-            applyTheme();
-        });
-
         logoutButton.addActionListener(e -> {
             ConfigDataRetriever.set("api_key", "none");
             ConfigDataRetriever.saveConfig();
@@ -208,41 +181,17 @@ public class MainUI extends JFrame {
             new LoginUI().setVisible(true);
         });
 
-        toLangButton.addActionListener(e -> {
-            String[] languageNames = LANGUAGES.keySet().toArray(new String[0]);
-
-            String currentTarget = ConfigDataRetriever.get("target_language");
-            String currentSelection = languageNames[0];
-            for (var entry : LANGUAGES.entrySet()) {
-                if (entry.getValue().equals(currentTarget)) {
-                    currentSelection = entry.getKey();
-                    break;
-                }
-            }
-
-            String selectedLanguage = (String) JOptionPane.showInputDialog(
-                    this,
-                    "Select Target Language:",
-                    "Target Language",
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    languageNames,
-                    currentSelection);
-
-            if (selectedLanguage != null) {
-                String selectedCode = LANGUAGES.get(selectedLanguage);
-                ConfigDataRetriever.set("target_language", selectedCode);
-                ConfigDataRetriever.saveConfig();
-                JOptionPane.showMessageDialog(this,
-                        "Target language set to: " + selectedLanguage + " (" + selectedCode + ")");
-            }
+        darkModeToggle.addActionListener(e -> {
+            darkMode = darkModeToggle.isSelected();
+            ConfigDataRetriever.set("dark_mode", String.valueOf(darkMode));
+            ConfigDataRetriever.saveConfig();
+            applyTheme();
         });
     }
 
     private void applyTheme() {
         Color bg = darkMode ? Color.DARK_GRAY : Color.WHITE;
         Color fg = darkMode ? Color.WHITE : Color.BLACK;
-
         applyThemeRecursive(getContentPane(), bg, fg);
         repaint();
     }

@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class LanguageCodes {
     public static final Map<String, String> LANGUAGES = new LinkedHashMap<>() {{
+        // TODO: also have the other way around such that we can maintain teh user selection
         put("Arabic", "ar");
         put("Bulgarian", "bg");
         put("Czech", "cs");

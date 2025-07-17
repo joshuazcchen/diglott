@@ -30,7 +30,7 @@ public class Page {
     }
 
     public String getContent() {
-        return String.join(" ", content);
+        return String.join(" ", this.content);
     }
 
     public List<String> getWords() {

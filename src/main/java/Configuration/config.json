@@ -3,5 +3,7 @@
   "speed": 1,
   "target_language": "fr",
   "logs": "debug",
-  "page_length": 100
+  "page_length": 100,
+  "font": "times new roman",
+  "font_size": "24"
 }

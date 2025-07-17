@@ -25,7 +25,6 @@ public class MainUI extends JFrame {
     private JButton startButton;
     private JButton closeButton;
     private JToggleButton darkModeToggle;
-    private JProgressBar progressBar;
 
     private File selectedFile;
     private String bookText;
@@ -60,9 +59,6 @@ public class MainUI extends JFrame {
         startButton = new JButton("Start");
         closeButton = new JButton("Close App");
         darkModeToggle = new JToggleButton("Dark Mode");
-        progressBar = new JProgressBar(0, 100);
-        progressBar.setStringPainted(true);
-        progressBar.setVisible(false);
 
 
         JPanel buttonPanel = new JPanel(new GridLayout(4, 2, 10, 10));
@@ -72,7 +68,6 @@ public class MainUI extends JFrame {
         buttonPanel.add(toLangButton);
         buttonPanel.add(pickFileButton);
         buttonPanel.add(startButton);
-        buttonPanel.add(progressBar);
         buttonPanel.add(closeButton);
         buttonPanel.add(darkModeToggle);
 
@@ -128,13 +123,11 @@ public class MainUI extends JFrame {
                 translatePage.translatePage(page);
             }
 
-            progressBar.setVisible(true);
-            progressBar.setValue(0);
-
             startButton.setEnabled(false);
             pickFileButton.setEnabled(false);
             closeButton.setEnabled(false);
 
+            new PageUI(pages).setVisible(true);
         });
         closeButton.addActionListener(e -> {
             dispose();

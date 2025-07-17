@@ -38,14 +38,11 @@ public class TranslatePage {
         for (int i = 0; i < pageContent.size(); i++) {
             if (wordDatabase.containsKey(pageContent.get(i))) {
                 // Adds to the new page content array list the translated word
-                newPageContent.add(wordDatabase.get(pageContent.get(i)));
+                newPageContent.add("<b>" + wordDatabase.get(pageContent.get(i)) + "</b>");
             } else {
                 newPageContent.add(pageContent.get(i));
             }
         }
         page.rewriteContent(newPageContent);
-        System.out.println(storedWords.getTranslations());
-        System.out.println("Translated words: " + page.getWords());
-        page.rewriteContent(pageContent);
     }
 }

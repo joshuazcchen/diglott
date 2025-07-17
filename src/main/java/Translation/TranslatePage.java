@@ -22,7 +22,7 @@ public class TranslatePage {
 
     public void translatePage(Page page) {
         Map<String, String> wordDatabase = storedWords.getTranslations();
-        List<String> pageContent = page.getContent();
+        List<String> pageContent = page.getWords();
         try {
             if (page.getPageNumber() != 0) {
                 for (int z = 0; z < ConfigDataRetriever.getSpeed(); z++) {
@@ -30,10 +30,10 @@ public class TranslatePage {
                     translationHandler.addWord(pageContent.get(randomIndex));
                 }
             }
-        } catch (NullPointerException bad) {
+        } catch (Exception bad) {
             System.out.println(bad.getMessage());
         }
-        for (int i = 0; i < pageContent.length; i++) {
+        for (int i = 0; i < pageContent.size(); i++) {
             if (wordDatabase.containsKey(pageContent.get(i))) {
                 pageContent.set(i, wordDatabase.get(pageContent.get(i)));
             }

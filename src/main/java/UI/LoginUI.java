@@ -23,7 +23,7 @@ public class LoginUI extends JFrame {
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel linkLabel = new JLabel(
-                "<html><span style='font-size:10pt'>To obtain your own API, click <a href='#'>here</a>.</span></html>"
+                "<html><span style='font-size:10pt'>To obtain your own API key, click <a href='#'>here</a>.</span></html>"
         );
         linkLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         linkLabel.setAlignmentX(Component.CENTER_ALIGNMENT);

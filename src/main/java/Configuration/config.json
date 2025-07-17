@@ -1,10 +1,10 @@
 {
     "dark_mode": "false",
     "api_key": "none",
-    "target_language": "nl",
+    "target_language": "fr",
     "font_size": "24",
     "page_length": 100,
-    "logs": "debug",
-    "speed": "1",
+    "logs": "none",
+    "speed": "2",
     "font": "times new roman"
 }

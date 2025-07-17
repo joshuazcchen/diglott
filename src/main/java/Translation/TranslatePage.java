@@ -42,7 +42,8 @@ public class TranslatePage {
                 if (ConfigDataRetriever.get("logs").equals("debug")) {
                     System.out.println("added translated word to log:" + wordDatabase.get(pageContent.get(i).toLowerCase()));
                 }
-                newPageContent.add("<b>" + wordDatabase.get(pageContent.get(i)).toLowerCase() + "</b>");
+                newPageContent.add("<b>" + wordDatabase.get(pageContent.get(i).toLowerCase())
+                        + "</b>");
             } else {
                 newPageContent.add(pageContent.get(i));
             }

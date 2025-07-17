@@ -2,13 +2,21 @@ package UI;
 
 import Book.BookImporter;
 import Book.BookImporterFactory;
+import Book.PageFactory;
+import Configuration.ConfigDataRetriever;
+import Translation.StoredWords;
+import Translation.TranslatePage;
 import Translation.TranslationHandler;
+import Book.Page;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainUI extends JFrame {
     private JButton fromLangButton;
@@ -20,18 +28,19 @@ public class MainUI extends JFrame {
     private JProgressBar progressBar;
 
     private File selectedFile;
-    private String bookText = null;
-    private boolean darkMode = false;
+    private String bookText;
+    private boolean darkMode;
+    private List<Page> pages;
 
-    private final String apiKey;
+    private PageFactory pageFactory;
+    private final StoredWords storedWords = new  StoredWords();
 
     // Constructor with API key
     public MainUI(String apiKey) {
         try {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
         } catch (Exception ignored) {}
-
-        this.apiKey = apiKey;
+        ConfigDataRetriever.set("api_key", apiKey);
         setupUI();
     }
 
@@ -96,6 +105,10 @@ public class MainUI extends JFrame {
                 try {
                     BookImporter importer = BookImporterFactory.getImporter(selectedFile);
                     bookText = importer.importBook(selectedFile);
+                    List<String> words = new ArrayList<>();
+                    words.addAll(Arrays.asList(bookText.split(" ")));
+                    this.pages = PageFactory.paginate(words,
+                            ConfigDataRetriever.getInt("page_length"));
                     JOptionPane.showMessageDialog(this, "Book loaded successfully!");
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -110,8 +123,10 @@ public class MainUI extends JFrame {
                 return;
             }
 
-            String[] words = bookText.split("\\s+");
-            StringBuilder translated = new StringBuilder();
+            TranslatePage translatePage = new TranslatePage(storedWords);
+            for (Page page : pages) {
+                translatePage.translatePage(page);
+            }
 
             progressBar.setVisible(true);
             progressBar.setValue(0);

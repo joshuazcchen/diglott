@@ -11,8 +11,8 @@ public class TranslationHandler {
     private final String apiKey;
     private final StoredWords storedWords;
 
-    public TranslationHandler(String apiKey) {
-        this.storedWords = new StoredWords();
+    public TranslationHandler(String apiKey, StoredWords storedWords) {
+        this.storedWords = storedWords;
         if (apiKey == null || apiKey.trim().isEmpty() || apiKey.equals("none")) {
             this.apiKey = ConfigDataRetriever.get("api_key");  // fallback to config
         } else {

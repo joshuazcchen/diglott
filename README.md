@@ -22,3 +22,9 @@ ____
 **Roy:** As a reader and student, I want to be able to upload a .txt, .pdf, or .epub file so I can learn using material that actually interests me. I don’t always connect with pre-selected content, so being able to use my own files makes the experience feel more personal and motivating. Plus, if I already know the story, I can focus more on the new vocabulary without getting lost in the plot.
 
 **Nehan:** As someone who often loses motivation with flashcard apps, Nehan wants to be able to read a mystery novel in English that gradually weaves in Spanish words. He would like to control the speed of replacement so that basic nouns are swapped in earlier pages, and more complex words appear later. This gradual immersion would help him build vocabulary naturally while staying engaged with the story. 
+____
+### Download
+____
+[![Download JAR](https://img.shields.io/github/v/release/joshuazcchen/diglott?label=Download%20Latest%20JAR)](https://github.com/joshuazcchen/diglott/releases/latest)
+
+[📦 Download diglott-alpha-0-1.jar](https://github.com/joshuazcchen/diglott/releases/download/Alpha/diglot-alpha-0-1.jar)

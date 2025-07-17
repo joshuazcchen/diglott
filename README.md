@@ -26,5 +26,3 @@ ____
 ### Download
 ____
 [![Download JAR](https://img.shields.io/github/v/release/joshuazcchen/diglott?label=Download%20Latest%20JAR)](https://github.com/joshuazcchen/diglott/releases/latest)
-
-[Download diglott-alpha-0-1-1.jar](https://github.com/joshuazcchen/diglott/releases/download/v0.1.1/diglott-alpha-0-1-1.jar)

@@ -31,6 +31,9 @@ public class ConfigDataRetriever {
     public static int getInt(String key) {
         return config.getInt(key);
     }
+    public static boolean getBool(String key) {
+        return config.getBoolean(key);
+    }
     public static void set(String key, String value) {
         config.put(key, value);
     }

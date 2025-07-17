@@ -326,6 +326,4 @@ public class MainUI extends JFrame {
             }
         }
     }
-    // Test commit to check GitHub tracking
-
 }

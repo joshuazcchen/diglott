@@ -19,6 +19,6 @@ ____
 
 **Joshua:** As a profound Duolingo user (I maxed out Duolingo Chinese, French and German), I would love an alternative way to learn languages without risking my life with a green bird. I would like to be able to translate between non-english languages so as to improve both my reading in existing languages, as well as learn a new language simultaneously.
 
-**Roy:** As a reader, I want to be able to upload a .txt, .pdf or .epub file so I can learn using my own material.
+**Roy:** As a reader and student, I want to be able to upload a .txt, .pdf, or .epub file so I can learn using material that actually interests me. I don’t always connect with pre-selected content, so being able to use my own files makes the experience feel more personal and motivating. Plus, if I already know the story, I can focus more on the new vocabulary without getting lost in the plot.
 
 **Nehan:** As someone who often loses motivation with flashcard apps, Nehan wants to be able to read a mystery novel in English that gradually weaves in Spanish words. He would like to control the speed of replacement so that basic nouns are swapped in earlier pages, and more complex words appear later. This gradual immersion would help him build vocabulary naturally while staying engaged with the story. 

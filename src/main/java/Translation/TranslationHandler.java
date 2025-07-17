@@ -58,8 +58,7 @@ public class TranslationHandler {
             String translated = responseJson.getJSONArray("translations")
                     .getJSONObject(0)
                     .getString("text");
-            if (!storedWords.getTranslations().containsKey(word.toLowerCase()) &&
-                    word.length() > 3) {
+            if (!storedWords.getTranslations().containsKey(word.toLowerCase())) {
                 storedWords.addTranslation(word.toLowerCase(), translated);
             }
         } catch (Exception ex) {

@@ -39,7 +39,10 @@ public class TranslatePage {
             if (wordDatabase.containsKey(pageContent.get(i).toLowerCase())) {
                 // TODO: deal with case sensitivity
                 // Adds to the new page content array list the translated word
-                newPageContent.add("<b>" + wordDatabase.get(pageContent.get(i)) + "</b>");
+                if (ConfigDataRetriever.get("logs").equals("debug")) {
+                    System.out.println("added translated word to log:" + wordDatabase.get(pageContent.get(i).toLowerCase()));
+                }
+                newPageContent.add("<b>" + wordDatabase.get(pageContent.get(i)).toLowerCase() + "</b>");
             } else {
                 newPageContent.add(pageContent.get(i));
             }

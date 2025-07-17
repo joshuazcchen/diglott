@@ -30,6 +30,7 @@ public class ConfigDataRetriever {
         config = new JSONObject(content);
     }
 
+    //TODO: switch this to an Anything type
     public static String get(String key) {
         return config.getString(key);
     }

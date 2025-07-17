@@ -1,12 +1,16 @@
 package Book;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class Page {
     private final int pageNumber;
     private final int maxWords;
-    private final String content;
+    private List<String> content;
 
-    public Page(String content, int pageNumber, int maxWords) {
-        if (content == null || content.trim().isEmpty()) {
+    public Page(List<String> content, int pageNumber, int maxWords) {
+        if (content == null || content.isEmpty()) {
             throw new IllegalArgumentException("Content cannot be null or empty.");
         }
 
@@ -14,20 +18,23 @@ public class Page {
             throw new IllegalArgumentException("Max words must be positive.");
         }
 
-        int wordCount = content.trim().split("\\s+").length;
-        if (wordCount > maxWords) {
+        if (content.size() > maxWords) {
             throw new IllegalArgumentException(
-                    "Content exceeds the maximum allowed words per page: " + wordCount + " > " + maxWords
+                    "Content exceeds the maximum allowed words per page: " + content.size() + " > " + maxWords
             );
         }
 
-        this.content = content;
         this.pageNumber = pageNumber;
         this.maxWords = maxWords;
+        this.content = new ArrayList<>(content);  // defensive copy
     }
 
     public String getContent() {
-        return content;
+        return String.join(" ", content);
+    }
+
+    public List<String> getWords() {
+        return Collections.unmodifiableList(content);
     }
 
     public int getPageNumber() {
@@ -39,6 +46,13 @@ public class Page {
     }
 
     public int getWordCount() {
-        return content.trim().split("\\s+").length;
+        return content.size();
+    }
+
+    public void rewriteContent(List<String> words) {
+        if (words == null || words.size() > maxWords) {
+            throw new IllegalArgumentException("New content exceeds max words or is null.");
+        }
+        this.content = new ArrayList<>(words);  // defensive copy
     }
 }

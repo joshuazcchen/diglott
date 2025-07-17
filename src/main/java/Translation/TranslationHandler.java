@@ -17,6 +17,9 @@ public class TranslationHandler {
             this.apiKey = ConfigDataRetriever.get("api_key");  // fallback to config
         } else {
             this.apiKey = apiKey;
+            // Optional: update config with new API key and save it
+            ConfigDataRetriever.set("api_key", apiKey);
+            ConfigDataRetriever.saveConfig();
         }
     }
 
@@ -36,11 +39,16 @@ public class TranslationHandler {
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
             try (OutputStream os = conn.getOutputStream()) {
-                os.write(urlParams.getBytes());
+                os.write(urlParams.getBytes(StandardCharsets.UTF_8));
             }
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String response = in.lines().reduce("", (a, b) -> a + b);
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+            StringBuilder responseBuilder = new StringBuilder();
+            String line;
+            while ((line = in.readLine()) != null) {
+                responseBuilder.append(line);
+            }
+            String response = responseBuilder.toString();
 
             System.out.println("DeepL response: " + response);
             JSONObject responseJson = new JSONObject(response);
@@ -53,6 +61,4 @@ public class TranslationHandler {
             System.out.println("Error: " + ex.getMessage());
         }
     }
-
 }
-

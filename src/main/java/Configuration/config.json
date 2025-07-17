@@ -1,7 +1,7 @@
 {
     "dark_mode": "false",
-    "api_key": "None",
-    "target_language": "it",
+    "api_key": "none",
+    "target_language": "nl",
     "font_size": "24",
     "page_length": 100,
     "logs": "debug",

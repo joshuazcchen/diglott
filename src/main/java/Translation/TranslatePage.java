@@ -28,7 +28,12 @@ public class TranslatePage {
             if (page.getPageNumber() != 0) {
                 for (int z = 0; z < ConfigDataRetriever.getSpeed(); z++) {
                     int randomIndex = random.nextInt(0, pageContent.size());
-                    translationHandler.addWord(pageContent.get(randomIndex));
+                    if (storedWords.getTranslations().containsKey(pageContent.get(randomIndex).
+                            toLowerCase()) || pageContent.get(randomIndex).length() < 3) {
+                        z--;
+                    } else {
+                        translationHandler.addWord(pageContent.get(randomIndex));
+                    }
                 }
             }
         } catch (Exception addWordException) {

@@ -2,35 +2,41 @@ package Configuration;
 
 import org.json.JSONObject;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
 
 public class ConfigDataRetriever {
 
-    private static final String CONFIG_PATH = "src/main/java/Configuration/config.json";
+    private static final Path CONFIG_PATH = Paths.get(System.getProperty("user.home"), ".diglott", "config.json");
 
     private static JSONObject config;
 
     static {
-        String content;
         try {
-            InputStream is = ConfigDataRetriever.class.getClassLoader().getResourceAsStream("Configuration/config.json");
-            if (is == null) {
-                throw new RuntimeException("Config file not found in resources");
+            if (Files.notExists(CONFIG_PATH)) {
+                // Create config directory if needed
+                Files.createDirectories(CONFIG_PATH.getParent());
+
+                // Read default config from resources
+                InputStream is = ConfigDataRetriever.class.getClassLoader()
+                        .getResourceAsStream("Configuration/config.json");
+                if (is == null) {
+                    throw new RuntimeException("Default config file not found in JAR resources");
+                }
+
+                // Write default config to user directory
+                Files.copy(is, CONFIG_PATH);
             }
-            byte[] bytes = is.readAllBytes();
-            content = new String(bytes, StandardCharsets.UTF_8);
+
+            // Load user config
+            String content = Files.readString(CONFIG_PATH, StandardCharsets.UTF_8);
+            config = new JSONObject(content);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to load or create config: " + e.getMessage(), e);
         }
-        config = new JSONObject(content);
     }
 
-    //TODO: switch this to an Anything type
     public static String get(String key) {
         return config.getString(key);
     }
@@ -38,9 +44,11 @@ public class ConfigDataRetriever {
     public static int getInt(String key) {
         return config.getInt(key);
     }
+
     public static boolean getBool(String key) {
         return config.getBoolean(key);
     }
+
     public static void set(String key, String value) {
         config.put(key, value);
     }
@@ -50,8 +58,8 @@ public class ConfigDataRetriever {
     }
 
     public static void saveConfig() {
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(CONFIG_PATH), StandardCharsets.UTF_8)) {
-            writer.write(config.toString(4));  // pretty print with 4 spaces indent
+        try (BufferedWriter writer = Files.newBufferedWriter(CONFIG_PATH, StandardCharsets.UTF_8)) {
+            writer.write(config.toString(4));
         } catch (IOException e) {
             throw new RuntimeException("Failed to save config file: " + e.getMessage(), e);
         }

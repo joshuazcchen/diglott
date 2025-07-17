@@ -1,10 +1,10 @@
 {
-    "dark_mode": "true",
-    "api_key": "9dfb86be-86bf-4203-8972-5f1fc1513123:fx",
-    "target_language": "French",
+    "dark_mode": "false",
+    "api_key": "none",
+    "target_language": "fr",
     "font_size": "24",
     "page_length": 100,
-    "logs": "debug",
-    "speed": "1",
+    "logs": "none",
+    "speed": "2",
     "font": "times new roman"
 }

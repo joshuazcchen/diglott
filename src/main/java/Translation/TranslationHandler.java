@@ -50,13 +50,18 @@ public class TranslationHandler {
             }
             String response = responseBuilder.toString();
 
-            System.out.println("DeepL response: " + response);
+            if (ConfigDataRetriever.get("logs").equals("debug")) {
+                System.out.println("DeepL response: " + response);
+                System.out.println(word);
+            }
             JSONObject responseJson = new JSONObject(response);
             String translated = responseJson.getJSONArray("translations")
                     .getJSONObject(0)
                     .getString("text");
-            storedWords.addTranslation(word.toLowerCase().
-                    replaceAll("\\p{Punct}", ""), translated);
+            if (!storedWords.getTranslations().containsKey(word.toLowerCase()) &&
+                    word.length() > 3) {
+                storedWords.addTranslation(word.toLowerCase(), translated);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             System.out.println("Error: " + ex.getMessage());

@@ -41,7 +41,6 @@ public class TranslationHandler {
             String response = in.lines().reduce("", (a, b) -> a + b);
 
             System.out.println("DeepL response: " + response);
-            // extract actual translation from JSON response:
             JSONObject responseJson = new JSONObject(response);
             return responseJson.getJSONArray("translations")
                     .getJSONObject(0)

@@ -153,7 +153,7 @@ public class MainUI extends JFrame {
                 return;
             }
 
-            String targetLang = (String) targetLangBox.getSelectedItem();
+            String targetLang = LanguageCodes.LANGUAGES.get(targetLangBox.getSelectedItem());
             int speed = (int) speedBox.getSelectedItem();
 
             ConfigDataRetriever.set("target_language", targetLang);

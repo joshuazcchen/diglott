@@ -121,63 +121,6 @@ public class MainUI extends JFrame {
             pickFileButton.setEnabled(false);
             closeButton.setEnabled(false);
 
-            SwingWorker<Void, Integer> worker = new SwingWorker<>() {
-                @Override
-                protected Void doInBackground() {
-                    for (int i = 0; i < words.length; i++) {
-                        try {
-                            String translatedWord = translator.addWord(words[i]);
-                            translated.append(translatedWord).append(" ");
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                            translated.append(words[i]).append(" ");
-                        }
-
-                        int progress = (int) ((i + 1) * 100.0 / words.length);
-                        publish(progress);
-
-                        try {
-                            Thread.sleep(30);
-                        } catch (InterruptedException ignored) {}
-                    }
-                    return null;
-                }
-
-                @Override
-                protected void process(java.util.List<Integer> chunks) {
-                    int target = chunks.get(chunks.size() - 1);
-                    int current = progressBar.getValue();
-
-                    new Thread(() -> {
-                        for (int i = current + 1; i <= target; i++) {
-                            final int val = i;
-                            SwingUtilities.invokeLater(() -> progressBar.setValue(val));
-                            try {
-                                Thread.sleep(5);  // control smoothness speed
-                            } catch (InterruptedException ignored) {}
-                        }
-                    }).start();
-                }
-
-                @Override
-                protected void done() {
-                    progressBar.setVisible(false);
-
-                    startButton.setEnabled(true);
-                    pickFileButton.setEnabled(true);
-                    closeButton.setEnabled(true);
-
-                    JTextArea outputArea = new JTextArea(translated.toString());
-                    outputArea.setLineWrap(true);
-                    outputArea.setWrapStyleWord(true);
-                    JScrollPane scrollPane = new JScrollPane(outputArea);
-                    scrollPane.setPreferredSize(new Dimension(450, 300));
-                    JOptionPane.showMessageDialog(
-                            MainUI.this, scrollPane, "Translated Text", JOptionPane.INFORMATION_MESSAGE);
-                }
-            };
-
-            worker.execute();
         });
         closeButton.addActionListener(e -> {
             dispose();

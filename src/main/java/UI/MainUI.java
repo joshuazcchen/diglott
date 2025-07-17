@@ -6,7 +6,6 @@ import Book.PageFactory;
 import Configuration.ConfigDataRetriever;
 import Translation.StoredWords;
 import Translation.TranslatePage;
-import Translation.TranslationHandler;
 import Book.Page;
 
 import javax.swing.*;
@@ -17,6 +16,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 public class MainUI extends JFrame {
     private JButton fromLangButton;
@@ -25,6 +26,7 @@ public class MainUI extends JFrame {
     private JButton startButton;
     private JButton closeButton;
     private JToggleButton darkModeToggle;
+    private JButton logoutButton;
 
     private File selectedFile;
     private String bookText;
@@ -32,18 +34,76 @@ public class MainUI extends JFrame {
     private List<Page> pages;
 
     private PageFactory pageFactory;
-    private final StoredWords storedWords = new  StoredWords();
+    private final StoredWords storedWords = new StoredWords();
 
-    // Constructor with API key
-    public MainUI(String apiKey) {
+    private static final Map<String, String> LANGUAGES = new LinkedHashMap<>() {{
+        put("Arabic", "ar");
+        put("Bulgarian", "bg");
+        put("Czech", "cs");
+        put("Danish", "da");
+        put("German", "de");
+        put("Greek", "el");
+        put("English (Britain)", "en-gb");
+        put("English (American)", "en-us");
+        put("Spanish", "es");
+        put("Estonian", "et");
+        put("Finnish", "fi");
+        put("French", "fr");
+        put("Hungarian", "hu");
+        put("Indonesian", "id");
+        put("Italian", "it");
+        put("Japanese", "ja");
+        put("Korean", "ko");
+        put("Lithuanian", "lt");
+        put("Latvian", "lv");
+        put("Norwegian (Bokmål)", "nb");
+        put("Dutch", "nl");
+        put("Polish", "pl");
+        put("Portuguese (Brazilian)", "pt-br");
+        put("Portuguese (European)", "pt-pt");
+        put("Romanian", "ro");
+        put("Russian", "ru");
+        put("Slovak", "sk");
+        put("Slovenian", "sl");
+        put("Swedish", "sv");
+        put("Turkish", "tr");
+        put("Ukrainian", "uk");
+        put("Chinese", "zh");
+        put("Chinese (simplified)", "zh-hans");
+        put("Chinese (traditional)", "zh-hant");
+    }};
+
+    public static MainUI createInstance(String apiKey) {
+        String savedKey = null;
+        try {
+            savedKey = ConfigDataRetriever.get("api_key");
+        } catch (Exception e) {
+        }
+
+        if (savedKey != null && !savedKey.trim().isEmpty() && !savedKey.equals("none")) {
+            return new MainUI(savedKey);
+        } else if (apiKey != null && !apiKey.trim().isEmpty() && !apiKey.equals("none")) {
+            ConfigDataRetriever.set("api_key", apiKey);
+            ConfigDataRetriever.saveConfig();
+            return new MainUI(apiKey);
+        } else {
+            return new MainUI("none");
+        }
+    }
+
+    private MainUI(String apiKey) {
         try {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        } catch (Exception ignored) {}
-        ConfigDataRetriever.set("api_key", apiKey);
+        } catch (Exception ignored) {
+        }
+
         setupUI();
     }
 
     private void setupUI() {
+        String darkModeStr = ConfigDataRetriever.get("dark_mode");
+        darkMode = (darkModeStr != null) ? Boolean.parseBoolean(darkModeStr) : false;
+
         setTitle("Diglott Translator");
         setSize(500, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -52,16 +112,17 @@ public class MainUI extends JFrame {
         fromLangButton = new JButton("From Language (Coming soon)");
         fromLangButton.setEnabled(false);
 
-        toLangButton = new JButton("To Language (Coming soon)");
-        toLangButton.setEnabled(false);
+        toLangButton = new JButton("To Language");
+        toLangButton.setEnabled(true); // now enabled!
 
         pickFileButton = new JButton("Pick File");
         startButton = new JButton("Start");
         closeButton = new JButton("Close App");
         darkModeToggle = new JToggleButton("Dark Mode");
+        darkModeToggle.setSelected(darkMode);
+        logoutButton = new JButton("Logout");
 
-
-        JPanel buttonPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 2, 10, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 20));
 
         buttonPanel.add(fromLangButton);
@@ -70,6 +131,7 @@ public class MainUI extends JFrame {
         buttonPanel.add(startButton);
         buttonPanel.add(closeButton);
         buttonPanel.add(darkModeToggle);
+        buttonPanel.add(logoutButton);
 
         add(buttonPanel);
         setVisible(true);
@@ -127,16 +189,56 @@ public class MainUI extends JFrame {
             pickFileButton.setEnabled(false);
             closeButton.setEnabled(false);
 
-            new PageUI(pages).setVisible(true);
+            new PageUI(pages, darkMode).setVisible(true);
         });
-        closeButton.addActionListener(e -> {
-            dispose();
-        });
+
+        closeButton.addActionListener(e -> dispose());
+
         darkModeToggle.addActionListener(e -> {
             darkMode = darkModeToggle.isSelected();
+            ConfigDataRetriever.set("dark_mode", String.valueOf(darkMode));
+            ConfigDataRetriever.saveConfig();
             applyTheme();
         });
+
+        logoutButton.addActionListener(e -> {
+            ConfigDataRetriever.set("api_key", "none");
+            ConfigDataRetriever.saveConfig();
+            dispose();
+            new LoginUI().setVisible(true);
+        });
+
+        toLangButton.addActionListener(e -> {
+            String[] languageNames = LANGUAGES.keySet().toArray(new String[0]);
+
+            String currentTarget = ConfigDataRetriever.get("target_language");
+            String currentSelection = languageNames[0];
+            for (var entry : LANGUAGES.entrySet()) {
+                if (entry.getValue().equals(currentTarget)) {
+                    currentSelection = entry.getKey();
+                    break;
+                }
+            }
+
+            String selectedLanguage = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Select Target Language:",
+                    "Target Language",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    languageNames,
+                    currentSelection);
+
+            if (selectedLanguage != null) {
+                String selectedCode = LANGUAGES.get(selectedLanguage);
+                ConfigDataRetriever.set("target_language", selectedCode);
+                ConfigDataRetriever.saveConfig();
+                JOptionPane.showMessageDialog(this,
+                        "Target language set to: " + selectedLanguage + " (" + selectedCode + ")");
+            }
+        });
     }
+
     private void applyTheme() {
         Color bg = darkMode ? Color.DARK_GRAY : Color.WHITE;
         Color fg = darkMode ? Color.WHITE : Color.BLACK;
@@ -186,5 +288,4 @@ public class MainUI extends JFrame {
             }
         }
     }
-
 }

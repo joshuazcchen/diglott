@@ -31,12 +31,14 @@ public class TranslatePage {
                     translationHandler.addWord(pageContent.get(randomIndex));
                 }
             }
-        } catch (Exception bad) {
-            System.out.println(bad.getMessage());
+        } catch (Exception addWordException) {
+            System.out.println("Error: " + addWordException.getMessage());;
         }
         List<String> newPageContent = new ArrayList<>();
         for (int i = 0; i < pageContent.size(); i++) {
-            if (wordDatabase.containsKey(pageContent.get(i))) {
+            if (wordDatabase.containsKey(pageContent.get(i).toLowerCase()
+                    .replaceAll("\\p{Punct}", ""))) {
+                // TODO: deal with case sensitivity
                 // Adds to the new page content array list the translated word
                 newPageContent.add("<b>" + wordDatabase.get(pageContent.get(i)) + "</b>");
             } else {

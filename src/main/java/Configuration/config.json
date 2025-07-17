@@ -1,7 +1,7 @@
 {
     "dark_mode": "false",
-    "api_key": "581ac56e-0cfe-4447-8558-7051df64ae38:fx",
-    "target_language": "it",
+    "api_key": "none",
+    "target_language": "nl",
     "font_size": "24",
     "page_length": 100,
     "logs": "debug",

@@ -7,6 +7,8 @@ import javax.swing.*;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class PageUI extends JFrame {
@@ -94,6 +96,30 @@ public class PageUI extends JFrame {
             }
             if (currentPage == 0) {
                 previousPage.setEnabled(false);
+            }
+        });
+        buttonPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (currentPage < pages.size() - 1) {
+                        currentPage++;
+                        updateContent();
+                        previousPage.setEnabled(true);
+                    }
+                    if (currentPage == pages.size() - 1) {
+                        nextPage.setEnabled(false);
+                    }
+                } else if (e.getButton() == MouseEvent.BUTTON3) {
+                    if (currentPage > 0) {
+                        currentPage--;
+                        updateContent();
+                        nextPage.setEnabled(true);
+                    }
+                    if (currentPage == 0) {
+                        previousPage.setEnabled(false);
+                    }
+                }
             }
         });
     }

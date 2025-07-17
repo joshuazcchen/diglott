@@ -111,7 +111,6 @@ public class MainUI extends JFrame {
             }
 
             String[] words = bookText.split("\\s+");
-            TranslationHandler translator = new TranslationHandler(apiKey);
             StringBuilder translated = new StringBuilder();
 
             progressBar.setVisible(true);

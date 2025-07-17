@@ -14,7 +14,7 @@ ____
 ____
 ### User Stories
 ____
-**Team:** We want to be able to teach languages via the diglot weave method of language learning wherein you replace words slowly throughout a book. 
+**Team:** login
 
 **Mustafa:** As a Persian that doesn’t know Persian, I would love another an indirect way to learn a language while simultaneously enjoying a good read. However, reading a language with a different script can feel less natural when reading non-Latin (non-Roman) scripts, so I need to be able to read the text in the Latin (Roman) alphabet.
 

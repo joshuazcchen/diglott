@@ -6,7 +6,6 @@ import Book.PageFactory;
 import Configuration.ConfigDataRetriever;
 import Translation.StoredWords;
 import Translation.TranslatePage;
-import Translation.TranslationHandler;
 import Book.Page;
 
 import javax.swing.*;
@@ -19,8 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainUI extends JFrame {
-    private JButton fromLangButton;
-    private JButton toLangButton;
     private JButton pickFileButton;
     private JButton startButton;
     private JButton closeButton;
@@ -31,10 +28,12 @@ public class MainUI extends JFrame {
     private boolean darkMode;
     private List<Page> pages;
 
-    private PageFactory pageFactory;
-    private final StoredWords storedWords = new  StoredWords();
+    private JComboBox<String> inputLangBox;
+    private JComboBox<String> targetLangBox;
+    private JComboBox<Integer> speedBox;
 
-    // Constructor with API key
+    private final StoredWords storedWords = new StoredWords();
+
     public MainUI(String apiKey) {
         try {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
@@ -45,33 +44,56 @@ public class MainUI extends JFrame {
 
     private void setupUI() {
         setTitle("Diglott Translator");
-        setSize(500, 300);
+        setSize(500, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        fromLangButton = new JButton("From Language (Coming soon)");
-        fromLangButton.setEnabled(false);
+        // Dropdowns
+        inputLangBox = new JComboBox<>(new String[]{"en"});
+        targetLangBox = new JComboBox<>(new String[]{"fr", "en", "es", "de", "zh"});
+        speedBox = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
 
-        toLangButton = new JButton("To Language (Coming soon)");
-        toLangButton.setEnabled(false);
+        inputLangBox.setSelectedItem("en");
+        targetLangBox.setSelectedItem(ConfigDataRetriever.get("target_language"));
+        speedBox.setSelectedItem(ConfigDataRetriever.getSpeed());
 
+        inputLangBox.setPreferredSize(new Dimension(80, 25));
+        targetLangBox.setPreferredSize(new Dimension(80, 25));
+        speedBox.setPreferredSize(new Dimension(50, 25));
+
+        // Buttons
         pickFileButton = new JButton("Pick File");
         startButton = new JButton("Start");
         closeButton = new JButton("Close App");
         darkModeToggle = new JToggleButton("Dark Mode");
 
+        // Layout setup
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JPanel buttonPanel = new JPanel(new GridLayout(4, 2, 10, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 20));
+        // Compact language/speed panel
+        JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        langPanel.add(new JLabel("From:"));
+        langPanel.add(inputLangBox);
+        langPanel.add(new JLabel("To:"));
+        langPanel.add(targetLangBox);
+        langPanel.add(new JLabel("Speed:"));
+        langPanel.add(speedBox);
 
-        buttonPanel.add(fromLangButton);
-        buttonPanel.add(toLangButton);
+        // Button panel
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+        buttonPanel.setMaximumSize(new Dimension(400, 100));
         buttonPanel.add(pickFileButton);
         buttonPanel.add(startButton);
         buttonPanel.add(closeButton);
         buttonPanel.add(darkModeToggle);
 
-        add(buttonPanel);
+        mainPanel.add(langPanel);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        mainPanel.add(buttonPanel);
+
+        add(mainPanel);
         setVisible(true);
         addListeners();
         applyTheme();
@@ -90,18 +112,13 @@ public class MainUI extends JFrame {
             fileChooser.addChoosableFileFilter(
                     new javax.swing.filechooser.FileNameExtensionFilter("All Supported", "txt", "epub"));
 
-            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            fileChooser.setFileHidingEnabled(false);
-            fileChooser.setMultiSelectionEnabled(false);
-
             int option = fileChooser.showOpenDialog(this);
             if (option == JFileChooser.APPROVE_OPTION) {
                 selectedFile = fileChooser.getSelectedFile();
                 try {
                     BookImporter importer = BookImporterFactory.getImporter(selectedFile);
                     bookText = importer.importBook(selectedFile);
-                    List<String> words = new ArrayList<>();
-                    words.addAll(Arrays.asList(bookText.split(" ")));
+                    List<String> words = new ArrayList<>(Arrays.asList(bookText.split(" ")));
                     this.pages = PageFactory.paginate(words,
                             ConfigDataRetriever.getInt("page_length"));
                     JOptionPane.showMessageDialog(this, "Book loaded successfully!");
@@ -118,6 +135,13 @@ public class MainUI extends JFrame {
                 return;
             }
 
+            String inputLang = (String) inputLangBox.getSelectedItem();
+            String targetLang = (String) targetLangBox.getSelectedItem();
+            int speed = (int) speedBox.getSelectedItem();
+
+            ConfigDataRetriever.set("target_language", targetLang);
+            ConfigDataRetriever.set("speed", String.valueOf(speed));
+
             TranslatePage translatePage = new TranslatePage(storedWords);
             for (Page page : pages) {
                 translatePage.translatePage(page);
@@ -129,18 +153,18 @@ public class MainUI extends JFrame {
 
             new PageUI(pages).setVisible(true);
         });
-        closeButton.addActionListener(e -> {
-            dispose();
-        });
+
+        closeButton.addActionListener(e -> dispose());
+
         darkModeToggle.addActionListener(e -> {
             darkMode = darkModeToggle.isSelected();
             applyTheme();
         });
     }
+
     private void applyTheme() {
         Color bg = darkMode ? Color.DARK_GRAY : Color.WHITE;
         Color fg = darkMode ? Color.WHITE : Color.BLACK;
-
         applyThemeRecursive(getContentPane(), bg, fg);
         repaint();
     }
@@ -186,5 +210,4 @@ public class MainUI extends JFrame {
             }
         }
     }
-
 }

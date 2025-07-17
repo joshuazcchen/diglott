@@ -28,6 +28,12 @@ public class ConfigDataRetriever {
     public static String get(String key) {
         return config.getString(key);
     }
+    public static int getInt(String key) {
+        return config.getInt(key);
+    }
+    public static void set(String key, String value) {
+        config.put(key, value);
+    }
 
     public static int getSpeed() {
         return config.getInt("speed");

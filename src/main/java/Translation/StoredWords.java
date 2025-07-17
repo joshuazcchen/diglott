@@ -13,9 +13,6 @@ public class StoredWords {
     public void addTranslation(String key, String value) {
         translated.put(key, value);
     }
-    public String getTranslation(String key) {
-        return translated.get(key);
-    }
     public Map<String, String> getTranslations() {
         return translated;
     }

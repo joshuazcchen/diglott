@@ -13,6 +13,7 @@ public class PageUI extends JFrame {
     private int currentPage;
     private List<Page> pages;
     private JEditorPane content;
+    private JButton backButton;
     private boolean darkMode;
 
     public PageUI(List<Page> pageSet, boolean darkMode) {
@@ -58,11 +59,17 @@ public class PageUI extends JFrame {
         nextPage.setEnabled(pages.size() > 1);
         previousPage.setEnabled(false);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        backButton = new JButton("Back to Main Page");
+        buttonPanel.add(backButton);
         buttonPanel.add(previousPage);
         buttonPanel.add(nextPage);
         add(buttonPanel, BorderLayout.SOUTH);
 
+        backButton.addActionListener(e -> {
+            dispose();
+            new MainUI(ConfigDataRetriever.get("api_key"));
+        });
         // Apply dark mode theme to buttons and panel
         if (darkMode) {
             applyDarkTheme(buttonPanel, nextPage, previousPage);

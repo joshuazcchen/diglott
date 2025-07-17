@@ -9,8 +9,10 @@ import org.json.JSONObject;
 
 public class TranslationHandler {
     private final String apiKey;
+    private final StoredWords storedWords;
 
     public TranslationHandler(String apiKey) {
+        this.storedWords = new StoredWords();
         if (apiKey == null || apiKey.trim().isEmpty() || apiKey.equals("none")) {
             this.apiKey = ConfigDataRetriever.get("api_key");  // fallback to config
         } else {
@@ -18,7 +20,7 @@ public class TranslationHandler {
         }
     }
 
-    public String addWord(String word) throws Exception {
+    public void addWord(String word) throws Exception {
         String url = "https://api-free.deepl.com/v2/translate";
         if (apiKey.equals("none")) {
             throw new Exception("Missing API Key");
@@ -42,13 +44,13 @@ public class TranslationHandler {
 
             System.out.println("DeepL response: " + response);
             JSONObject responseJson = new JSONObject(response);
-            return responseJson.getJSONArray("translations")
+            String translated = responseJson.getJSONArray("translations")
                     .getJSONObject(0)
                     .getString("text");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception("Translation failed: " + e.getMessage());
+            storedWords.addTranslation(word, translated);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.out.println("Error: " + ex.getMessage());
         }
     }
 

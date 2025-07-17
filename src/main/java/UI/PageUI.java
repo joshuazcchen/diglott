@@ -98,7 +98,7 @@ public class PageUI extends JFrame {
                 previousPage.setEnabled(false);
             }
         });
-        buttonPanel.addMouseListener(new MouseAdapter() {
+        content.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {

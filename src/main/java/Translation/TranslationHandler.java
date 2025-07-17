@@ -55,8 +55,7 @@ public class TranslationHandler {
             String translated = responseJson.getJSONArray("translations")
                     .getJSONObject(0)
                     .getString("text");
-            storedWords.addTranslation(word.toLowerCase().
-                    replaceAll("\\p{Punct}", ""), translated);
+            storedWords.addTranslation(word.toLowerCase(), translated);
         } catch (Exception ex) {
             ex.printStackTrace();
             System.out.println("Error: " + ex.getMessage());

@@ -36,8 +36,7 @@ public class TranslatePage {
         }
         List<String> newPageContent = new ArrayList<>();
         for (int i = 0; i < pageContent.size(); i++) {
-            if (wordDatabase.containsKey(pageContent.get(i).toLowerCase()
-                    .replaceAll("\\p{Punct}", ""))) {
+            if (wordDatabase.containsKey(pageContent.get(i).toLowerCase())) {
                 // TODO: deal with case sensitivity
                 // Adds to the new page content array list the translated word
                 newPageContent.add("<b>" + wordDatabase.get(pageContent.get(i)) + "</b>");

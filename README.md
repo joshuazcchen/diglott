@@ -4,6 +4,7 @@ Learning a language has never been more fun! With Diglott, you are able learn la
 
 This is being made as a part of CSC207 as a course final project.
 ____
+[![Download JAR](https://img.shields.io/github/v/release/joshuazcchen/diglott?label=Download%20Latest%20JAR)](https://github.com/joshuazcchen/diglott/releases/latest)
 ### Group Members
 ____
 - Mustafa

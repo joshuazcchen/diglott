@@ -2,6 +2,8 @@ package Book;
 
 import java.util.*;
 
+// TODO: ui - set up page view
+
 public class Book {
     private final List<Page> pages;
     private int currentPageNumber;
@@ -55,6 +57,10 @@ public class Book {
         if (pages.stream().anyMatch(p -> p.getPageNumber() == prev)) {
             currentPageNumber = prev;
         }
+    }
+
+    public String getCurrentContent() {
+        return getCurrentPage().getContent();
     }
 
     public List<Page> getAllPages() {

@@ -16,7 +16,7 @@ public class TranslatePage {
     public TranslatePage(StoredWords storedWords) {
         this.storedWords = storedWords;
         this.random = new Random();
-        random.setSeed(7040733);
+        random.setSeed("DIGLOTTLANGUAGE".hashCode());
         this.translationHandler = new TranslationHandler(ConfigDataRetriever.get("api_key"),
                 storedWords);
     }

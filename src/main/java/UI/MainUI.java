@@ -3,11 +3,11 @@ package UI;
 import Book.BookImporter;
 import Book.BookImporterFactory;
 import Book.PageFactory;
+import Book.Page;
 import Configuration.ConfigDataRetriever;
 import Configuration.LanguageCodes;
 import Translation.StoredWords;
 import Translation.TranslatePage;
-import Book.Page;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
@@ -53,13 +53,17 @@ public class MainUI extends JFrame {
         try {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
         } catch (Exception ignored) {}
+
+        ConfigDataRetriever.set("api_key", apiKey);
         setupUI();
     }
 
     private void setupUI() {
+        String darkModeStr = ConfigDataRetriever.get("dark_mode");
+        darkMode = darkModeStr != null && Boolean.parseBoolean(darkModeStr);
 
         setTitle("Diglott Translator");
-        setSize(500, 250);
+        setSize(500, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -67,48 +71,50 @@ public class MainUI extends JFrame {
         targetLangBox = new JComboBox<>(LanguageCodes.LANGUAGES.keySet().toArray(new String[0]));
         speedBox = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
 
-        inputLangBox.setSelectedItem("en");
+        inputLangBox.setSelectedItem("en-us");  // Default input language
+        targetLangBox.setSelectedItem(ConfigDataRetriever.get("target_language"));
         speedBox.setSelectedItem(ConfigDataRetriever.getSpeed());
-
-        // Get readable name from code
-        String currentTarget = ConfigDataRetriever.get("target_language");
-        for (String name : LanguageCodes.LANGUAGES.keySet()) {
-            if (LanguageCodes.LANGUAGES.get(name).equals(currentTarget)) {
-                targetLangBox.setSelectedItem(name);
-                break;
-            }
-        }
 
         pickFileButton = new JButton("Pick File");
         startButton = new JButton("Start");
         closeButton = new JButton("Close App");
-        logoutButton = new JButton("Logout");
         darkModeToggle = new JToggleButton("Dark Mode");
         darkModeToggle.setSelected(darkMode);
+        logoutButton = new JButton("Logout");
 
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel langPanel = new JPanel();
+        langPanel.setLayout(new BoxLayout(langPanel, BoxLayout.Y_AXIS));
+        langPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        langPanel.add(new JLabel("From:"));
-        langPanel.add(inputLangBox);
-        langPanel.add(new JLabel("To:"));
-        langPanel.add(targetLangBox);
-        langPanel.add(new JLabel("Speed:"));
-        langPanel.add(speedBox);
+        JPanel languageRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        languageRow.add(new JLabel("From:"));
+        languageRow.add(inputLangBox);
+        languageRow.add(Box.createHorizontalStrut(20));
+        languageRow.add(new JLabel("To:"));
+        languageRow.add(targetLangBox);
 
-        JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 10, 10));
+        JPanel speedRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        speedRow.add(new JLabel("Speed:"));
+        speedRow.add(speedBox);
+
+        langPanel.add(languageRow);
+        langPanel.add(speedRow);
+
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 20));
         buttonPanel.add(pickFileButton);
         buttonPanel.add(startButton);
         buttonPanel.add(closeButton);
         buttonPanel.add(darkModeToggle);
-        buttonPanel.add(logoutButton);
 
-        mainPanel.add(langPanel);
-        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        mainPanel.add(buttonPanel);
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.add(logoutButton);
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.add(langPanel, BorderLayout.NORTH);
+        mainPanel.add(buttonPanel, BorderLayout.CENTER);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
         setVisible(true);
@@ -120,10 +126,10 @@ public class MainUI extends JFrame {
         pickFileButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Select a text or EPUB file");
+
             fileChooser.setAcceptAllFileFilterUsed(false);
             fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Text Files", "txt"));
             fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("EPUB Files", "epub"));
-            fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("All Supported", "txt", "epub"));
 
             int option = fileChooser.showOpenDialog(this);
             if (option == JFileChooser.APPROVE_OPTION) {
@@ -131,7 +137,8 @@ public class MainUI extends JFrame {
                 try {
                     BookImporter importer = BookImporterFactory.getImporter(selectedFile);
                     bookText = importer.importBook(selectedFile);
-                    pages = PageFactory.paginate(Arrays.asList(bookText.split(" ")), ConfigDataRetriever.getInt("page_length"));
+                    List<String> words = new ArrayList<>(Arrays.asList(bookText.split(" ")));
+                    this.pages = PageFactory.paginate(words, ConfigDataRetriever.getInt("page_length"));
                     JOptionPane.showMessageDialog(this, "Book loaded successfully!");
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -146,18 +153,21 @@ public class MainUI extends JFrame {
                 return;
             }
 
-            String targetLang = LanguageCodes.LANGUAGES.get((String) targetLangBox.getSelectedItem());
+            String targetLang = LanguageCodes.LANGUAGES.get(targetLangBox.getSelectedItem());
             int speed = (int) speedBox.getSelectedItem();
 
             ConfigDataRetriever.set("target_language", targetLang);
             ConfigDataRetriever.set("speed", String.valueOf(speed));
+            ConfigDataRetriever.saveConfig();
 
-            TranslatePage translator = new TranslatePage(storedWords);
-            for (Page page : pages) translator.translatePage(page);
+            TranslatePage translatePage = new TranslatePage(storedWords);
+            for (Page page : pages) {
+                translatePage.translatePage(page);
+            }
 
+            startButton.setEnabled(false);
             pickFileButton.setEnabled(false);
             closeButton.setEnabled(false);
-            startButton.setEnabled(false);
 
             new PageUI(pages, darkMode).setVisible(true);
         });
@@ -186,23 +196,45 @@ public class MainUI extends JFrame {
         repaint();
     }
 
-    private void applyThemeRecursive(Component comp, Color bg, Color fg) {
-        if (comp instanceof Container container) {
+    private void applyThemeRecursive(Component component, Color bg, Color fg) {
+        if (component instanceof JPanel || component instanceof JFrame || component instanceof JScrollPane) {
+            component.setBackground(bg);
+        }
+
+        if (component instanceof AbstractButton button) {
+            button.setBackground(bg);
+            button.setForeground(fg);
+            button.setOpaque(true);
+            button.setContentAreaFilled(true);
+            button.setBorderPainted(true);
+        }
+
+        if (component instanceof JTextArea area) {
+            area.setBackground(bg);
+            area.setForeground(fg);
+            area.setCaretColor(fg);
+        }
+
+        if (component instanceof JTextComponent field) {
+            field.setBackground(bg);
+            field.setForeground(fg);
+            field.setCaretColor(fg);
+        }
+
+        if (component instanceof JLabel label) {
+            label.setForeground(fg);
+        }
+
+        if (component instanceof JProgressBar bar) {
+            bar.setBackground(bg);
+            bar.setForeground(fg);
+            bar.setBorderPainted(true);
+        }
+
+        if (component instanceof Container container) {
             for (Component child : container.getComponents()) {
                 applyThemeRecursive(child, bg, fg);
             }
-        }
-
-        if (comp instanceof AbstractButton b) {
-            b.setBackground(bg);
-            b.setForeground(fg);
-            b.setOpaque(true);
-        } else if (comp instanceof JTextComponent f) {
-            f.setBackground(bg);
-            f.setForeground(fg);
-            f.setCaretColor(fg);
-        } else if (comp instanceof JLabel l) {
-            l.setForeground(fg);
         }
     }
 }

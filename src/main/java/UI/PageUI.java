@@ -13,12 +13,10 @@ public class PageUI extends JFrame {
     private int currentPage;
     private List<Page> pages;
     private JEditorPane content;
-    private boolean darkMode;
 
-    public PageUI(List<Page> pageSet, boolean darkMode) {
+    public PageUI(List<Page> pageSet) {
         this.pages = pageSet;
         this.currentPage = 0;
-        this.darkMode = darkMode;
 
         setTitle("Page View");
         setSize(450, 700);
@@ -33,24 +31,14 @@ public class PageUI extends JFrame {
 
         HTMLEditorKit kit = new HTMLEditorKit();
         StyleSheet styleSheet = new StyleSheet();
-
-        // Apply font family and size from config
         styleSheet.addRule("body { font-family: " + ConfigDataRetriever.get("font") +
-                "; font-size: " + ConfigDataRetriever.get("font_size") + "; " +
-                // Text color depends on darkMode
-                "color: " + (darkMode ? "white" : "black") + "; " +
-                // Background color also set for completeness
-                "background-color: " + (darkMode ? "#333333" : "white") + "; }");
-
+                "; font-size: "+ ConfigDataRetriever.get("font_size") + "; }");
         kit.setStyleSheet(styleSheet);
         content.setEditorKit(kit);
 
         updateContent();
 
         JScrollPane scrollPane = new JScrollPane(content);
-        // ScrollPane background matches theme
-        scrollPane.getViewport().setBackground(darkMode ? Color.DARK_GRAY : Color.WHITE);
-
         add(scrollPane, BorderLayout.CENTER);
 
         JButton nextPage = new JButton("Next Page");
@@ -62,11 +50,6 @@ public class PageUI extends JFrame {
         buttonPanel.add(previousPage);
         buttonPanel.add(nextPage);
         add(buttonPanel, BorderLayout.SOUTH);
-
-        // Apply dark mode theme to buttons and panel
-        if (darkMode) {
-            applyDarkTheme(buttonPanel, nextPage, previousPage);
-        }
 
         nextPage.addActionListener(e -> {
             if (currentPage < pages.size() - 1) {
@@ -95,19 +78,5 @@ public class PageUI extends JFrame {
         String htmlContent = "<html><body>" + pages.get(currentPage).getContent() + "</body></html>";
         content.setText(htmlContent);
         content.setCaretPosition(0);
-    }
-
-    private void applyDarkTheme(JPanel panel, JButton... buttons) {
-        Color bg = Color.DARK_GRAY;
-        Color fg = Color.WHITE;
-
-        panel.setBackground(bg);
-        for (JButton button : buttons) {
-            button.setBackground(bg);
-            button.setForeground(fg);
-            button.setOpaque(true);
-            button.setContentAreaFilled(true);
-            button.setBorderPainted(true);
-        }
     }
 }

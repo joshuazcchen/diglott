@@ -1,5 +1,7 @@
 package UI;
 
+import Configuration.ConfigDataRetriever;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -8,11 +10,22 @@ import java.net.URI;
 
 public class LoginUI extends JFrame {
 
+    private static final Color DARK_BG_COLOR = new Color(60, 63, 65);
+    private static final Color DARK_LINK_COLOR = new Color(90, 156, 255);
+    private static final Color LIGHT_BG_COLOR = Color.WHITE;
+    private static final Color LIGHT_LINK_COLOR = new Color(0, 102, 204);
+
     public LoginUI() {
         setTitle("Diglott Login");
-        setSize(320, 200);  // taller for better spacing
+        setSize(320, 200);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        boolean darkMode = false;
+        try {
+            String darkModeStr = ConfigDataRetriever.get("dark_mode");
+            darkMode = darkModeStr != null && Boolean.parseBoolean(darkModeStr);
+        } catch (Exception ignored) {}
 
         JLabel label = new JLabel("Enter API Key:");
         JTextField keyField = new JTextField();
@@ -22,17 +35,40 @@ public class LoginUI extends JFrame {
         JButton loginButton = new JButton("Login");
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel linkLabel = new JLabel(
-                "<html><span style='font-size:10pt'>To obtain your own API key, click <a href='#'>here</a>.</span></html>"
+        String linkHtml = String.format(
+                "<html><span style='font-size:10pt; color:%s'>To obtain your own API key, click <a style='color:%s;' href=''>here</a>.</span></html>",
+                darkMode ? "white" : "black",
+                darkMode ? "rgb(90,156,255)" : "rgb(0,102,204)"
         );
+        JLabel linkLabel = new JLabel(linkHtml);
         linkLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         linkLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        if (darkMode) {
+            label.setForeground(Color.WHITE);
+            keyField.setBackground(new Color(77, 77, 77));
+            keyField.setForeground(Color.WHITE);
+            keyField.setCaretColor(Color.WHITE);
+            loginButton.setBackground(new Color(100, 100, 100));
+            loginButton.setForeground(Color.WHITE);
+            linkLabel.setForeground(DARK_LINK_COLOR); // Just in case
+            getContentPane().setBackground(DARK_BG_COLOR);
+        } else {
+            label.setForeground(Color.BLACK);
+            keyField.setBackground(Color.WHITE);
+            keyField.setForeground(Color.BLACK);
+            keyField.setCaretColor(Color.BLACK);
+            loginButton.setBackground(new Color(230, 230, 230));
+            loginButton.setForeground(Color.BLACK);
+            linkLabel.setForeground(LIGHT_LINK_COLOR);
+            getContentPane().setBackground(LIGHT_BG_COLOR);
+        }
 
         linkLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 try {
-                    Desktop.getDesktop().browse(new URI("https://www.deepl.com/en/pro-api?utm_term=deepl%20voice%20translator&utm_campaign=CA%7CSearch%7CC%7CBrand%7CT%7CEnglish&utm_source=google&utm_medium=paid&hsa_acc=1083354268&hsa_cam=20413744485&hsa_grp=170892657056&hsa_ad=721386176117&hsa_src=g&hsa_tgt=kwd-1410011109754&hsa_kw=deepl%20voice%20translator&hsa_mt=b&hsa_net=adwords&hsa_ver=3&gad_source=1&gad_campaignid=20413744485&gbraid=0AAAAABbqoWArNOUE6zqaiU8WXkBzHxusF&gclid=EAIaIQobChMI-_Wpy7nDjgMVsUb_AR2vlyqoEAAYASACEgLkMfD_BwE#api-pricing"));
+                    Desktop.getDesktop().browse(new URI("https://www.deepl.com/en/pro-api"));
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(null, "Could not open the link.");
@@ -53,6 +89,8 @@ public class LoginUI extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.setBackground(darkMode ? DARK_BG_COLOR : LIGHT_BG_COLOR);
+
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         panel.add(label);

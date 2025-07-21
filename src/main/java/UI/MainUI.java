@@ -6,6 +6,7 @@ import Book.PageFactory;
 import Book.Page;
 import Configuration.ConfigDataRetriever;
 import Configuration.LanguageCodes;
+import Configuration.FontList;
 import Translation.StoredWords;
 import Translation.TranslatePage;
 
@@ -29,6 +30,7 @@ public class MainUI extends JFrame {
     private JComboBox<String> inputLangBox;
     private JComboBox<String> targetLangBox;
     private JComboBox<Integer> speedBox;
+    private JComboBox<String> fontBox;
 
     private final StoredWords storedWords = new StoredWords();
 
@@ -70,10 +72,12 @@ public class MainUI extends JFrame {
         inputLangBox = new JComboBox<>(new String[]{"en"}); // TODO: support LANGUAGES.keySet() if needed
         targetLangBox = new JComboBox<>(LanguageCodes.LANGUAGES.keySet().toArray(new String[0]));
         speedBox = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
+        fontBox = new JComboBox<>(FontList.FONTS.keySet().toArray(new String[0]));
 
         inputLangBox.setSelectedItem("en-us");  // Default input language
         targetLangBox.setSelectedItem(ConfigDataRetriever.get("target_language"));
         speedBox.setSelectedItem(ConfigDataRetriever.getSpeed());
+        fontBox.setSelectedItem(ConfigDataRetriever.get("font"));
 
         pickFileButton = new JButton("Pick File");
         startButton = new JButton("Start");
@@ -93,12 +97,15 @@ public class MainUI extends JFrame {
         languageRow.add(new JLabel("To:"));
         languageRow.add(targetLangBox);
 
-        JPanel speedRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        speedRow.add(new JLabel("Speed:"));
-        speedRow.add(speedBox);
+        JPanel speedFontRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        speedFontRow.add(new JLabel("Speed:"));
+        speedFontRow.add(speedBox);
+        speedFontRow.add(Box.createHorizontalStrut(30)); // optional spacing
+        speedFontRow.add(new JLabel("Font:"));
+        speedFontRow.add(fontBox);
 
         langPanel.add(languageRow);
-        langPanel.add(speedRow);
+        langPanel.add(speedFontRow);
 
         JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 20));
@@ -155,9 +162,11 @@ public class MainUI extends JFrame {
 
             String targetLang = LanguageCodes.LANGUAGES.get(targetLangBox.getSelectedItem());
             int speed = (int) speedBox.getSelectedItem();
+            String font = FontList.FONTS.get(fontBox.getSelectedItem());
 
             ConfigDataRetriever.set("target_language", targetLang);
             ConfigDataRetriever.set("speed", String.valueOf(speed));
+            ConfigDataRetriever.set("font", font);
             ConfigDataRetriever.saveConfig();
 
             TranslatePage translatePage = new TranslatePage(storedWords);

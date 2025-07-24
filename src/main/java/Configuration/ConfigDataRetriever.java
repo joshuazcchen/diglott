@@ -46,10 +46,14 @@ public class ConfigDataRetriever {
     }
 
     public static boolean getBool(String key) {
-        return config.getBoolean(key);
+        try {
+            return config.getBoolean(key);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
-    public static void set(String key, String value) {
+    public static void set(String key, Object value) {
         config.put(key, value);
     }
 

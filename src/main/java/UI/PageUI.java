@@ -2,6 +2,7 @@ package UI;
 
 import Book.Page;
 import Configuration.ConfigDataRetriever;
+import Translation.TranslatePage;
 
 import javax.swing.*;
 import javax.swing.text.html.HTMLEditorKit;
@@ -18,7 +19,7 @@ public class PageUI extends JFrame {
     private JButton backButton;
     private boolean darkMode;
 
-    public PageUI(List<Page> pageSet, boolean darkMode) {
+    public PageUI(List<Page> pageSet, boolean darkMode, TranslatePage translatePage) {
         this.pages = pageSet;
         this.currentPage = 0;
         this.darkMode = darkMode;
@@ -78,6 +79,9 @@ public class PageUI extends JFrame {
         }
 
         nextPage.addActionListener(e -> {
+            if (!pages.get(currentPage+1).isTranslated()) {
+                translatePage.translatePage(pages.get(currentPage+1));
+            }
             if (currentPage < pages.size() - 1) {
                 currentPage++;
                 updateContent();

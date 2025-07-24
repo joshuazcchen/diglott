@@ -12,6 +12,7 @@ public class TranslatePage {
     private StoredWords storedWords;
     private Random random;
     private TranslationHandler translationHandler;
+    private int internalSpeed;
 
     public TranslatePage(StoredWords storedWords) {
         this.storedWords = storedWords;
@@ -24,9 +25,17 @@ public class TranslatePage {
     public void translatePage(Page page) {
         Map<String, String> wordDatabase = storedWords.getTranslations();
         List<String> pageContent = page.getWords();
+        if (ConfigDataRetriever.getBool("increment")) {
+            System.out.println("incrementing on");
+            this.internalSpeed = (int) Math.floor((double) page.getPageNumber() /
+                    ConfigDataRetriever.getSpeed());
+        } else {
+            System.out.println("incrementing off");
+            this.internalSpeed = ConfigDataRetriever.getSpeed();
+        }
         try {
             if (page.getPageNumber() != 0) {
-                for (int z = 0; z < ConfigDataRetriever.getSpeed(); z++) {
+                for (int z = 0; z < this.internalSpeed; z++) {
                     int randomIndex = random.nextInt(0, pageContent.size());
                     if (storedWords.getTranslations().containsKey(pageContent.get(randomIndex).
                             toLowerCase()) || pageContent.get(randomIndex).length() < 3) {

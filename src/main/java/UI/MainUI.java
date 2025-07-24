@@ -31,6 +31,7 @@ public class MainUI extends JFrame {
     private JComboBox<String> targetLangBox;
     private JComboBox<Integer> speedBox;
     private JComboBox<String> fontBox;
+    private JCheckBox exponentialGrowthBox;
 
     private final StoredWords storedWords = new StoredWords();
 
@@ -73,11 +74,13 @@ public class MainUI extends JFrame {
         targetLangBox = new JComboBox<>(LanguageCodes.LANGUAGES.keySet().toArray(new String[0]));
         speedBox = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
         fontBox = new JComboBox<>(FontList.FONTS.keySet().toArray(new String[0]));
+        exponentialGrowthBox = new JCheckBox();
 
         inputLangBox.setSelectedItem("en-us");  // Default input language
         targetLangBox.setSelectedItem(ConfigDataRetriever.get("target_language"));
         speedBox.setSelectedItem(ConfigDataRetriever.getSpeed());
         fontBox.setSelectedItem(ConfigDataRetriever.get("font"));
+        exponentialGrowthBox.setSelected(ConfigDataRetriever.getBool("increment"));
 
         pickFileButton = new JButton("Pick File");
         startButton = new JButton("Start");
@@ -103,6 +106,9 @@ public class MainUI extends JFrame {
         speedFontRow.add(Box.createHorizontalStrut(30)); // optional spacing
         speedFontRow.add(new JLabel("Font:"));
         speedFontRow.add(fontBox);
+        speedFontRow.add(Box.createHorizontalStrut(30));
+        speedFontRow.add(new JLabel("Incremental:"));
+        speedFontRow.add(exponentialGrowthBox);
 
         langPanel.add(languageRow);
         langPanel.add(speedFontRow);
@@ -165,21 +171,20 @@ public class MainUI extends JFrame {
             int speed = (int) speedBox.getSelectedItem();
             String font = FontList.FONTS.get(fontBox.getSelectedItem());
 
+            ConfigDataRetriever.set("increment", exponentialGrowthBox.isSelected());
             ConfigDataRetriever.set("target_language", targetLang);
             ConfigDataRetriever.set("speed", String.valueOf(speed));
             ConfigDataRetriever.set("font", font);
             ConfigDataRetriever.saveConfig();
 
             TranslatePage translatePage = new TranslatePage(storedWords);
-            for (Page page : pages) {
-                translatePage.translatePage(page);
-            }
+            translatePage.translatePage(pages.get(0));
 
             startButton.setEnabled(false);
             pickFileButton.setEnabled(false);
             closeButton.setEnabled(false);
 
-            new PageUI(pages, darkMode).setVisible(true);
+            new PageUI(pages, darkMode, translatePage).setVisible(true);
         });
 
         closeButton.addActionListener(e -> dispose());

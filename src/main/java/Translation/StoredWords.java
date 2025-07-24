@@ -14,9 +14,9 @@ public class StoredWords {
 
     public void addTranslation(String key, String value) {
         if (ConfigDataRetriever.get("logs").equals("debug")) {
-            System.out.println(key + " " + value);
+            System.out.println(key + " " + value.toLowerCase());
         }
-        translated.put(key, value);
+        translated.put(key, value.toLowerCase());
     }
     public Map<String, String> getTranslations() {
         return translated;

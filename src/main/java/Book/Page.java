@@ -8,8 +8,10 @@ public class Page {
     private final int pageNumber;
     private final int maxWords;
     private List<String> content;
+    private boolean translated;
 
     public Page(List<String> content, int pageNumber, int maxWords) {
+        this.translated = false;
         if (content == null || content.isEmpty()) {
             throw new IllegalArgumentException("Content cannot be null or empty.");
         }
@@ -41,13 +43,7 @@ public class Page {
         return pageNumber;
     }
 
-    public int getMaxWords() {
-        return maxWords;
-    }
-
-    public int getWordCount() {
-        return content.size();
-    }
+    public boolean isTranslated() { return  translated; }
 
     public void rewriteContent(List<String> words) {
         if (words == null || words.size() > maxWords) {

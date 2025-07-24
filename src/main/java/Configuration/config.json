@@ -6,5 +6,6 @@
     "page_length": 100,
     "logs": "none",
     "speed": "2",
-    "font": "times new roman"
+    "font": "times new roman",
+    "increment": true
 }

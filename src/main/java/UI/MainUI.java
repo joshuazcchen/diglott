@@ -184,7 +184,8 @@ public class MainUI extends JFrame {
             pickFileButton.setEnabled(false);
             closeButton.setEnabled(false);
 
-            new PageUI(pages, darkMode, translatePage).setVisible(true);
+            this.setVisible(false);
+            new PageUI(pages, darkMode, translatePage, this).setVisible(true);
         });
 
         closeButton.addActionListener(e -> dispose());

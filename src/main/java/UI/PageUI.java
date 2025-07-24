@@ -18,11 +18,13 @@ public class PageUI extends JFrame {
     private JEditorPane content;
     private JButton backButton;
     private boolean darkMode;
+    private JFrame parentFrame;
 
-    public PageUI(List<Page> pageSet, boolean darkMode, TranslatePage translatePage) {
+    public PageUI(List<Page> pageSet, boolean darkMode, TranslatePage translatePage, JFrame parentFrame) {
         this.pages = pageSet;
         this.currentPage = 0;
         this.darkMode = darkMode;
+        this.parentFrame = parentFrame;
 
         setTitle("Page View");
         setSize(450, 700);
@@ -71,7 +73,7 @@ public class PageUI extends JFrame {
 
         backButton.addActionListener(e -> {
             dispose();
-            new MainUI(ConfigDataRetriever.get("api_key"));
+            parentFrame.setVisible(true);
         });
         // Apply dark mode theme to buttons and panel
         if (darkMode) {

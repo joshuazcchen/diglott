@@ -78,7 +78,7 @@ public class MainUI extends JFrame {
         exponentialGrowthBox = new JCheckBox();
 
         inputLangBox.setSelectedItem("en-us");  // Default input language
-        targetLangBox.setSelectedItem(ConfigDataRetriever.get("target_language"));
+        targetLangBox.setSelectedItem(LanguageCodes.REVERSELANGUAGES.get(ConfigDataRetriever.get("target_language")));
         speedBox.setSelectedItem(ConfigDataRetriever.getSpeed());
         fontBox.setSelectedItem(ConfigDataRetriever.get("font"));
         exponentialGrowthBox.setSelected(ConfigDataRetriever.getBool("increment"));

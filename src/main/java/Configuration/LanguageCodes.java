@@ -5,7 +5,6 @@ import java.util.Map;
 
 public class LanguageCodes {
     public static final Map<String, String> LANGUAGES = new LinkedHashMap<>() {{
-        // TODO: also have the other way around such that we can maintain the user selection
         put("Arabic", "ar");
         put("Bulgarian", "bg");
         put("Czech", "cs");
@@ -40,5 +39,41 @@ public class LanguageCodes {
         put("Chinese", "zh");
         put("Chinese (simplified)", "zh-hans");
         put("Chinese (traditional)", "zh-hant");
+    }};
+    public static final Map<String, String> REVERSELANGUAGES = new LinkedHashMap<>() {{
+        put("ar", "Arabic");
+        put("bg", "Bulgarian");
+        put("cs", "Czech");
+        put("da", "Danish");
+        put("de", "German");
+        put("el", "Greek");
+        put("en-gb", "English (Britain)");
+        put("en-us", "English (American)");
+        put("es", "Spanish");
+        put("et", "Estonian");
+        put("fi", "Finnish");
+        put("fr", "French");
+        put("hu", "Hungarian");
+        put("id", "Indonesian");
+        put("it", "Italian");
+        put("ja", "Japanese");
+        put("ko", "Korean");
+        put("lt", "Lithuanian");
+        put("lv", "Latvian");
+        put("nb", "Norwegian (Bokmål)");
+        put("nl", "Dutch");
+        put("pl", "Polish");
+        put("pt-br", "Portuguese (Brazilian)");
+        put("pt-pt", "Portuguese (European)");
+        put("ro", "Romanian");
+        put("ru", "Russian");
+        put("sk", "Slovak");
+        put("sl", "Slovenian");
+        put("sv", "Swedish");
+        put("tr", "Turkish");
+        put("uk", "Ukrainian");
+        put("zh", "Chinese");
+        put("zh-hans", "Chinese (simplified)");
+        put("zh-hant", "Chinese (traditional)");
     }};
 }

@@ -17,19 +17,21 @@ public class PageUI extends JFrame {
     private JEditorPane content;
     private JButton backButton;
     private boolean darkMode;
+    private JFrame parentFrame;
 
-    public PageUI(List<Page> pageSet, boolean darkMode) {
+    public PageUI(List<Page> pageSet, boolean darkMode, JFrame parentFrame) {
         this.pages = pageSet;
         this.currentPage = 0;
         this.darkMode = darkMode;
+        this.parentFrame = parentFrame;
 
         setTitle("Page View");
         setSize(450, 700);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-
         // Set up styled editor
+
         content = new JEditorPane();
         content.setContentType("text/html");
         content.setEditable(false);
@@ -70,7 +72,7 @@ public class PageUI extends JFrame {
 
         backButton.addActionListener(e -> {
             dispose();
-            new MainUI(ConfigDataRetriever.get("api_key"));
+            parentFrame.setVisible(true);
         });
         // Apply dark mode theme to buttons and panel
         if (darkMode) {

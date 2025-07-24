@@ -26,6 +26,7 @@ public class MainUI extends JFrame {
     private String bookText;
     private boolean darkMode;
     private List<Page> pages;
+    private String apiKey;
 
     private JComboBox<String> inputLangBox;
     private JComboBox<String> targetLangBox;
@@ -184,8 +185,8 @@ public class MainUI extends JFrame {
             pickFileButton.setEnabled(false);
             closeButton.setEnabled(false);
 
-            this.setVisible(false);
-            new PageUI(pages, darkMode, translatePage, this).setVisible(true);
+            new PageUI(pages, darkMode, translatePage).setVisible(true);
+            dispose();
         });
 
         closeButton.addActionListener(e -> dispose());

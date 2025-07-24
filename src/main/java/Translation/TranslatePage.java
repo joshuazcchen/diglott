@@ -24,6 +24,7 @@ public class TranslatePage {
 
     public void translatePage(Page page) {
         Map<String, String> wordDatabase = storedWords.getTranslations();
+        page.translated();
         List<String> pageContent = page.getWords();
         if (ConfigDataRetriever.getBool("increment")) {
             System.out.println("incrementing on");
@@ -51,8 +52,6 @@ public class TranslatePage {
         List<String> newPageContent = new ArrayList<>();
         for (int i = 0; i < pageContent.size(); i++) {
             if (wordDatabase.containsKey(pageContent.get(i).toLowerCase())) {
-                // TODO: deal with case sensitivity
-                // Adds to the new page content array list the translated word
                 if (ConfigDataRetriever.get("logs").equals("debug")) {
                     System.out.println("added translated word to log:" + wordDatabase.get(pageContent.get(i).toLowerCase()));
                 }

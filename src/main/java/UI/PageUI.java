@@ -105,6 +105,9 @@ public class PageUI extends JFrame {
         content.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                if (!pages.get(currentPage+1).isTranslated()) {
+                    translatePage.translatePage(pages.get(currentPage+1));
+                }
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     if (currentPage < pages.size() - 1) {
                         currentPage++;

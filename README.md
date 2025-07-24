@@ -7,19 +7,16 @@ This is being made as a part of CSC207 as a course final project.
 [![Download JAR](https://img.shields.io/github/v/release/joshuazcchen/diglott?label=Download%20Latest%20JAR)](https://github.com/joshuazcchen/diglott/releases/latest)
 
 ## Usage
-____
 
 
-### Group Members
-____
+## Group Members
 - Mustafa
 - Joshua
 - Roy
 - Nehan
 
 
-### User Stories
-____
+## User Stories
 **Team:** We would like to implement a secure system for logins so that users can save their books, API keys, page number, and just general progress. This will enable users to be able to save key words which they have already learned, without it interfering with other people potentially using the same device. 
 
 **Mustafa:** As a Persian that doesn’t know Persian, I would love another an indirect way to learn a language while simultaneously enjoying a good read. However, reading a language with a different script can feel less natural when reading non-Latin (non-Roman) scripts, so I need to be able to read the text in the Latin (Roman) alphabet.
@@ -31,6 +28,6 @@ ____
 **Nehan:** As someone who often loses motivation with flashcard apps, Nehan wants to be able to read a mystery novel in English that gradually weaves in Spanish words. He would like to control the speed of replacement so that basic nouns are swapped in earlier pages, and more complex words appear later. This gradual immersion would help him build vocabulary naturally while staying engaged with the story. 
 
 
-### Download
-____
+## Download
+
 [![Download JAR](https://img.shields.io/github/v/release/joshuazcchen/diglott?label=Download%20Latest%20JAR)](https://github.com/joshuazcchen/diglott/releases/latest)

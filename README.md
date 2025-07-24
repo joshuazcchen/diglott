@@ -14,7 +14,7 @@ ____
 ____
 ### User Stories
 ____
-**Team:** login
+**Team:** We would like to implement a secure system for logins so that users can save their books, API keys, page number, and just general progress. This will enable users to be able to save key words which they have already learned, without it interfering with other people potentially using the same device. 
 
 **Mustafa:** As a Persian that doesn’t know Persian, I would love another an indirect way to learn a language while simultaneously enjoying a good read. However, reading a language with a different script can feel less natural when reading non-Latin (non-Roman) scripts, so I need to be able to read the text in the Latin (Roman) alphabet.
 

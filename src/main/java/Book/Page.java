@@ -45,6 +45,8 @@ public class Page {
 
     public boolean isTranslated() { return  translated; }
 
+    public void translated() { translated = true; }
+
     public void rewriteContent(List<String> words) {
         if (words == null || words.size() > maxWords) {
             throw new IllegalArgumentException("New content exceeds max words or is null.");

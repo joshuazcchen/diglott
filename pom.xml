@@ -61,13 +61,13 @@
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers-standard-package</artifactId>
             <version>2.9.0</version>
+        </dependency>
 
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
             <version>77.1</version>
         </dependency>
-
     </dependencies>
 
 

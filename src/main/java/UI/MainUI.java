@@ -8,7 +8,7 @@ import Configuration.ConfigDataRetriever;
 import Configuration.LanguageCodes;
 import Configuration.FontList;
 import Translation.StoredWords;
-import Translation.TranslatePage;
+import Translation.TranslateAndTransliteratePage;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
@@ -33,6 +33,7 @@ public class MainUI extends JFrame {
     private JComboBox<Integer> speedBox;
     private JComboBox<String> fontBox;
     private JCheckBox exponentialGrowthBox;
+    private JCheckBox originalScriptBox;
 
     private final StoredWords storedWords = new StoredWords();
 
@@ -76,12 +77,14 @@ public class MainUI extends JFrame {
         speedBox = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
         fontBox = new JComboBox<>(FontList.FONTS.keySet().toArray(new String[0]));
         exponentialGrowthBox = new JCheckBox();
+        originalScriptBox = new JCheckBox();
 
         inputLangBox.setSelectedItem("en-us");  // Default input language
         targetLangBox.setSelectedItem(LanguageCodes.REVERSELANGUAGES.get(ConfigDataRetriever.get("target_language")));
         speedBox.setSelectedItem(ConfigDataRetriever.getSpeed());
         fontBox.setSelectedItem(ConfigDataRetriever.get("font"));
         exponentialGrowthBox.setSelected(ConfigDataRetriever.getBool("increment"));
+        originalScriptBox.setSelected(ConfigDataRetriever.getBool("original_script"));
 
         pickFileButton = new JButton("Pick File");
         startButton = new JButton("Start");
@@ -110,6 +113,9 @@ public class MainUI extends JFrame {
         speedFontRow.add(Box.createHorizontalStrut(30));
         speedFontRow.add(new JLabel("Incremental:"));
         speedFontRow.add(exponentialGrowthBox);
+        speedFontRow.add(Box.createHorizontalStrut(30));
+        speedFontRow.add(new JLabel("Original Script:"));
+        speedFontRow.add(originalScriptBox);
 
         langPanel.add(languageRow);
         langPanel.add(speedFontRow);
@@ -173,12 +179,13 @@ public class MainUI extends JFrame {
             String font = FontList.FONTS.get(fontBox.getSelectedItem());
 
             ConfigDataRetriever.set("increment", exponentialGrowthBox.isSelected());
+            ConfigDataRetriever.set("original_script", originalScriptBox.isSelected());
             ConfigDataRetriever.set("target_language", targetLang);
             ConfigDataRetriever.set("speed", String.valueOf(speed));
             ConfigDataRetriever.set("font", font);
             ConfigDataRetriever.saveConfig();
 
-            TranslatePage translatePage = new TranslatePage(storedWords);
+            TranslateAndTransliteratePage translatePage = new TranslateAndTransliteratePage(storedWords);
             translatePage.translatePage(pages.get(0));
 
             startButton.setEnabled(false);

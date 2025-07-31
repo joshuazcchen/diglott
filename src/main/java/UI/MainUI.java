@@ -148,9 +148,10 @@ public class MainUI extends JFrame {
             fileChooser.setDialogTitle("Select a text or EPUB file");
 
             fileChooser.setAcceptAllFileFilterUsed(false);
-            fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Text Files", "txt"));
-            fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("EPUB Files", "epub"));
-            fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF Files", "pdf"));
+            fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("All Supported Files", "txt", "pdf", "epub"));
+            fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".txt", "txt"));
+            fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".epub", "epub"));
+            fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".pdf", "pdf"));
 
             int option = fileChooser.showOpenDialog(this);
             if (option == JFileChooser.APPROVE_OPTION) {

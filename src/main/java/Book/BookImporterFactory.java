@@ -10,6 +10,8 @@ public class BookImporterFactory {
             return new TxtBookImporter();
         } else if (name.endsWith(".pdf")) {
             return new PdfBookImporter();
+        } else if (name.endsWith(".epub")) {
+            return new EpubBookImporter();
         } else {
             throw new IllegalArgumentException("Unsupported file format: " + name);
         }

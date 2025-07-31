@@ -68,7 +68,7 @@ public class MainUI extends JFrame {
         darkMode = darkModeStr != null && Boolean.parseBoolean(darkModeStr);
 
         setTitle("Diglott Translator");
-        setSize(500, 300);
+        setSize(700, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 

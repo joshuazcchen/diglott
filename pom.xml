@@ -44,11 +44,23 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- JSON -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20240303</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>2.9.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-parsers-standard-package</artifactId>
+            <version>2.9.0</version>
 
         <dependency>
             <groupId>com.ibm.icu</groupId>
@@ -57,6 +69,7 @@
         </dependency>
 
     </dependencies>
+
 
     <build>
         <plugins>

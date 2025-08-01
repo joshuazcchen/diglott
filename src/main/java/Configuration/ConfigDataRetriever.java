@@ -38,7 +38,11 @@ public class ConfigDataRetriever {
     }
 
     public static String get(String key) {
-        return config.getString(key);
+        if (config.has(key)) {
+            return config.getString(key);
+        } else {
+            return "none";
+        }
     }
 
     public static int getInt(String key) {

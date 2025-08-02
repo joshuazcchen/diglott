@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URI;
+import java.io.File;
 
 public class LoginUI extends JFrame {
 
@@ -34,6 +35,21 @@ public class LoginUI extends JFrame {
 
         JButton loginButton = new JButton("Login");
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton uploadGoogleKey = new JButton("Upload Google TTS Key");
+        uploadGoogleKey.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        uploadGoogleKey.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int result = fileChooser.showOpenDialog(null);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                String path = selectedFile.getAbsolutePath();
+
+                ConfigDataRetriever.set("gcloud_credentials_path", path);
+                JOptionPane.showMessageDialog(null, "Google TTS key uploaded successfully!");
+            }
+        });
 
         String linkHtml = String.format(
                 "<html><span style='font-size:10pt; color:%s'>To obtain your own API key, click <a style='color:%s;' href=''>here</a>.</span></html>",
@@ -98,6 +114,8 @@ public class LoginUI extends JFrame {
         panel.add(keyField);
         panel.add(Box.createVerticalStrut(5));
         panel.add(linkLabel);
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(uploadGoogleKey);
         panel.add(Box.createVerticalStrut(10));
         panel.add(loginButton);
 

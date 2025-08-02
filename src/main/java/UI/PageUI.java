@@ -132,10 +132,18 @@ public class PageUI extends JFrame {
     }
 
     private void updateContent() {
-        String htmlContent = "<html><body>" + pages.get(currentPage).getContent() + "</body></html>";
+        Page page = pages.get(currentPage);
+        String originalText = String.join(" ", page.getWords());
+        String translatedText = page.getContent();
+
+        String inputLang = ConfigDataRetriever.get("input_language");
+        String targetLang = ConfigDataRetriever.get("target_language");
+
+        String htmlContent = wrapWordsWithSpans(originalText, translatedText, inputLang, targetLang);
         content.setText(htmlContent);
         content.setCaretPosition(0);
     }
+
 
     private void applyDarkTheme(JPanel panel, JButton... buttons) {
         Color bg = Color.DARK_GRAY;
@@ -150,4 +158,32 @@ public class PageUI extends JFrame {
             button.setBorderPainted(true);
         }
     }
+    private String wrapWordsWithSpans(String originalText, String targetText, String inputLang, String targetLang) {
+        String[] originalWords = originalText.split("\\s+");
+        String[] translatedWords = targetText.split("\\s+");
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("<html><body>");
+
+        for (int i = 0; i < originalWords.length; i++) {
+            String original = originalWords[i];
+            String translated = i < translatedWords.length ? translatedWords[i] : "";
+
+            builder.append("<span class='word' lang='")
+                    .append(inputLang)
+                    .append("' style='margin-right:4px;'>")
+                    .append(original)
+                    .append("</span> ");
+
+            builder.append("<span class='word translated' lang='")
+                    .append(targetLang)
+                    .append("' style='margin-right:8px; color:gray;'>")
+                    .append(translated)
+                    .append("</span> ");
+        }
+
+        builder.append("</body></html>");
+        return builder.toString();
+    }
+
 }

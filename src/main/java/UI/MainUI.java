@@ -162,6 +162,7 @@ public class MainUI extends JFrame {
                     List<String> words = new ArrayList<>(Arrays.asList(bookText.split(" ")));
                     this.pages = PageFactory.paginate(words, ConfigDataRetriever.getInt("page_length"));
                     JOptionPane.showMessageDialog(this, "Book loaded successfully!");
+                    pickFileButton.setText("Loaded: " + selectedFile.getName());
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(this, "Failed to load book.");

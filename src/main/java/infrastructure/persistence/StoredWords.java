@@ -1,4 +1,4 @@
-package Translation;
+package infrastructure.persistence;
 
 import Configuration.ConfigDataRetriever;
 

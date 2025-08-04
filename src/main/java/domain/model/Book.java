@@ -1,4 +1,4 @@
-package Book;
+package domain.model;
 
 import java.util.*;
 

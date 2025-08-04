@@ -1,6 +1,7 @@
-package UI;
+package UI.login;
 
 import Configuration.ConfigDataRetriever;
+import UI.main.MainUI;
 
 import javax.swing.*;
 import java.awt.*;

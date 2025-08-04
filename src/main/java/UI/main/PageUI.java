@@ -26,10 +26,9 @@ public class PageUI extends JFrame {
     private final boolean darkMode;
     private final TranslatePageUseCase translator;
     private final SpeakController speakController;
+    private final JLabel pageLabel;
     public PageUI(List<Page> pageSet, boolean darkMode,
                   TranslatePageUseCase translator, SpeakController speakController) {
-    private final JLabel pageLabel;
-
         this.pages = pageSet;
         this.darkMode = darkMode;
         this.translator = translator;

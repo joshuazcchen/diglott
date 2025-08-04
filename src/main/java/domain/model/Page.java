@@ -7,6 +7,7 @@ import java.util.List;
 public class Page {
     private final int pageNumber;
     private final int maxWords;
+    private final List<String> originalWords;
     private List<String> content;
     private boolean translated;
 
@@ -28,7 +29,8 @@ public class Page {
 
         this.pageNumber = pageNumber;
         this.maxWords = maxWords;
-        this.content = new ArrayList<>(content);  // defensive copy
+        this.content = new ArrayList<>(content);       // defensive copy
+        this.originalWords = new ArrayList<>(content); // preserve original
     }
 
     public String getContent() {
@@ -39,13 +41,21 @@ public class Page {
         return Collections.unmodifiableList(content);
     }
 
+    public List<String> getOriginalWords() {
+        return Collections.unmodifiableList(originalWords);
+    }
+
     public int getPageNumber() {
         return pageNumber;
     }
 
-    public boolean isTranslated() { return  translated; }
+    public boolean isTranslated() {
+        return translated;
+    }
 
-    public void translated() { translated = true; }
+    public void translated() {
+        translated = true;
+    }
 
     public void rewriteContent(List<String> words) {
         if (words == null || words.size() > maxWords) {

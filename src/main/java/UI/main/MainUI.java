@@ -1,18 +1,24 @@
-// MainUI.java
 package UI.main;
 
 import Configuration.*;
 import UI.components.UIThemeManager;
 import UI.login.LoginUI;
+import application.controller.SpeakController;
 import application.controller.TranslationController;
-import application.usecase.TranslatePageUseCase;
+import application.interactor.SpeakWordsInteractor;
 import application.interactor.TranslatePageInteractor;
+import application.usecase.SpeakWordsUseCase;
+import application.usecase.TranslatePageUseCase;
+import domain.gateway.ConfigGateway;
+import domain.gateway.Speaker;
 import domain.gateway.Translator;
 import domain.gateway.WordTransliterator;
 import domain.model.Page;
+import infrastructure.config.ConfigManager;
+import infrastructure.persistence.StoredWords;
 import infrastructure.translation.TranslationHandler;
 import infrastructure.translation.TransliterationHandler;
-import infrastructure.persistence.StoredWords;
+import infrastructure.tts.SpeechManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,10 +33,11 @@ public class MainUI extends JFrame {
     private String bookText;
     private boolean darkMode;
     private List<Page> pages;
-    private final StoredWords storedWords = new StoredWords();
-    private TranslatePageUseCase translatorUseCase;
 
+    private final StoredWords storedWords = new StoredWords();
     private final TranslationController controller = new TranslationController();
+    private TranslatePageUseCase translatorUseCase;
+    private SpeakController speakController;
 
     private JComboBox<String> inputLangBox;
     private JComboBox<String> targetLangBox;
@@ -50,6 +57,7 @@ public class MainUI extends JFrame {
                 "javax.xml.xpath.XPathFactory:http://java.sun.com/jaxp/xpath/dom",
                 "net.sf.saxon.xpath.XPathFactoryImpl"
         );
+
         Translator translator = new TranslationHandler(apiKey, storedWords);
         WordTransliterator wordTransliterator = new TransliterationHandler();
         translatorUseCase = new TranslatePageInteractor(translator, wordTransliterator, storedWords);
@@ -128,10 +136,10 @@ public class MainUI extends JFrame {
         buttonPanel.add(pickFileButton);
         buttonPanel.add(startButton);
         buttonPanel.add(closeButton);
-        buttonPanel.add(darkModeToggle);
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomPanel.add(logoutButton);
+        bottomPanel.add(darkModeToggle);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(langPanel, BorderLayout.NORTH);
@@ -167,11 +175,19 @@ public class MainUI extends JFrame {
             ConfigDataRetriever.saveConfig();
 
             translatorUseCase.execute(pages.get(0));
-            new PageUI(pages, darkMode, translatorUseCase).setVisible(true);
+
+            // Set up TTS with stored credentials
+            String credsPath = ConfigDataRetriever.get("google_credentials_path");
+            SpeechManager speechManager = new SpeechManager(credsPath);
+            SpeakWordsUseCase speakUseCase = new SpeakWordsInteractor(speechManager);
+            speakController = new SpeakController(speakUseCase);
+
+            new PageUI(pages, darkMode, translatorUseCase, speakController).setVisible(true);
             dispose();
         });
 
         closeButton.addActionListener(e -> dispose());
+
         logoutButton.addActionListener(e -> {
             ConfigDataRetriever.set("api_key", "none");
             ConfigDataRetriever.saveConfig();

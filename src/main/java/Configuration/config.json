@@ -2,11 +2,13 @@
     "dark_mode": "false",
     "api_key": "none",
     "original_script": true,
+    "input_language": "en",
     "target_language": "fr",
     "font_size": "24",
     "page_length": 100,
     "logs": "none",
     "speed": "2",
     "font": "times new roman",
-    "increment": true
+    "increment": true,
+    "credentials_path": "/your/full/path/to/credentials.json"
 }

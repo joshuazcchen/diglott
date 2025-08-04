@@ -26,7 +26,7 @@ This is being made as a part of CSC207 as a course final project.
 
 **Roy:** As a reader and student, I want to be able to upload a .txt, .pdf, or .epub file so I can learn using material that actually interests me. I don’t always connect with pre-selected content, so being able to use my own files makes the experience feel more personal and motivating. Plus, if I already know the story, I can focus more on the new vocabulary without getting lost in the plot.
 
-**Nehan:** As someone who often loses motivation with flashcard apps, Nehan wants to be able to read a mystery novel in English that gradually weaves in Spanish words. He would like to control the speed of replacement so that basic nouns are swapped in earlier pages, and more complex words appear later. This gradual immersion would help him build vocabulary naturally while staying engaged with the story. 
+**Nehan:** As someone who learns best through listening, Nehan wants to hear the translated words read aloud while reading the story. Being able to hear proper pronunciation helps reinforce vocabulary and makes it easier to remember new words. This would make the experience feel more immersive and engaging, especially when learning unfamiliar languages through context. Having this feature built right into the reading flow keeps learning smooth and enjoyable. 
 
 
 ## Download

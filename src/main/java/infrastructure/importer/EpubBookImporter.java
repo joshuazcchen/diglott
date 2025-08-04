@@ -1,5 +1,6 @@
-package Book;
+package infrastructure.importer;
 
+import domain.gateway.BookImporter;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 

@@ -21,11 +21,33 @@
             <version>2.0.30</version>
         </dependency>
 
+        <!-- PDFBox logging + SLF4J -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.12</version>
+        </dependency>
+
+        <!-- Saxon-HE for XPath -->
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>12.4</version>
+        </dependency>
+
+
         <!-- Needed for PDFBox -->
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.2</version>
+        </dependency>
+
+        <!-- XPath implementation to fix PDFBox error in Java 21+ -->
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.12.2</version>
         </dependency>
 
         <!-- JUnit 5 -->
@@ -51,6 +73,7 @@
             <version>20240303</version>
         </dependency>
 
+        <!-- Apache Tika -->
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
@@ -63,13 +86,13 @@
             <version>2.9.0</version>
         </dependency>
 
+        <!-- ICU4J for transliteration -->
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
             <version>77.1</version>
         </dependency>
     </dependencies>
-
 
     <build>
         <plugins>
@@ -90,7 +113,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>Translation.Main</mainClass>
+                    <mainClass>Diglott.Main</mainClass>
                 </configuration>
             </plugin>
 

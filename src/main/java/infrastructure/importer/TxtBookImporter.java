@@ -1,4 +1,6 @@
-package Book;
+package infrastructure.importer;
+
+import domain.gateway.BookImporter;
 
 import java.io.File;
 import java.io.IOException;

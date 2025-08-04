@@ -32,6 +32,25 @@ public class ConfigDataRetriever {
             // Load user config
             String content = Files.readString(CONFIG_PATH, StandardCharsets.UTF_8);
             config = new JSONObject(content);
+
+            String[] requiredKeys = {
+                    "input_language", "target_language", "dark_mode", "font_size", "speed", "increment",
+                    "original_script", "page_length", "logs", "font", "api_key", "credentials_path"
+            };
+
+            Object[] defaultValues = {
+                    "en", "fr", "false", 24, 2, true,
+                    true, 100, "none", "times new roman", "none", "/your/full/path/to/credentials.json"
+            };
+
+            for (int i = 0; i < requiredKeys.length; i++) {
+                if (!config.has(requiredKeys[i])) {
+                    config.put(requiredKeys[i], defaultValues[i]);
+                }
+            }
+
+            saveConfig();
+
         } catch (IOException e) {
             throw new RuntimeException("Failed to load or create config: " + e.getMessage(), e);
         }
@@ -77,5 +96,4 @@ public class ConfigDataRetriever {
         config.put("font_size", size);
         saveConfig();
     }
-
 }

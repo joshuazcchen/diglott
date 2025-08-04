@@ -3,6 +3,7 @@ package UI;
 import Book.Page;
 import Configuration.ConfigDataRetriever;
 import Translation.TranslateAndTransliteratePage;
+import Audio.SpeechManager;
 
 import javax.swing.*;
 import javax.swing.text.html.HTMLEditorKit;
@@ -18,14 +19,17 @@ public class PageUI extends JFrame {
     private JEditorPane content;
     private JButton backButton;
     private boolean darkMode;
+    private Translation.StoredWords storedWords;
 
     public PageUI(List<Page> pageSet, boolean darkMode, TranslateAndTransliteratePage translatePage) {
         this.pages = pageSet;
         this.currentPage = 0;
         this.darkMode = darkMode;
+        translatePage.translatePage(pages.get(currentPage)); // ensures first page is translated
+        storedWords = translatePage.getStoredWords();        // saves the words to use later
 
         setTitle("Page View");
-        setSize(450, 700);
+        setSize(600, 900);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -67,6 +71,8 @@ public class PageUI extends JFrame {
         buttonPanel.add(backButton);
         buttonPanel.add(previousPage);
         buttonPanel.add(nextPage);
+        JButton speakWordsButton = new JButton("Speak Words");
+        buttonPanel.add(speakWordsButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
         backButton.addActionListener(e -> {
@@ -75,12 +81,13 @@ public class PageUI extends JFrame {
         });
         // Apply dark mode theme to buttons and panel
         if (darkMode) {
-            applyDarkTheme(buttonPanel, nextPage, previousPage);
+            applyDarkTheme(buttonPanel, backButton, nextPage, previousPage, speakWordsButton);
         }
 
         nextPage.addActionListener(e -> {
             if (!pages.get(currentPage+1).isTranslated()) {
                 translatePage.translatePage(pages.get(currentPage+1));
+                storedWords = translatePage.getStoredWords();
             }
             if (currentPage < pages.size() - 1) {
                 currentPage++;
@@ -95,6 +102,7 @@ public class PageUI extends JFrame {
         previousPage.addActionListener(e -> {
             if (currentPage > 0) {
                 currentPage--;
+                storedWords = translatePage.getStoredWords(); // refresh for previous page
                 updateContent();
                 nextPage.setEnabled(true);
             }
@@ -129,17 +137,29 @@ public class PageUI extends JFrame {
                 }
             }
         });
+        speakWordsButton.addActionListener(e -> {
+            Page current = pages.get(currentPage);
+            List<String> translatedWords = current.getWords();
+
+            String creds = ConfigDataRetriever.get("gcp_credentials");
+            if (creds == null || creds.equals("none")) {
+                JOptionPane.showMessageDialog(this, "Google TTS credentials not set.");
+                return;
+            }
+
+            new SpeakUI(translatedWords, creds, translatePage.getStoredWords());
+        });
     }
 
     private void updateContent() {
         Page page = pages.get(currentPage);
-        String originalText = String.join(" ", page.getWords());
-        String translatedText = page.getContent();
+        List<String> originalWords = page.getOriginalWords();
+        List<String> translatedWords = page.getWords();
 
         String inputLang = ConfigDataRetriever.get("input_language");
         String targetLang = ConfigDataRetriever.get("target_language");
 
-        String htmlContent = wrapWordsWithSpans(originalText, translatedText, inputLang, targetLang);
+        String htmlContent = wrapTranslatedWithOriginals(translatedWords, originalWords, inputLang, targetLang);
         content.setText(htmlContent);
         content.setCaretPosition(0);
     }
@@ -158,28 +178,30 @@ public class PageUI extends JFrame {
             button.setBorderPainted(true);
         }
     }
-    private String wrapWordsWithSpans(String originalText, String targetText, String inputLang, String targetLang) {
-        String[] originalWords = originalText.split("\\s+");
-        String[] translatedWords = targetText.split("\\s+");
-
+    private String wrapTranslatedWithOriginals(List<String> translatedWords, List<String> originalWords,
+                                               String inputLang, String targetLang) {
         StringBuilder builder = new StringBuilder();
         builder.append("<html><body>");
 
-        for (int i = 0; i < originalWords.length; i++) {
-            String original = originalWords[i];
-            String translated = i < translatedWords.length ? translatedWords[i] : "";
+        int len = Math.min(translatedWords.size(), originalWords.size());
+        for (int i = 0; i < len; i++) {
+            String translated = translatedWords.get(i);
+            String original = originalWords.get(i);
 
             builder.append("<span class='word' lang='")
-                    .append(inputLang)
-                    .append("' style='margin-right:4px;'>")
-                    .append(original)
-                    .append("</span> ");
-
-            builder.append("<span class='word translated' lang='")
                     .append(targetLang)
-                    .append("' style='margin-right:8px; color:gray;'>")
-                    .append(translated)
-                    .append("</span> ");
+                    .append("' style='font-weight:bold; margin-right:4px;'>")
+                    .append(translated);
+
+            if (!translated.equalsIgnoreCase(original)) {
+                builder.append(" <span class='word original' lang='")
+                        .append(inputLang)
+                        .append("' style='color:gray;'>(")
+                        .append(original)
+                        .append(")</span>");
+            }
+
+            builder.append("</span> ");
         }
 
         builder.append("</body></html>");

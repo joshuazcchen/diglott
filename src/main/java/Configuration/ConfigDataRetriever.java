@@ -38,7 +38,7 @@ public class ConfigDataRetriever {
     }
 
     public static String get(String key) {
-        return config.getString(key);
+        return config.has(key) ? config.getString(key) : "en"; // default fallback
     }
 
     public static int getInt(String key) {

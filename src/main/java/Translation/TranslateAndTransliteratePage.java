@@ -76,4 +76,8 @@ public class TranslateAndTransliteratePage {
         }
         page.rewriteContent(newPageContent);
     }
+    public StoredWords getStoredWords() {
+        return this.storedWords;
+    }
+
 }

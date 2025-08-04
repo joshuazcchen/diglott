@@ -9,6 +9,7 @@ public class Page {
     private final int maxWords;
     private List<String> content;
     private boolean translated;
+    private List<String> originalWords;  // stores the original words separately
 
     public Page(List<String> content, int pageNumber, int maxWords) {
         this.translated = false;
@@ -28,7 +29,8 @@ public class Page {
 
         this.pageNumber = pageNumber;
         this.maxWords = maxWords;
-        this.content = new ArrayList<>(content);  // defensive copy
+        this.originalWords = new ArrayList<>(content);
+        this.content = new ArrayList<>(content);  // defensive copy for translated content
     }
 
     public String getContent() {
@@ -52,5 +54,8 @@ public class Page {
             throw new IllegalArgumentException("New content exceeds max words or is null.");
         }
         this.content = new ArrayList<>(words);  // defensive copy
+    }
+    public List<String> getOriginalWords() {
+        return Collections.unmodifiableList(originalWords);
     }
 }

@@ -122,6 +122,7 @@ public class MainUI extends JFrame {
 
         JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 20));
+        buttonPanel.setLayout(new GridLayout(2, 3, 10, 10)); // updated to 3 columns
         buttonPanel.add(pickFileButton);
         buttonPanel.add(startButton);
         buttonPanel.add(closeButton);
@@ -187,7 +188,9 @@ public class MainUI extends JFrame {
             ConfigDataRetriever.saveConfig();
 
             TranslateAndTransliteratePage translatePage = new TranslateAndTransliteratePage(storedWords);
-            translatePage.translatePage(pages.get(0));
+            for (Page p : pages) {
+                translatePage.translatePage(p);
+            }
 
             startButton.setEnabled(false);
             pickFileButton.setEnabled(false);

@@ -1,17 +1,37 @@
 package Audio;
 
+import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.texttospeech.v1.*;
 import com.google.protobuf.ByteString;
+
 import javax.sound.sampled.*;
+import javax.swing.*;
 import java.io.*;
+import java.util.List;
 
 public class SpeechManager {
 
-    private TextToSpeechClient ttsClient;
+    private final TextToSpeechClient ttsClient;
 
-    public SpeechManager(String credentialsPath) throws IOException {
-        System.setProperty("GOOGLE_APPLICATION_CREDENTIALS", credentialsPath);
-        ttsClient = TextToSpeechClient.create();
+    public SpeechManager(String credentialsPath) {
+        try {
+            System.out.println("Using credentials file: " + credentialsPath);
+
+            GoogleCredentials credentials = GoogleCredentials
+                    .fromStream(new FileInputStream(credentialsPath))
+                    .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
+
+            TextToSpeechSettings settings = TextToSpeechSettings.newBuilder()
+                    .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
+                    .build();
+
+            ttsClient = TextToSpeechClient.create(settings);
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Could not read text aloud.");
+            throw new RuntimeException("Failed to initialize TextToSpeechClient", e);
+        }
     }
 
     public void speak(String text, String languageCode) {
@@ -24,17 +44,16 @@ public class SpeechManager {
                     .build();
 
             AudioConfig audioConfig = AudioConfig.newBuilder()
-                    .setAudioEncoding(AudioEncoding.LINEAR16) // WAV format
+                    .setAudioEncoding(AudioEncoding.LINEAR16)
                     .build();
 
             SynthesizeSpeechResponse response = ttsClient.synthesizeSpeech(input, voice, audioConfig);
             ByteString audioContents = response.getAudioContent();
 
-            // Play audio directly
             playAudio(audioContents.toByteArray());
-
         } catch (Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error during speech synthesis.");
         }
     }
 
@@ -45,9 +64,9 @@ public class SpeechManager {
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
             clip.start();
-
         } catch (Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error playing audio.");
         }
     }
 

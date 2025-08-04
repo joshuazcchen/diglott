@@ -2,6 +2,7 @@
     "dark_mode": "false",
     "api_key": "none",
     "original_script": true,
+    "input_language": "en",
     "target_language": "fr",
     "font_size": "24",
     "page_length": 100,

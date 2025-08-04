@@ -46,7 +46,8 @@ public class LoginUI extends JFrame {
                 File selectedFile = fileChooser.getSelectedFile();
                 String path = selectedFile.getAbsolutePath();
 
-                ConfigDataRetriever.set("gcloud_credentials_path", path);
+                ConfigDataRetriever.set("gcp_credentials", path);
+                ConfigDataRetriever.saveConfig();
                 JOptionPane.showMessageDialog(null, "Google TTS key uploaded successfully!");
             }
         });

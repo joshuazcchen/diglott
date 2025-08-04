@@ -1,8 +1,13 @@
 package UI.main;
 
-import domain.model.Page;
 import Configuration.ConfigDataRetriever;
+import application.controller.SpeakController;
 import application.usecase.TranslatePageUseCase;
+import domain.gateway.Speaker;
+import domain.model.Page;
+import infrastructure.tts.SpeechManager;
+import application.interactor.SpeakWordsInteractor;
+import application.usecase.SpeakWordsUseCase;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -18,6 +23,7 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.List;
 
 /**
@@ -61,10 +67,11 @@ public class PageUI extends JFrame {
         this.pages = pageSet;
         this.darkMode = darkMode;
         this.translator = translator;
+        this.speakController = speakController;
         this.currentPage = 0;
 
         setTitle("Page View");
-        setSize(450, 700);
+        setSize(600, 750);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -100,6 +107,23 @@ public class PageUI extends JFrame {
 
         nextPage.addActionListener(e -> goToNextPage(previousPage, nextPage));
         previousPage.addActionListener(e -> goToPreviousPage(previousPage, nextPage));
+
+        speakButton.addActionListener(e -> {
+            String credsPath = ConfigDataRetriever.get("google_credentials_path");
+            if (credsPath == null || credsPath.equals("none")) {
+                JOptionPane.showMessageDialog(this, "Google credentials not found. Please re-login.");
+                return;
+            }
+
+            try {
+                Speaker speaker = new SpeechManager(credsPath);
+                SpeakWordsUseCase speakUseCase = new SpeakWordsInteractor(speaker);
+                SpeakController tempController = new SpeakController(speakUseCase);
+                new SpeakUI(pages.get(currentPage), tempController, darkMode);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Failed to initialize Text-to-Speech: " + ex.getMessage(), "TTS Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
         content.addMouseListener(new MouseAdapter() {
             @Override

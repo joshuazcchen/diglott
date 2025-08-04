@@ -10,6 +10,7 @@ import java.util.List;
 public class Page {
     private final int pageNumber;
     private final int maxWords;
+    private final List<String> originalWords;
     private List<String> content;
     private boolean translated;
 

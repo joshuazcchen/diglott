@@ -180,7 +180,7 @@ public class MainUI extends JFrame {
             String credsPath = ConfigDataRetriever.get("google_credentials_path");
             SpeechManager speechManager = new SpeechManager(credsPath);
             SpeakWordsUseCase speakUseCase = new SpeakWordsInteractor(speechManager);
-            speakController = new SpeakController(speakUseCase);
+            speakController = new SpeakController(speakUseCase, speechManager);
 
             new PageUI(pages, darkMode, translatorUseCase, speakController).setVisible(true);
             dispose();

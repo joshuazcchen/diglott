@@ -76,19 +76,15 @@ public class PageUI extends JFrame {
         previousPage.addActionListener(e -> goToPreviousPage(previousPage, nextPage));
 
         speakButton.addActionListener(e -> {
-            String credsPath = ConfigDataRetriever.get("google_credentials_path");
-            if (credsPath == null || credsPath.equals("none")) {
-                JOptionPane.showMessageDialog(this, "Google credentials not found. Please re-login.");
-                return;
-            }
-
-            try {
-                Speaker speaker = new SpeechManager(credsPath);
-                SpeakWordsUseCase speakUseCase = new SpeakWordsInteractor(speaker);
-                SpeakController tempController = new SpeakController(speakUseCase);
-                new SpeakUI(pages.get(currentPage), tempController, darkMode);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Failed to initialize Text-to-Speech: " + ex.getMessage(), "TTS Error", JOptionPane.ERROR_MESSAGE);
+            if (!speakController.isTTSAvailable()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Google Cloud credentials not configured. Please upload a valid file to use speech.",
+                        "Text-to-Speech Unavailable",
+                        JOptionPane.WARNING_MESSAGE
+                );
+            } else {
+                new SpeakUI(pages.get(currentPage), speakController, darkMode);
             }
         });
 

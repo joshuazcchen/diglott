@@ -60,9 +60,11 @@ public class SpeakUI extends JFrame {
 
             // Extract part inside parentheses
             String spokenText = extractInsideParentheses(trans);
+            // Fallback: if no parentheses found, use the full word
             if (spokenText.equals(trans)) {
-                continue; // Skip if no parentheses found
+                spokenText = trans;
             }
+
 
             // Skip duplicates
             if (!seenTranslations.add(spokenText)) {

@@ -8,10 +8,13 @@ import java.util.List;
 public class SpeakController {
 
     private final SpeakWordsUseCase useCase;
+    private final domain.gateway.Speaker speaker;
 
-    public SpeakController(SpeakWordsUseCase useCase) {
+    public SpeakController(SpeakWordsUseCase useCase, domain.gateway.Speaker speaker) {
         this.useCase = useCase;
+        this.speaker = speaker;
     }
+
 
     public void speak(String word) {
         useCase.speak(word);
@@ -32,4 +35,10 @@ public class SpeakController {
             ((SpeakWordsInteractor) useCase).speakWord(word, languageCode);
         }
     }
+    public boolean isTTSAvailable() {
+        return speaker != null
+                && speaker instanceof infrastructure.tts.SpeechManager
+                && ((infrastructure.tts.SpeechManager) speaker).isAvailable();
+    }
+
 }

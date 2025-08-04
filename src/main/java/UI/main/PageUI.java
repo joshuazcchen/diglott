@@ -26,9 +26,9 @@ public class PageUI extends JFrame {
     private final boolean darkMode;
     private final TranslatePageUseCase translator;
     private final SpeakController speakController;
-
     public PageUI(List<Page> pageSet, boolean darkMode,
                   TranslatePageUseCase translator, SpeakController speakController) {
+    private final JLabel pageLabel;
 
         this.pages = pageSet;
         this.darkMode = darkMode;
@@ -55,12 +55,14 @@ public class PageUI extends JFrame {
         JButton previousPage = new JButton("Last Page");
         JButton backButton = new JButton("Back to Main Page");
         JButton speakButton = new JButton("Speak Words");
+        pageLabel = new JLabel();
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.add(backButton);
         buttonPanel.add(previousPage);
         buttonPanel.add(nextPage);
         buttonPanel.add(speakButton);
+        buttonPanel.add(pageLabel);
         add(buttonPanel, BorderLayout.SOUTH);
 
         nextPage.setEnabled(pages.size() > 1);
@@ -122,6 +124,7 @@ public class PageUI extends JFrame {
         String htmlContent = "<html><body>" + pages.get(currentPage).getContent() + "</body></html>";
         content.setText(htmlContent);
         content.setCaretPosition(0);
+        pageLabel.setText("Page " + (currentPage + 1) + " of " + pages.size());
     }
 
     private void goToNextPage(JButton previousPage, JButton nextPage) {
@@ -154,6 +157,10 @@ public class PageUI extends JFrame {
         Color fg = Color.WHITE;
 
         panel.setBackground(bg);
+        pageLabel.setForeground(fg);
+        pageLabel.setBackground(bg);
+        pageLabel.setOpaque(true);
+
         for (JButton button : buttons) {
             button.setBackground(bg);
             button.setForeground(fg);

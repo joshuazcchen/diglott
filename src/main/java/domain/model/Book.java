@@ -13,11 +13,12 @@ public class Book {
             throw new IllegalArgumentException("A book must contain at least one page.");
         }
 
-        pages.sort(Comparator.comparingInt(Page::getPageNumber));
-        this.pages = Collections.unmodifiableList(pages);
-        // Start at first page
-        this.currentPageNumber = pages.get(0).getPageNumber();
+        List<Page> sorted = new ArrayList<>(pages);
+        sorted.sort(Comparator.comparingInt(Page::getPageNumber));
+        this.pages = Collections.unmodifiableList(sorted);
+        this.currentPageNumber = sorted.get(0).getPageNumber();
     }
+
 
     public int getTotalPages() {
         return pages.size();

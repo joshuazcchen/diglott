@@ -1,26 +1,63 @@
-// Refactored PageUI.java to use TranslatePageUseCase
 package UI.main;
 
 import domain.model.Page;
 import Configuration.ConfigDataRetriever;
 import application.usecase.TranslatePageUseCase;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+/**
+ * UI window for displaying book pages and navigating between them.
+ */
 public class PageUI extends JFrame {
+
+    /** Dark mode background color. */
+    private static final Color DARK_BG = Color.DARK_GRAY;
+
+    /** Dark mode foreground (text) color. */
+    private static final Color DARK_FG = Color.WHITE;
+
+    /** Index of the currently displayed page in the list. */
     private int currentPage;
+
+    /** List of all pages in the book. */
     private final List<Page> pages;
+
+    /** Editor pane used for displaying HTML-formatted page content. */
     private final JEditorPane content;
+
+    /** Whether dark mode is currently enabled. */
     private final boolean darkMode;
+
+    /** Translator use case for translating the displayed pages. */
     private final TranslatePageUseCase translator;
 
-    public PageUI(List<Page> pageSet, boolean darkMode, TranslatePageUseCase translator) {
+    /** Label for showing the current page number and total page count. */
+    private final JLabel pageLabel;
+
+    /**
+     * Creates a PageUI instance for viewing and navigating pages.
+     *
+     * @param pageSet    the list of pages to display
+     * @param darkMode   whether dark mode is enabled
+     * @param translator the translator use case for translating pages
+     */
+    public PageUI(final List<Page> pageSet, final boolean darkMode,
+                  final TranslatePageUseCase translator) {
         this.pages = pageSet;
         this.darkMode = darkMode;
         this.translator = translator;
@@ -38,17 +75,19 @@ public class PageUI extends JFrame {
         setupStyle();
 
         JScrollPane scrollPane = new JScrollPane(content);
-        scrollPane.getViewport().setBackground(darkMode ? Color.DARK_GRAY : Color.WHITE);
+        scrollPane.getViewport().setBackground(darkMode ? DARK_BG : Color.WHITE);
         add(scrollPane, BorderLayout.CENTER);
 
         JButton nextPage = new JButton("Next Page");
         JButton previousPage = new JButton("Last Page");
         JButton backButton = new JButton("Back to Main Page");
+        pageLabel = new JLabel("", SwingConstants.CENTER);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.add(backButton);
         buttonPanel.add(previousPage);
         buttonPanel.add(nextPage);
+        buttonPanel.add(pageLabel);
         add(buttonPanel, BorderLayout.SOUTH);
 
         nextPage.setEnabled(pages.size() > 1);
@@ -64,7 +103,7 @@ public class PageUI extends JFrame {
 
         content.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(final MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     goToNextPage(previousPage, nextPage);
                 } else if (e.getButton() == MouseEvent.BUTTON3) {
@@ -73,29 +112,42 @@ public class PageUI extends JFrame {
             }
         });
 
-        if (darkMode) applyDarkTheme(buttonPanel, backButton, nextPage, previousPage);
+        if (darkMode) {
+            applyDarkTheme(buttonPanel, backButton, nextPage, previousPage);
+        }
 
         updateContent();
     }
 
+    /** Sets up HTML/CSS styling for the page content. */
     private void setupStyle() {
         HTMLEditorKit kit = new HTMLEditorKit();
         StyleSheet styleSheet = new StyleSheet();
-        styleSheet.addRule("body { font-family: " + ConfigDataRetriever.get("font") +
-                "; font-size: " + ConfigDataRetriever.get("font_size") + "; " +
-                "color: " + (darkMode ? "white" : "black") + "; " +
-                "background-color: " + (darkMode ? "#333333" : "white") + "; }");
+        styleSheet.addRule(
+                "body { font-family: " + ConfigDataRetriever.get("font") + "; font-size: "
+                        + ConfigDataRetriever.get("font_size") + "; color: "
+                        + (darkMode ? "white" : "black") + "; background-color: "
+                        + (darkMode ? "#333333" : "white") + "; }"
+        );
         kit.setStyleSheet(styleSheet);
         content.setEditorKit(kit);
     }
 
+    /** Updates the displayed page content and the page label. */
     private void updateContent() {
         String htmlContent = "<html><body>" + pages.get(currentPage).getContent() + "</body></html>";
         content.setText(htmlContent);
         content.setCaretPosition(0);
+        pageLabel.setText("Page " + (currentPage + 1) + " of " + pages.size());
     }
 
-    private void goToNextPage(JButton previousPage, JButton nextPage) {
+    /**
+     * Moves to the next page if available and triggers translation if needed.
+     *
+     * @param previousPage the previous page button
+     * @param nextPage     the next page button
+     */
+    private void goToNextPage(final JButton previousPage, final JButton nextPage) {
         if (currentPage < pages.size() - 1) {
             currentPage++;
             if (!pages.get(currentPage).isTranslated()) {
@@ -109,7 +161,13 @@ public class PageUI extends JFrame {
         }
     }
 
-    private void goToPreviousPage(JButton previousPage, JButton nextPage) {
+    /**
+     * Moves to the previous page if available.
+     *
+     * @param previousPage the previous page button
+     * @param nextPage     the next page button
+     */
+    private void goToPreviousPage(final JButton previousPage, final JButton nextPage) {
         if (currentPage > 0) {
             currentPage--;
             updateContent();
@@ -120,14 +178,21 @@ public class PageUI extends JFrame {
         }
     }
 
-    private void applyDarkTheme(JPanel panel, JButton... buttons) {
-        Color bg = Color.DARK_GRAY;
-        Color fg = Color.WHITE;
+    /**
+     * Applies dark mode styling to the panel and given buttons.
+     *
+     * @param panel   the panel containing the buttons
+     * @param buttons the buttons to style
+     */
+    private void applyDarkTheme(final JPanel panel, final JButton... buttons) {
+        panel.setBackground(DARK_BG);
+        pageLabel.setForeground(DARK_FG);
+        pageLabel.setBackground(DARK_BG);
+        pageLabel.setOpaque(true);
 
-        panel.setBackground(bg);
         for (JButton button : buttons) {
-            button.setBackground(bg);
-            button.setForeground(fg);
+            button.setBackground(DARK_BG);
+            button.setForeground(DARK_FG);
             button.setOpaque(true);
             button.setContentAreaFilled(true);
             button.setBorderPainted(true);

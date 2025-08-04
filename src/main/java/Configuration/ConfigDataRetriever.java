@@ -2,50 +2,77 @@ package Configuration;
 
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-public class ConfigDataRetriever {
+/**
+ * Utility class for loading and accessing Diglott configuration values from a JSON file.
+ */
+public final class ConfigDataRetriever {
 
-    private static final Path CONFIG_PATH = Paths.get(System.getProperty("user.home"), ".diglott", "config.json");
+    private static final Path CONFIG_PATH =
+            Paths.get(System.getProperty("user.home"), ".diglott", "config.json");
 
-    private static JSONObject config;
+    private static final JSONObject config;
 
     static {
         try {
             if (Files.notExists(CONFIG_PATH)) {
-                // Create config directory if needed
                 Files.createDirectories(CONFIG_PATH.getParent());
 
-                // Read default config from resources
-                InputStream is = ConfigDataRetriever.class.getClassLoader()
-                        .getResourceAsStream("Configuration/config.json");
-                if (is == null) {
-                    throw new RuntimeException("Default config file not found in JAR resources");
+                try (InputStream is = ConfigDataRetriever.class.getClassLoader()
+                        .getResourceAsStream("Configuration/config.json")) {
+                    if (is == null) {
+                        throw new RuntimeException("Default config file not found in JAR resources");
+                    }
+                    Files.copy(is, CONFIG_PATH);
                 }
-
-                // Write default config to user directory
-                Files.copy(is, CONFIG_PATH);
             }
 
-            // Load user config
             String content = Files.readString(CONFIG_PATH, StandardCharsets.UTF_8);
             config = new JSONObject(content);
+
         } catch (IOException e) {
             throw new RuntimeException("Failed to load or create config: " + e.getMessage(), e);
         }
     }
 
-    public static String get(String key) {
+    private ConfigDataRetriever() {
+        // Prevent instantiation
+    }
+
+    /**
+     * Retrieves a string value by key.
+     *
+     * @param key the config key
+     * @return the associated string value
+     */
+    public static String get(final String key) {
         return config.getString(key);
     }
 
-    public static int getInt(String key) {
+    /**
+     * Retrieves an int value by key.
+     *
+     * @param key the config key
+     * @return the associated int value
+     */
+    public static int getInt(final String key) {
         return config.getInt(key);
     }
 
-    public static boolean getBool(String key) {
+    /**
+     * Retrieves a boolean value by key.
+     *
+     * @param key the config key
+     * @return true if value exists and is true, false otherwise
+     */
+    public static boolean getBool(final String key) {
         try {
             return config.getBoolean(key);
         } catch (Exception e) {
@@ -53,29 +80,53 @@ public class ConfigDataRetriever {
         }
     }
 
-    public static void set(String key, Object value) {
+    /**
+     * Sets a config key to the specified value.
+     *
+     * @param key   the key to update
+     * @param value the new value
+     */
+    public static void set(final String key, final Object value) {
         config.put(key, value);
     }
 
+    /**
+     * Retrieves the configured translation speed.
+     *
+     * @return the speed
+     */
     public static int getSpeed() {
         return config.getInt("speed");
     }
 
+    /**
+     * Saves the config file to disk.
+     */
     public static void saveConfig() {
-        try (BufferedWriter writer = Files.newBufferedWriter(CONFIG_PATH, StandardCharsets.UTF_8)) {
+        try (BufferedWriter writer =
+                     Files.newBufferedWriter(CONFIG_PATH, StandardCharsets.UTF_8)) {
             writer.write(config.toString(4));
         } catch (IOException e) {
             throw new RuntimeException("Failed to save config file: " + e.getMessage(), e);
         }
     }
 
+    /**
+     * Gets the configured font size.
+     *
+     * @return font size
+     */
     public static int getFontSize() {
         return config.getInt("font_size");
     }
 
-    public static void setFontSize(int size) {
+    /**
+     * Sets and saves the configured font size.
+     *
+     * @param size the new font size
+     */
+    public static void setFontSize(final int size) {
         config.put("font_size", size);
         saveConfig();
     }
-
 }

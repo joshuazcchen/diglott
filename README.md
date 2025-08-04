@@ -2,8 +2,8 @@
 [![Download Recommended](https://img.shields.io/github/v/release/joshuazcchen/diglott?label=Download%20Latest%20JAR)](https://github.com/joshuazcchen/diglott/releases/latest)
 
 
-# Diglott Language Learning Program
-Learning a language has never been more fun! With Diglott, you are able learn languages simply by reading your favourite books!
+# diglott Language Learning Program
+Learning a language has never been more fun! With diglott, you are able learn languages simply by reading your favourite books!
 
 This is being made as a part of CSC207 as a course final project.
 

@@ -1,47 +1,73 @@
-// TranslatePageInteractor.java
 package application.interactor;
 
-import domain.model.Page;
+import Configuration.ConfigDataRetriever;
 import application.usecase.TranslatePageUseCase;
 import domain.gateway.Translator;
 import domain.gateway.WordTransliterator;
+import domain.model.Page;
 import infrastructure.persistence.StoredWords;
-import Configuration.ConfigDataRetriever;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
+/**
+ * Interactor for executing the translation and transliteration of a page.
+ */
 public class TranslatePageInteractor implements TranslatePageUseCase {
+
     private final Translator translator;
     private final WordTransliterator wordTransliterator;
     private final StoredWords storedWords;
     private final Random random;
 
-    public TranslatePageInteractor(Translator translator, WordTransliterator wordTransliterator, StoredWords storedWords) {
+    /**
+     * Constructs a TranslatePageInteractor with its required dependencies.
+     *
+     * @param translator          the translator used to retrieve translations
+     * @param wordTransliterator  the transliterator used for formatting
+     * @param storedWords         the word store for caching translations
+     */
+    public TranslatePageInteractor(
+            final Translator translator,
+            final WordTransliterator wordTransliterator,
+            final StoredWords storedWords
+    ) {
         this.translator = translator;
         this.wordTransliterator = wordTransliterator;
         this.storedWords = storedWords;
         this.random = new Random("DIGLOTTLANGUAGE".hashCode());
     }
 
+    /**
+     * Translates the content of a page and updates it with formatted replacements.
+     *
+     * @param page the page to process and rewrite
+     */
     @Override
-    public void execute(Page page) {
-        Map<String, String> wordDatabase = storedWords.getTranslations();
-        List<String> pageContent = page.getWords();
+    public void execute(final Page page) {
+        final Map<String, String> wordDatabase = storedWords.getTranslations();
+        final List<String> pageContent = page.getWords();
         page.translated();
 
-        int internalSpeed = ConfigDataRetriever.getBool("increment")
-                ? (int) Math.floor((double) page.getPageNumber() / ConfigDataRetriever.getSpeed())
-                : ConfigDataRetriever.getSpeed();
+        final boolean incremental = ConfigDataRetriever.getBool("increment");
+        final int configuredSpeed = ConfigDataRetriever.getSpeed();
+        final int pageNumber = page.getPageNumber();
+
+        final int internalSpeed = incremental
+                ? (int) Math.floor((double) pageNumber / configuredSpeed)
+                : configuredSpeed;
 
         try {
-            if (page.getPageNumber() != 0) {
+            if (pageNumber != 0) {
                 for (int z = 0; z < internalSpeed; z++) {
-                    int randomIndex = random.nextInt(pageContent.size());
-                    String word = pageContent.get(randomIndex).toLowerCase();
+                    final int randomIndex = random.nextInt(pageContent.size());
+                    final String word = pageContent.get(randomIndex).toLowerCase();
                     if (!wordDatabase.containsKey(word) && word.length() >= 3) {
                         translator.addWord(pageContent.get(randomIndex));
                     } else {
-                        z--; // try again
+                        z--;
                     }
                 }
             }
@@ -49,13 +75,14 @@ public class TranslatePageInteractor implements TranslatePageUseCase {
             System.out.println("Translation error: " + e.getMessage());
         }
 
-        List<String> newPageContent = new ArrayList<>();
+        final List<String> newPageContent = new ArrayList<>();
         for (String word : pageContent) {
-            String lower = word.toLowerCase();
+            final String lower = word.toLowerCase();
             if (wordDatabase.containsKey(lower)) {
-                String translated = wordDatabase.get(lower);
-                String transliterated = wordTransliterator.transliterate(translated);
-                String display = ConfigDataRetriever.getBool("original_script")
+                final String translated = wordDatabase.get(lower);
+                final String transliterated = wordTransliterator.transliterate(translated);
+                final boolean showOriginal = ConfigDataRetriever.getBool("original_script");
+                final String display = showOriginal
                         ? transliterated + "(" + translated + ")"
                         : transliterated;
                 newPageContent.add("<b><u>" + display + "</u></b>");

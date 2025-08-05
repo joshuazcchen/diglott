@@ -6,6 +6,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the Page class.
+ */
 class PageTest {
 
     @Test
@@ -16,6 +19,7 @@ class PageTest {
         assertEquals(1, page.getPageNumber());
         assertEquals(List.of("one", "two", "three"), page.getWords());
         assertEquals("one two three", page.getContent());
+        assertEquals(content, page.getOriginalWords());
         assertFalse(page.isTranslated());
     }
 
@@ -41,33 +45,38 @@ class PageTest {
     }
 
     @Test
-    void rewriteContentReplacesWordsCorrectly() {
+    void rewriteTranslatedContentReplacesWordsCorrectly() {
         Page page = new Page(List.of("original"), 1, 3);
-        page.rewriteContent(List.of("new", "text"));
+        page.rewriteTranslatedContent(List.of("new", "text"));
 
         assertEquals("new text", page.getContent());
         assertEquals(List.of("new", "text"), page.getWords());
-    }
-
-    @Test
-    void rewriteContentThrowsIfTooManyWords() {
-        Page page = new Page(List.of("a", "b"), 1, 2);
-        assertThrows(IllegalArgumentException.class, () -> page.rewriteContent(List.of("a", "b", "c")));
-    }
-
-    @Test
-    void rewriteContentThrowsIfNull() {
-        Page page = new Page(List.of("a"), 1, 2);
-        assertThrows(IllegalArgumentException.class, () -> page.rewriteContent(null));
-    }
-
-    @Test
-    void translatedSetsTranslatedFlag() {
-        Page page = new Page(List.of("translate"), 1, 2);
-        assertFalse(page.isTranslated());
-
-        page.translated();
         assertTrue(page.isTranslated());
+    }
+
+    @Test
+    void rewriteTranslatedContentThrowsIfTooManyWords() {
+        Page page = new Page(List.of("a", "b"), 1, 2);
+        assertThrows(IllegalArgumentException.class,
+                () -> page.rewriteTranslatedContent(List.of("a", "b", "c")));
+    }
+
+    @Test
+    void rewriteTranslatedContentThrowsIfNull() {
+        Page page = new Page(List.of("a"), 1, 2);
+        assertThrows(IllegalArgumentException.class,
+                () -> page.rewriteTranslatedContent(null));
+    }
+
+    @Test
+    void resetToOriginalRestoresOriginalWords() {
+        Page page = new Page(List.of("original"), 1, 3);
+        page.rewriteTranslatedContent(List.of("changed"));
+        assertTrue(page.isTranslated());
+
+        page.resetToOriginal();
+        assertEquals(List.of("original"), page.getWords());
+        assertFalse(page.isTranslated());
     }
 
     @Test
@@ -75,5 +84,12 @@ class PageTest {
         Page page = new Page(List.of("a", "b"), 1, 5);
         List<String> words = page.getWords();
         assertThrows(UnsupportedOperationException.class, () -> words.add("c"));
+    }
+
+    @Test
+    void getOriginalWordsReturnsUnmodifiableList() {
+        Page page = new Page(List.of("a", "b"), 1, 5);
+        List<String> original = page.getOriginalWords();
+        assertThrows(UnsupportedOperationException.class, () -> original.add("c"));
     }
 }

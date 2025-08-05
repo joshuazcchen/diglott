@@ -28,7 +28,7 @@ public class SpeakUI extends JFrame {
     /**
      * Constructs the SpeakUI window.
      *
-     * @param page            the page containing words
+     * @param page            the page containing translated words
      * @param speakController the controller for speaking words
      * @param darkMode        whether dark mode is enabled
      */
@@ -38,8 +38,10 @@ public class SpeakUI extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        List<String> translatedWords = page.getWords();
-        List<String> originalWords = page.getOriginalWords();
+        boolean preserveOriginal = ConfigDataRetriever.getBool("original_script");
+
+        // Pull correct word list
+        List<String> pageWords = preserveOriginal ? page.getWords() : page.getWords();
         String targetLangCode = ConfigDataRetriever.get("target_language");
 
         JPanel gridPanel = new JPanel(new GridLayout(0, 3, 10, 10));
@@ -48,31 +50,34 @@ public class SpeakUI extends JFrame {
 
         Set<String> seenTranslations = new HashSet<>();
 
-        for (int i = 0; i < translatedWords.size(); i++) {
-            String trans = stripHtml(translatedWords.get(i));
-            String orig = (i < originalWords.size())
-                    ? stripHtml(originalWords.get(i)) : "";
+        for (String raw : pageWords) {
+            String clean = stripHtml(raw);
+            String translatedWord;
 
-            // Skip if untranslated or empty
-            if (trans.equals(orig) || trans.isEmpty()) {
+            if (preserveOriginal) {
+                // Only keep if has translation in parentheses
+                if (!clean.contains("(") || !clean.contains(")")) {
+                    continue;
+                }
+                translatedWord = extractInsideParentheses(clean);
+            } else {
+                // Already translated text
+                translatedWord = clean;
+            }
+
+            translatedWord = translatedWord.replaceAll("[\\p{Punct}]", "").trim();
+
+            if (translatedWord.isEmpty()) {
                 continue;
             }
 
-            // Extract part inside parentheses
-            String spokenText = extractInsideParentheses(trans);
-            // Fallback: if no parentheses found, use the full word
-            if (spokenText.equals(trans)) {
-                spokenText = trans;
-            }
-
-
             // Skip duplicates
-            if (!seenTranslations.add(spokenText)) {
+            if (!seenTranslations.add(translatedWord)) {
                 continue;
             }
 
             JButton wordButton = createWordButton(
-                    trans, spokenText, targetLangCode, speakController, darkMode
+                    translatedWord, translatedWord, targetLangCode, speakController, darkMode
             );
             gridPanel.add(wordButton);
         }
@@ -87,9 +92,6 @@ public class SpeakUI extends JFrame {
 
     /**
      * Removes HTML tags and non-breaking spaces.
-     *
-     * @param input the string to clean
-     * @return cleaned string
      */
     private String stripHtml(String input) {
         return input.replaceAll("<[^>]*>", "")
@@ -99,9 +101,6 @@ public class SpeakUI extends JFrame {
 
     /**
      * Extracts the text inside parentheses.
-     *
-     * @param text the full word string
-     * @return the text inside parentheses, or original text if not found
      */
     private String extractInsideParentheses(String text) {
         int start = text.indexOf('(');
@@ -109,18 +108,11 @@ public class SpeakUI extends JFrame {
         if (start != -1 && end != -1 && start < end) {
             return text.substring(start + 1, end).trim();
         }
-        return text;
+        return "";
     }
 
     /**
      * Creates a styled JButton for a word.
-     *
-     * @param label          the button label
-     * @param spokenText     the text to speak
-     * @param langCode       the language code for speaking
-     * @param speakController the controller to handle speech
-     * @param darkMode       whether dark mode is enabled
-     * @return the configured JButton
      */
     private JButton createWordButton(
             String label,
@@ -147,11 +139,6 @@ public class SpeakUI extends JFrame {
         return wordButton;
     }
 
-    /**
-     * Applies dark mode styling to a JButton.
-     *
-     * @param button the button to style
-     */
     private void styleDarkButton(JButton button) {
         button.setBackground(Color.GRAY);
         button.setForeground(Color.WHITE);
@@ -169,11 +156,6 @@ public class SpeakUI extends JFrame {
         });
     }
 
-    /**
-     * Applies light mode styling to a JButton.
-     *
-     * @param button the button to style
-     */
     private void styleLightButton(JButton button) {
         button.setBackground(new Color(240, 240, 240));
         button.setForeground(Color.BLACK);

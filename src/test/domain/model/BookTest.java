@@ -3,14 +3,20 @@ package domain.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the Book class.
+ */
 class BookTest {
 
-    private Page page1, page2, page3;
+    private Page page1;
+    private Page page2;
+    private Page page3;
     private Book book;
 
     @BeforeEach
@@ -18,7 +24,8 @@ class BookTest {
         page1 = new Page(List.of("one"), 1, 5);
         page2 = new Page(List.of("two"), 2, 5);
         page3 = new Page(List.of("three"), 3, 5);
-        book = new Book(List.of(page3, page1, page2)); // out of order on purpose
+        // Purposely pass in out-of-order pages to verify sorting
+        book = new Book(new ArrayList<>(List.of(page3, page1, page2)));
     }
 
     @Test
@@ -67,7 +74,7 @@ class BookTest {
     void nextPageDoesNothingIfNoNextPage() {
         book.goToPage(3);
         book.nextPage();
-        assertEquals(3, book.getCurrentPageNumber()); // stays the same
+        assertEquals(3, book.getCurrentPageNumber());
     }
 
     @Test
@@ -81,7 +88,7 @@ class BookTest {
     void previousPageDoesNothingIfNoPrevious() {
         book.goToPage(1);
         book.previousPage();
-        assertEquals(1, book.getCurrentPageNumber()); // stays the same
+        assertEquals(1, book.getCurrentPageNumber());
     }
 
     @Test
@@ -95,5 +102,15 @@ class BookTest {
     @Test
     void getTotalPagesReturnsCorrectCount() {
         assertEquals(3, book.getTotalPages());
+    }
+
+    @Test
+    void updatingTranslatedContentReflectsInCurrentPageContent() {
+        book.goToPage(1);
+        Page current = book.getPage(book.getCurrentPageNumber());
+        current.rewriteTranslatedContent(List.of("uno"));
+        assertEquals("uno", book.getCurrentContent());
+        assertTrue(current.isTranslated());
+        assertEquals(List.of("one"), current.getOriginalWords());
     }
 }

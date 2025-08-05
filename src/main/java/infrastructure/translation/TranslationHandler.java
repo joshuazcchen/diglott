@@ -1,10 +1,5 @@
 package infrastructure.translation;
 
-import Configuration.ConfigDataRetriever;
-import infrastructure.persistence.StoredWords;
-import domain.gateway.Translator;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -12,6 +7,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+
+import org.json.JSONObject;
+
+import configuration.ConfigDataRetriever;
+import domain.gateway.Translator;
+import infrastructure.persistence.StoredWords;
 
 /**
  * Handles translation requests using the DeepL API and stores translated words.

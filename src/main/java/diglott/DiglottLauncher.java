@@ -2,7 +2,7 @@ package diglott;
 
 import UI.login.LoginUI;
 import UI.main.MainUI;
-import Configuration.ConfigDataRetriever;
+import configuration.ConfigDataRetriever;
 
 /**
  * Launches the Diglott application by opening the appropriate UI.

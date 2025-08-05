@@ -4,10 +4,22 @@ import domain.gateway.BookImporter;
 
 import java.io.File;
 
+/**
+ * Factory class to return the correct BookImporter implementation
+ * based on the file extension.
+ */
 public class BookImporterFactory {
 
-    public static BookImporter getImporter(File file) {
-        String name = file.getName().toLowerCase();
+    /**
+     * Returns the appropriate BookImporter for the given file type.
+     *
+     * @param file the file to be imported
+     * @return a BookImporter suitable for the file format
+     * @throws IllegalArgumentException if the file extension is unsupported
+     */
+    public static BookImporter getImporter(final File file) {
+        final String name = file.getName().toLowerCase();
+
         if (name.endsWith(".txt")) {
             return new TxtBookImporter();
         } else if (name.endsWith(".pdf")) {
@@ -15,7 +27,8 @@ public class BookImporterFactory {
         } else if (name.endsWith(".epub")) {
             return new EpubBookImporter();
         } else {
-            throw new IllegalArgumentException("Unsupported file format: " + name);
+            throw new IllegalArgumentException(
+                    "Unsupported file format: " + name);
         }
     }
 }

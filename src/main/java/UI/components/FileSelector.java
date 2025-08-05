@@ -1,19 +1,29 @@
 package UI.components;
 
-import javax.swing.*;
+import javax.swing.JFileChooser;
 import java.io.File;
 
+/**
+ * Utility component for selecting supported book files.
+ */
 public class FileSelector {
 
+    /**
+     * Opens a file chooser dialog and returns a valid book file.
+     *
+     * @return a File with .txt, .pdf, or .epub extension, or null if cancelled/invalid
+     */
     public static File selectBookFile() {
-        JFileChooser chooser = new JFileChooser();
+        final JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Choose a book file (.txt or .pdf or .epub)");
 
-        int result = chooser.showOpenDialog(null);
+        final int result = chooser.showOpenDialog(null);
         if (result == JFileChooser.APPROVE_OPTION) {
-            File file = chooser.getSelectedFile();
-            String name = file.getName().toLowerCase();
-            if (name.endsWith(".txt") || name.endsWith(".pdf") || name.endsWith(".epub")) {
+            final File file = chooser.getSelectedFile();
+            final String name = file.getName().toLowerCase();
+            if (name.endsWith(".txt")
+                    || name.endsWith(".pdf")
+                    || name.endsWith(".epub")) {
                 return file;
             }
         }

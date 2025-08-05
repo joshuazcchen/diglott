@@ -3,7 +3,14 @@ package Configuration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Stores bidirectional mappings between human-readable language names and their ISO language codes.
+ */
 public class LanguageCodes {
+
+    /**
+     * Maps language names to their ISO codes.
+     */
     public static final Map<String, String> LANGUAGES = new LinkedHashMap<>() {{
         put("Arabic", "ar");
         put("Bulgarian", "bg");
@@ -40,6 +47,10 @@ public class LanguageCodes {
         put("Chinese (simplified)", "zh-hans");
         put("Chinese (traditional)", "zh-hant");
     }};
+
+    /**
+     * Maps ISO codes to their language names.
+     */
     public static final Map<String, String> REVERSELANGUAGES = new LinkedHashMap<>() {{
         put("ar", "Arabic");
         put("bg", "Bulgarian");
@@ -76,4 +87,11 @@ public class LanguageCodes {
         put("zh-hans", "Chinese (simplified)");
         put("zh-hant", "Chinese (traditional)");
     }};
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private LanguageCodes() {
+        // Prevent instantiation
+    }
 }

@@ -1,10 +1,20 @@
 package UI.main;
 
-import Configuration.*;
+import Configuration.ConfigDataRetriever;
+import Configuration.FontList;
+import Configuration.LanguageCodes;
 import UI.components.UIThemeManager;
 import UI.login.LoginUI;
 import application.controller.SpeakController;
 import application.controller.TranslationController;
+import application.interactor.TranslatePageInteractor;
+import application.usecase.TranslatePageUseCase;
+import domain.gateway.Translator;
+import domain.gateway.WordTransliterator;
+import domain.model.Page;
+import infrastructure.persistence.StoredWords;
+import infrastructure.translation.TranslationHandler;
+import infrastructure.translation.TransliterationHandler;
 import application.interactor.SpeakWordsInteractor;
 import application.interactor.TranslatePageInteractor;
 import application.usecase.SpeakWordsUseCase;
@@ -16,36 +26,93 @@ import infrastructure.persistence.StoredWords;
 import infrastructure.translation.TranslationHandler;
 import infrastructure.translation.TransliterationHandler;
 import infrastructure.tts.SpeechManager;
-
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JToggleButton;
+import javax.swing.JOptionPane;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.BorderFactory;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.io.File;
 import java.util.List;
 
+/**
+ * Main UI window for selecting book files, configuring translation settings, and launching page view.
+ */
 public class MainUI extends JFrame {
-    private JButton pickFileButton, startButton, closeButton, logoutButton, settingsButton;
+
+    /** Button for selecting a book file. */
+    private JButton pickFileButton;
+
+    /** Button for starting the translation process. */
+    private JButton startButton;
+
+    /** Button for closing the application. */
+    private JButton closeButton;
+
+    /** Button for logging out the current user. */
+    private JButton logoutButton;
+
+    /** Toggle button for switching between light and dark mode. */
     private JToggleButton darkModeToggle;
 
+    /** The file currently selected by the user. */
     private File selectedFile;
+
+    /** The raw text content of the loaded book. */
     private String bookText;
+
+    /** Whether dark mode is currently enabled. */
     private boolean darkMode;
+
+    /** List of pages created from the loaded book. */
     private List<Page> pages;
+
+    /** Storage for translated words across sessions. */
+    private final StoredWords storedWords = new StoredWords();
+
+    /** Handles loading and parsing of book files. */
 
     private final StoredWords storedWords = new StoredWords();
     private final TranslationController controller = new TranslationController();
     private TranslatePageUseCase translatorUseCase;
     private SpeakController speakController;
 
+    /** Use case for translating a single page. */
+    private final TranslatePageUseCase translatorUseCase;
+
+    /** Combo box for selecting the source language. */
     private JComboBox<String> inputLangBox;
+
+    /** Combo box for selecting the target language. */
     private JComboBox<String> targetLangBox;
 
-    public static MainUI createInstance(String apiKey) {
+    /**
+     * Creates a MainUI instance with saved API key stored in configuration.
+     *
+     * @param apiKey the API key for translation service
+     * @return a new instance of MainUI
+     */
+    public static MainUI createInstance(final String apiKey) {
         ConfigDataRetriever.set("api_key", apiKey);
         ConfigDataRetriever.saveConfig();
         return new MainUI(apiKey);
     }
 
-    MainUI(String apiKey) {
+    /**
+     * Constructs a MainUI and sets up translators, UI, and theme.
+     *
+     * @param apiKey the API key for translation service
+     */
+    MainUI(final String apiKey) {
         System.setProperty(
                 "javax.xml.xpath.XPathFactory:http://java.sun.com/jaxp/xpath/dom",
                 "net.sf.saxon.xpath.XPathFactoryImpl"
@@ -57,11 +124,14 @@ public class MainUI extends JFrame {
 
         try {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+            // Ignore exception and keep default LookAndFeel
+        }
 
         setupUI();
     }
 
+    /** Initializes UI components and applies saved settings. */
     private void setupUI() {
         darkMode = Boolean.parseBoolean(ConfigDataRetriever.get("dark_mode"));
         setTitle("Diglott Translator");
@@ -89,6 +159,7 @@ public class MainUI extends JFrame {
         applyTheme();
     }
 
+    /** Arranges the UI layout with language, font, and control panels. */
     private void arrangeLayout() {
         JPanel langPanel = new JPanel();
         langPanel.setLayout(new BoxLayout(langPanel, BoxLayout.Y_AXIS));
@@ -122,13 +193,14 @@ public class MainUI extends JFrame {
         add(mainPanel);
     }
 
+    /** Adds listeners to UI components for button actions. */
     private void addListeners() {
         pickFileButton.addActionListener(e -> {
             var result = controller.loadBook();
             if (result != null) {
-                this.pages = result.pages;
-                this.bookText = result.text;
-                this.selectedFile = result.file;
+                pages = result.pages;
+                bookText = result.text;
+                selectedFile = result.file;
                 JOptionPane.showMessageDialog(this, "Book loaded successfully!");
                 pickFileButton.setText("Loaded: " + result.file.getName());
             }
@@ -173,6 +245,7 @@ public class MainUI extends JFrame {
         });
     }
 
+    /** Applies the current theme to the UI. */
     private void applyTheme() {
         UIThemeManager.applyTheme(getContentPane(), darkMode);
         repaint();

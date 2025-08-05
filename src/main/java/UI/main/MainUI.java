@@ -203,7 +203,7 @@ public class MainUI extends JFrame {
 
             translatorUseCase.execute(pages.get(0));
 
-            String credsPath = ConfigDataRetriever.get("google_credentials_path");
+            String credsPath = ConfigDataRetriever.get("credentials_path");
             SpeechManager speechManager = new SpeechManager(credsPath);
             SpeakWordsUseCase speakUseCase = new SpeakWordsInteractor(speechManager);
             speakController = new SpeakController(speakUseCase, speechManager);

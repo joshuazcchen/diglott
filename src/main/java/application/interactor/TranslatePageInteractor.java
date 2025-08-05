@@ -55,9 +55,8 @@ public class TranslatePageInteractor implements TranslatePageUseCase {
         final int pageNumber = page.getPageNumber();
 
         final int internalSpeed = incremental
-                ? (int) Math.floor((double) pageNumber / configuredSpeed)
+                ? (int) Math.floor((double) pageNumber / (6 - configuredSpeed))
                 : configuredSpeed;
-
         try {
             if (pageNumber != 0) {
                 addRandomWordsToDatabase(pageContent, wordDatabase, internalSpeed);

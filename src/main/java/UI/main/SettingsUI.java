@@ -44,6 +44,8 @@ public class SettingsUI extends JFrame {
         // UI controls
         JButton pickCredsButton = new JButton("Select Google Credentials");
         JComboBox<Integer> speedBox = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
+        JComboBox<Integer> pagesTranslated = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5, 10, 20});
+        pagesTranslated.setEditable(true);
         JComboBox<String> fontBox =
                 new JComboBox<>(FontList.FONTS.keySet().toArray(new String[0]));
         JCheckBox exponentialGrowthBox = new JCheckBox("Incremental Word Growth");
@@ -51,6 +53,7 @@ public class SettingsUI extends JFrame {
 
         // Initialize controls with current config values
         speedBox.setSelectedItem(ConfigDataRetriever.getSpeed());
+        pagesTranslated.setSelectedItem(ConfigDataRetriever.getInt("pages_translated"));
         fontBox.setSelectedItem(ConfigDataRetriever.get("font"));
         exponentialGrowthBox.setSelected(ConfigDataRetriever.getBool("increment"));
         originalScriptBox.setSelected(ConfigDataRetriever.getBool("original_script"));
@@ -79,6 +82,13 @@ public class SettingsUI extends JFrame {
             ConfigDataRetriever.saveConfig();
         });
 
+        // Save changes when pages translated changes
+        pagesTranslated.addActionListener(e -> {
+            ConfigDataRetriever.set("pages_translated",
+                    String.valueOf(pagesTranslated.getSelectedItem()));
+            ConfigDataRetriever.saveConfig();
+        });
+
         // Save changes when font selection changes
         fontBox.addActionListener(e -> {
             ConfigDataRetriever.set("font", FontList.FONTS.get(fontBox.getSelectedItem()));
@@ -99,12 +109,13 @@ public class SettingsUI extends JFrame {
 
         // Main content panel
         JPanel content = new JPanel();
-        content.setLayout(new GridLayout(6, 1, 10, 10));
+        content.setLayout(new GridLayout(7, 1, 10, 10));
         content.setBorder(javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         // Add all settings controls
         content.add(pickCredsButton);
         content.add(wrapLabeled("Speed:", speedBox));
+        content.add(wrapLabeled("Pages to Translate:", pagesTranslated));
         content.add(wrapLabeled("Font:", fontBox));
         content.add(exponentialGrowthBox);
         content.add(originalScriptBox);

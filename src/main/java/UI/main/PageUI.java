@@ -180,7 +180,7 @@ public class PageUI extends JFrame {
      * @param previousPageButton the previous page button
      * @param nextPageButton     the next page button
      */
-    private void goToNextPage(final JButton previousPageButton, final JButton nextPageButton) {
+    void goToNextPage(final JButton previousPageButton, final JButton nextPageButton) {
         if (currentPage < pages.size() - 1) {
             currentPage++;
 

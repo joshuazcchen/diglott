@@ -86,7 +86,6 @@ public class LoginUI extends JFrame {
                 connection.setRequestMethod("GET");
 
                 responseCode = connection.getResponseCode();
-                System.out.println(connection.getResponseMessage());
 
                 connection.disconnect();
             }

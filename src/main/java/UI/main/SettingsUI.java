@@ -65,7 +65,7 @@ public class SettingsUI extends JFrame {
             if (result == JFileChooser.APPROVE_OPTION) {
                 File selected = fileChooser.getSelectedFile();
                 ConfigDataRetriever.set(
-                        "google_credentials_path",
+                        "credentials_path",
                         selected.getAbsolutePath()
                 );
                 ConfigDataRetriever.saveConfig();

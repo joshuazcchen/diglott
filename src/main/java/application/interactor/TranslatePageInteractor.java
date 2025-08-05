@@ -25,9 +25,9 @@ public class TranslatePageInteractor implements TranslatePageUseCase {
     /**
      * Constructs a TranslatePageInteractor with its required dependencies.
      *
-     * @param translator          the translator used to retrieve translations
-     * @param wordTransliterator  the transliterator used for formatting
-     * @param storedWords         the word store for caching translations
+     * @param translator         the translator used to retrieve translations
+     * @param wordTransliterator the transliterator used for formatting
+     * @param storedWords        the word store for caching translations
      */
     public TranslatePageInteractor(
             final Translator translator,
@@ -49,7 +49,6 @@ public class TranslatePageInteractor implements TranslatePageUseCase {
     public void execute(final Page page) {
         final Map<String, String> wordDatabase = storedWords.getTranslations();
         final List<String> pageContent = page.getWords();
-        page.translated();
 
         final boolean incremental = ConfigDataRetriever.getBool("increment");
         final int configuredSpeed = ConfigDataRetriever.getSpeed();
@@ -61,27 +60,59 @@ public class TranslatePageInteractor implements TranslatePageUseCase {
 
         try {
             if (pageNumber != 0) {
-                for (int z = 0; z < internalSpeed; z++) {
-                    final int randomIndex = random.nextInt(pageContent.size());
-                    final String word = pageContent.get(randomIndex).toLowerCase();
-                    if (!wordDatabase.containsKey(word) && word.length() >= 3) {
-                        translator.addWord(pageContent.get(randomIndex));
-                    } else {
-                        z--;
-                    }
-                }
+                addRandomWordsToDatabase(pageContent, wordDatabase, internalSpeed);
             }
         } catch (Exception e) {
             System.out.println("Translation error: " + e.getMessage());
         }
 
+        final List<String> newPageContent = buildTranslatedContent(pageContent, wordDatabase);
+        page.rewriteTranslatedContent(newPageContent);
+    }
+
+    /**
+     * Adds random words from the page to the translation database if not already present.
+     *
+     * @param pageContent  the words on the page
+     * @param wordDatabase the translation database
+     * @param count        number of words to attempt adding
+     */
+    private void addRandomWordsToDatabase(
+            final List<String> pageContent,
+            final Map<String, String> wordDatabase,
+            final int count
+    ) throws Exception {
+        for (int z = 0; z < count; z++) {
+            final int randomIndex = random.nextInt(pageContent.size());
+            final String word = pageContent.get(randomIndex).toLowerCase();
+            if (!wordDatabase.containsKey(word) && word.length() >= 3) {
+                translator.addWord(pageContent.get(randomIndex));
+            } else {
+                z--;
+            }
+        }
+    }
+
+    /**
+     * Builds the translated page content.
+     *
+     * @param pageContent  the original page content
+     * @param wordDatabase the translation database
+     * @return a list of translated and formatted words
+     */
+    private List<String> buildTranslatedContent(
+            final List<String> pageContent,
+            final Map<String, String> wordDatabase
+    ) {
         final List<String> newPageContent = new ArrayList<>();
+        final boolean showOriginal = ConfigDataRetriever.getBool("original_script");
+
         for (String word : pageContent) {
             final String lower = word.toLowerCase();
             if (wordDatabase.containsKey(lower)) {
                 final String translated = wordDatabase.get(lower);
-                final String transliterated = wordTransliterator.transliterate(translated);
-                final boolean showOriginal = ConfigDataRetriever.getBool("original_script");
+                final String transliterated =
+                        wordTransliterator.transliterate(translated);
                 final String display = showOriginal
                         ? transliterated + "(" + translated + ")"
                         : transliterated;
@@ -90,7 +121,6 @@ public class TranslatePageInteractor implements TranslatePageUseCase {
                 newPageContent.add(word);
             }
         }
-
-        page.rewriteContent(newPageContent);
+        return newPageContent;
     }
 }

@@ -3,26 +3,25 @@ package domain.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Represents a single page in a book, containing a limited number of words.
+ * Represents a single page in a book, containing both original and translated scripts.
  */
 public class Page {
     private final int pageNumber;
     private final int maxWords;
     private final List<String> originalWords;
-    private List<String> content;
-    private boolean translated;
+    private List<String> translatedWords;
 
     /**
      * Constructs a Page object with given content and metadata.
      *
-     * @param words      the list of words for this page
+     * @param words      the original list of words for this page
      * @param pageNumber the page number
      * @param maxWords   the maximum number of words allowed
      */
     public Page(final List<String> words, final int pageNumber, final int maxWords) {
-        this.translated = false;
         if (words == null || words.isEmpty()) {
             throw new IllegalArgumentException("Content cannot be null or empty.");
         }
@@ -34,23 +33,32 @@ public class Page {
                     "Content exceeds the maximum allowed words per page: "
                             + words.size() + " > " + maxWords);
         }
+
         this.pageNumber = pageNumber;
         this.maxWords = maxWords;
-        this.content = new ArrayList<>(words);
+        this.originalWords = new ArrayList<>(words);
+        this.translatedWords = new ArrayList<>(words); // initially same as original
     }
 
     /**
-     * @return the content as a single space-separated string
+     * @return the translated content as a single space-separated string
      */
     public String getContent() {
-        return String.join(" ", this.content);
+        return String.join(" ", this.translatedWords);
     }
 
     /**
-     * @return the list of words on this page
+     * @return the original words (unmodifiable)
+     */
+    public List<String> getOriginalWords() {
+        return Collections.unmodifiableList(originalWords);
+    }
+
+    /**
+     * @return the translated words (unmodifiable)
      */
     public List<String> getWords() {
-        return Collections.unmodifiableList(content);
+        return Collections.unmodifiableList(translatedWords);
     }
 
     /**
@@ -61,29 +69,29 @@ public class Page {
     }
 
     /**
-     * @return true if the page has been translated
+     * @return true if the translated words differ from the original words
      */
     public boolean isTranslated() {
-        return translated;
+        return !Objects.equals(originalWords, translatedWords);
     }
 
     /**
-     * Marks this page as translated.
-     */
-    public void translated() {
-        translated = true;
-    }
-
-    /**
-     * Replaces the content of the page with a new list of words.
+     * Replaces the translated content of the page with a new list of words.
      *
-     * @param words the new list of words to set as content
+     * @param words the new translated list of words
      */
-    public void rewriteContent(final List<String> words) {
+    public void rewriteTranslatedContent(final List<String> words) {
         if (words == null || words.size() > maxWords) {
             throw new IllegalArgumentException(
                     "New content exceeds max words or is null.");
         }
-        this.content = new ArrayList<>(words);
+        this.translatedWords = new ArrayList<>(words);
+    }
+
+    /**
+     * Resets the translated words back to the original script.
+     */
+    public void resetToOriginal() {
+        this.translatedWords = new ArrayList<>(originalWords);
     }
 }

@@ -3,13 +3,35 @@ package UI.main;
 import Configuration.ConfigDataRetriever;
 import Configuration.FontList;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.io.File;
 
+/**
+ * UI window for adjusting Diglott application settings.
+ * <p>
+ * This allows the user to change font, reading speed,
+ * toggle incremental growth, preserve original script,
+ * and select Google API credentials.
+ */
 public class SettingsUI extends JFrame {
 
+    /**
+     * Creates and displays the Settings UI.
+     */
     public SettingsUI() {
         setTitle("Settings");
         setSize(500, 300);
@@ -17,21 +39,23 @@ public class SettingsUI extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        boolean darkMode = Boolean.parseBoolean(ConfigDataRetriever.get("dark_mode"));
+        final boolean darkMode = Boolean.parseBoolean(ConfigDataRetriever.get("dark_mode"));
 
-        // controls
+        // UI controls
         JButton pickCredsButton = new JButton("Select Google Credentials");
         JComboBox<Integer> speedBox = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
-        JComboBox<String> fontBox = new JComboBox<>(FontList.FONTS.keySet().toArray(new String[0]));
+        JComboBox<String> fontBox =
+                new JComboBox<>(FontList.FONTS.keySet().toArray(new String[0]));
         JCheckBox exponentialGrowthBox = new JCheckBox("Incremental Word Growth");
         JCheckBox originalScriptBox = new JCheckBox("Preserve Original Script");
 
+        // Initialize controls with current config values
         speedBox.setSelectedItem(ConfigDataRetriever.getSpeed());
         fontBox.setSelectedItem(ConfigDataRetriever.get("font"));
         exponentialGrowthBox.setSelected(ConfigDataRetriever.getBool("increment"));
         originalScriptBox.setSelected(ConfigDataRetriever.getBool("original_script"));
 
-        // auto save listeners
+        // Button: pick Google credentials JSON
         pickCredsButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Select Google Credentials JSON File");
@@ -40,60 +64,85 @@ public class SettingsUI extends JFrame {
             int result = fileChooser.showOpenDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {
                 File selected = fileChooser.getSelectedFile();
-                ConfigDataRetriever.set("google_credentials_path", selected.getAbsolutePath());
+                ConfigDataRetriever.set(
+                        "google_credentials_path",
+                        selected.getAbsolutePath()
+                );
                 ConfigDataRetriever.saveConfig();
                 JOptionPane.showMessageDialog(this, "Credentials file saved.");
             }
         });
 
+        // Save changes when speed selection changes
         speedBox.addActionListener(e -> {
             ConfigDataRetriever.set("speed", String.valueOf(speedBox.getSelectedItem()));
             ConfigDataRetriever.saveConfig();
         });
 
+        // Save changes when font selection changes
         fontBox.addActionListener(e -> {
             ConfigDataRetriever.set("font", FontList.FONTS.get(fontBox.getSelectedItem()));
             ConfigDataRetriever.saveConfig();
         });
 
+        // Save changes when incremental growth checkbox is toggled
         exponentialGrowthBox.addActionListener(e -> {
             ConfigDataRetriever.set("increment", exponentialGrowthBox.isSelected());
             ConfigDataRetriever.saveConfig();
         });
 
+        // Save changes when preserve original script checkbox is toggled
         originalScriptBox.addActionListener(e -> {
             ConfigDataRetriever.set("original_script", originalScriptBox.isSelected());
             ConfigDataRetriever.saveConfig();
         });
 
+        // Main content panel
         JPanel content = new JPanel();
         content.setLayout(new GridLayout(6, 1, 10, 10));
-        content.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        content.setBorder(javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
+        // Add all settings controls
         content.add(pickCredsButton);
         content.add(wrapLabeled("Speed:", speedBox));
         content.add(wrapLabeled("Font:", fontBox));
         content.add(exponentialGrowthBox);
         content.add(originalScriptBox);
 
+        // Close button at bottom
         JButton closeButton = new JButton("Close");
         closeButton.addActionListener(e -> dispose());
         content.add(closeButton);
 
-        if (darkMode) applyDarkTheme(content);
+        // Apply dark theme if enabled
+        if (darkMode) {
+            applyDarkTheme(content);
+        }
 
         add(content, BorderLayout.CENTER);
         setVisible(true);
     }
 
-    private JPanel wrapLabeled(String label, JComponent comp) {
+    /**
+     * Wraps a label and component together in a horizontal layout.
+     *
+     * @param label the label text
+     * @param comp  the component to place beside the label
+     * @return a panel containing the label and component
+     */
+    private JPanel wrapLabeled(final String label, final JComponent comp) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.add(new JLabel(label));
         panel.add(comp);
         return panel;
     }
 
-    private void applyDarkTheme(JPanel panel) {
+    /**
+     * Applies dark theme colors to a panel and all nested components.
+     *
+     * @param panel the panel to apply the theme to
+     */
+    private void applyDarkTheme(final JPanel panel) {
         panel.setBackground(Color.DARK_GRAY);
         for (Component c : panel.getComponents()) {
             if (c instanceof JLabel || c instanceof JCheckBox) {

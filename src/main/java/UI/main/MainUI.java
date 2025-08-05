@@ -1,20 +1,11 @@
 package UI.main;
 
 import Configuration.ConfigDataRetriever;
-import Configuration.FontList;
 import Configuration.LanguageCodes;
 import UI.components.UIThemeManager;
 import UI.login.LoginUI;
 import application.controller.SpeakController;
 import application.controller.TranslationController;
-import application.interactor.TranslatePageInteractor;
-import application.usecase.TranslatePageUseCase;
-import domain.gateway.Translator;
-import domain.gateway.WordTransliterator;
-import domain.model.Page;
-import infrastructure.persistence.StoredWords;
-import infrastructure.translation.TranslationHandler;
-import infrastructure.translation.TransliterationHandler;
 import application.interactor.SpeakWordsInteractor;
 import application.interactor.TranslatePageInteractor;
 import application.usecase.SpeakWordsUseCase;
@@ -26,14 +17,14 @@ import infrastructure.persistence.StoredWords;
 import infrastructure.translation.TranslationHandler;
 import infrastructure.translation.TransliterationHandler;
 import infrastructure.tts.SpeechManager;
+
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
-import javax.swing.JOptionPane;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.BorderFactory;
@@ -49,57 +40,49 @@ import java.util.List;
  */
 public class MainUI extends JFrame {
 
-    /** Button for selecting a book file. */
+    /** Buttons. */
     private JButton pickFileButton;
-
-    /** Button for starting the translation process. */
     private JButton startButton;
-
-    /** Button for closing the application. */
     private JButton closeButton;
-
-    /** Button for logging out the current user. */
     private JButton logoutButton;
+    private JButton settingsButton;
 
-    /** Toggle button for switching between light and dark mode. */
+    /** Dark mode toggle. */
     private JToggleButton darkModeToggle;
 
-    /** The file currently selected by the user. */
+    /** File currently selected by the user. */
     private File selectedFile;
 
-    /** The raw text content of the loaded book. */
+    /** Raw text content of the loaded book. */
     private String bookText;
 
-    /** Whether dark mode is currently enabled. */
+    /** Whether dark mode is enabled. */
     private boolean darkMode;
 
-    /** List of pages created from the loaded book. */
+    /** Pages created from the loaded book. */
     private List<Page> pages;
 
-    /** Storage for translated words across sessions. */
+    /** Stored translations. */
     private final StoredWords storedWords = new StoredWords();
 
-    /** Handles loading and parsing of book files. */
-
-    private final StoredWords storedWords = new StoredWords();
+    /** Translation controller. */
     private final TranslationController controller = new TranslationController();
-    private TranslatePageUseCase translatorUseCase;
+
+    /** Speak controller. */
     private SpeakController speakController;
 
-    /** Use case for translating a single page. */
+    /** Page translator use case. */
     private final TranslatePageUseCase translatorUseCase;
 
-    /** Combo box for selecting the source language. */
+    /** Language selection boxes. */
     private JComboBox<String> inputLangBox;
-
-    /** Combo box for selecting the target language. */
     private JComboBox<String> targetLangBox;
 
     /**
-     * Creates a MainUI instance with saved API key stored in configuration.
+     * Creates a MainUI instance with saved API key.
      *
-     * @param apiKey the API key for translation service
-     * @return a new instance of MainUI
+     * @param apiKey API key for translation service
+     * @return a new MainUI instance
      */
     public static MainUI createInstance(final String apiKey) {
         ConfigDataRetriever.set("api_key", apiKey);
@@ -110,7 +93,7 @@ public class MainUI extends JFrame {
     /**
      * Constructs a MainUI and sets up translators, UI, and theme.
      *
-     * @param apiKey the API key for translation service
+     * @param apiKey API key for translation service
      */
     MainUI(final String apiKey) {
         System.setProperty(
@@ -143,7 +126,9 @@ public class MainUI extends JFrame {
         targetLangBox = new JComboBox<>(LanguageCodes.LANGUAGES.keySet().toArray(new String[0]));
 
         inputLangBox.setSelectedItem("en-us");
-        targetLangBox.setSelectedItem(LanguageCodes.REVERSELANGUAGES.get(ConfigDataRetriever.get("target_language")));
+        targetLangBox.setSelectedItem(
+                LanguageCodes.REVERSELANGUAGES.get(ConfigDataRetriever.get("target_language"))
+        );
 
         pickFileButton = new JButton("Pick File");
         startButton = new JButton("Start");
@@ -212,7 +197,8 @@ public class MainUI extends JFrame {
                 return;
             }
 
-            ConfigDataRetriever.set("target_language", LanguageCodes.LANGUAGES.get(targetLangBox.getSelectedItem()));
+            ConfigDataRetriever.set("target_language",
+                    LanguageCodes.LANGUAGES.get(targetLangBox.getSelectedItem()));
             ConfigDataRetriever.saveConfig();
 
             translatorUseCase.execute(pages.get(0));

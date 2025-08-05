@@ -42,12 +42,12 @@ public final class ConfigDataRetriever {
             final int[] de = new int[]{24, 2, 100};
 
             final String[] requiredKeys = {"input_language", "target_language", "dark_mode",
-                    "font_size", "speed", "increment",
-                    "original_script", "page_length", "logs", "font", "api_key", "credentials_path",
+                    "font_size", "speed", "increment", "original_script", "page_length",
+                    "logs", "font", "api_key", "credentials_path", "pages_translated"
             };
 
             final Object[] defaultValues = {"en", "fr", "false", de[0], de[1], true,
-                    true, de[2], "none", "times new roman", "none", "path",
+                    true, de[2], "none", "times new roman", "none", "path", 3,
             };
 
             for (int i = 0; i < requiredKeys.length; i++) {

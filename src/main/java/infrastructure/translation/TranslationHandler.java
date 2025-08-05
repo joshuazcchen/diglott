@@ -8,6 +8,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import configuration.ConfigDataRetriever;
@@ -45,10 +46,24 @@ public class TranslationHandler implements Translator {
             throw new Exception("Missing API Key");
         }
 
-        final String url = "https://api-free.deepl.com/v2/translate";
         final String urlParams = "auth_key=" + URLEncoder.encode(apiKey, StandardCharsets.UTF_8)
                 + "&text=" + URLEncoder.encode(word, StandardCharsets.UTF_8)
                 + "&target_lang=" + ConfigDataRetriever.get("target_language");
+
+        final JSONObject responseJson = makeApiCall(urlParams);
+
+        final JSONArray translations = responseJson.optJSONArray("translations");
+        if (translations != null && translations.length() > 0) {
+            final String translated = translations.getJSONObject(0).getString("text");
+
+            if (!storedWords.getTranslations().containsKey(word.toLowerCase())) {
+                storedWords.addTranslation(word.toLowerCase(), translated);
+            }
+        }
+    }
+
+    protected JSONObject makeApiCall(String urlParams) throws Exception {
+        final String url = "https://api-free.deepl.com/v2/translate";
 
         final HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
         conn.setRequestMethod("POST");
@@ -68,20 +83,6 @@ public class TranslationHandler implements Translator {
             }
         }
 
-        final String response = responseBuilder.toString();
-
-        if ("debug".equals(ConfigDataRetriever.get("logs"))) {
-            System.out.println("DeepL response: " + response);
-            System.out.println(word);
-        }
-
-        final JSONObject responseJson = new JSONObject(response);
-        final String translated = responseJson.getJSONArray("translations")
-                .getJSONObject(0)
-                .getString("text");
-
-        if (!storedWords.getTranslations().containsKey(word.toLowerCase())) {
-            storedWords.addTranslation(word.toLowerCase(), translated);
-        }
+        return new JSONObject(responseBuilder.toString());
     }
 }

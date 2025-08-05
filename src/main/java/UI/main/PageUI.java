@@ -4,6 +4,7 @@ import configuration.ConfigDataRetriever;
 import application.controller.SpeakController;
 import application.usecase.TranslatePageUseCase;
 import domain.model.Page;
+import infrastructure.translation.PageTranslationTask;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -182,12 +183,23 @@ public class PageUI extends JFrame {
     private void goToNextPage(final JButton previousPageButton, final JButton nextPageButton) {
         if (currentPage < pages.size() - 1) {
             currentPage++;
+
             if (!pages.get(currentPage).isTranslated()) {
-                translator.execute(pages.get(currentPage));
+                translatePageAsync(pages.get(currentPage));
             }
+
             updateContent();
             previousPageButton.setEnabled(true);
+
+            final int pagesTranslated = ConfigDataRetriever.getInt("pages_translated");
+            for (int i = 1; i < pagesTranslated; i++) {
+                int nextIndex = currentPage + i;
+                if (nextIndex < pages.size() && !pages.get(nextIndex).isTranslated()) {
+                    translatePageAsync(pages.get(nextIndex));
+                }
+            }
         }
+
         if (currentPage == pages.size() - 1) {
             nextPageButton.setEnabled(false);
         }
@@ -229,5 +241,17 @@ public class PageUI extends JFrame {
             button.setContentAreaFilled(true);
             button.setBorderPainted(true);
         }
+    }
+
+    /*
+    Translates async
+     */
+    private void translatePageAsync(Page page) {
+        PageTranslationTask task = new PageTranslationTask(translator, page, () -> {
+            if (page == pages.get(currentPage)) {
+                updateContent();
+            }
+        });
+        task.execute();
     }
 }

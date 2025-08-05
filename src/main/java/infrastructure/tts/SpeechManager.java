@@ -15,23 +15,30 @@ import java.util.List;
 
 public class SpeechManager implements Speaker {
 
-    private final TextToSpeechClient ttsClient;
+    private TextToSpeechClient ttsClient;
 
     public SpeechManager(String credentialsPath) {
         try {
-            GoogleCredentials credentials = GoogleCredentials
-                    .fromStream(new FileInputStream(credentialsPath))
-                    .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
+            if (credentialsPath != null && !credentialsPath.isEmpty()) {
+                GoogleCredentials credentials = GoogleCredentials
+                        .fromStream(new FileInputStream(credentialsPath))
+                        .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
 
-            TextToSpeechSettings settings = TextToSpeechSettings.newBuilder()
-                    .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
-                    .build();
+                TextToSpeechSettings settings = TextToSpeechSettings.newBuilder()
+                        .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
+                        .build();
 
-            this.ttsClient = TextToSpeechClient.create(settings);
+                this.ttsClient = TextToSpeechClient.create(settings);
+            } else {
+                System.out.println("No credentials provided. TTS will be disabled.");
+                this.ttsClient = null;
+            }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to initialize Text-to-Speech: " + e.getMessage(), e);
+            System.out.println("Invalid credentials. TTS will be disabled. Reason: " + e.getMessage());
+            this.ttsClient = null;
         }
     }
+
 
     // Default: speak in English
     @Override
@@ -97,4 +104,8 @@ public class SpeechManager implements Speaker {
             e.printStackTrace();
         }
     }
+    public boolean isAvailable() {
+        return ttsClient != null;
+    }
+
 }

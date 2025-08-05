@@ -19,12 +19,9 @@ import application.interactor.SpeakWordsInteractor;
 import application.interactor.TranslatePageInteractor;
 import application.usecase.SpeakWordsUseCase;
 import application.usecase.TranslatePageUseCase;
-import domain.gateway.ConfigGateway;
-import domain.gateway.Speaker;
 import domain.gateway.Translator;
 import domain.gateway.WordTransliterator;
 import domain.model.Page;
-import infrastructure.config.ConfigManager;
 import infrastructure.persistence.StoredWords;
 import infrastructure.translation.TranslationHandler;
 import infrastructure.translation.TransliterationHandler;
@@ -98,18 +95,6 @@ public class MainUI extends JFrame {
     /** Combo box for selecting the target language. */
     private JComboBox<String> targetLangBox;
 
-    /** Combo box for selecting translation speed. */
-    private JComboBox<Integer> speedBox;
-
-    /** Combo box for selecting the display font. */
-    private JComboBox<String> fontBox;
-
-    /** Checkbox to enable incremental (exponential) word replacement. */
-    private JCheckBox exponentialGrowthBox;
-
-    /** Checkbox to show original script alongside transliteration. */
-    private JCheckBox originalScriptBox;
-
     /**
      * Creates a MainUI instance with saved API key stored in configuration.
      *
@@ -156,26 +141,17 @@ public class MainUI extends JFrame {
 
         inputLangBox = new JComboBox<>(new String[]{"en"});
         targetLangBox = new JComboBox<>(LanguageCodes.LANGUAGES.keySet().toArray(new String[0]));
-        speedBox = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
-        fontBox = new JComboBox<>(FontList.FONTS.keySet().toArray(new String[0]));
-        exponentialGrowthBox = new JCheckBox();
-        originalScriptBox = new JCheckBox();
 
         inputLangBox.setSelectedItem("en-us");
-        targetLangBox.setSelectedItem(
-                LanguageCodes.REVERSELANGUAGES.get(ConfigDataRetriever.get("target_language"))
-        );
-        speedBox.setSelectedItem(ConfigDataRetriever.getSpeed());
-        fontBox.setSelectedItem(ConfigDataRetriever.get("font"));
-        exponentialGrowthBox.setSelected(ConfigDataRetriever.getBool("increment"));
-        originalScriptBox.setSelected(ConfigDataRetriever.getBool("original_script"));
+        targetLangBox.setSelectedItem(LanguageCodes.REVERSELANGUAGES.get(ConfigDataRetriever.get("target_language")));
 
         pickFileButton = new JButton("Pick File");
         startButton = new JButton("Start");
         closeButton = new JButton("Close App");
+        settingsButton = new JButton("Settings");
+        logoutButton = new JButton("Logout");
         darkModeToggle = new JToggleButton("Dark Mode");
         darkModeToggle.setSelected(darkMode);
-        logoutButton = new JButton("Logout");
 
         arrangeLayout();
         setVisible(true);
@@ -196,27 +172,14 @@ public class MainUI extends JFrame {
         languageRow.add(new JLabel("To:"));
         languageRow.add(targetLangBox);
 
-        JPanel speedFontRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        speedFontRow.add(new JLabel("Speed:"));
-        speedFontRow.add(speedBox);
-        speedFontRow.add(Box.createHorizontalStrut(30));
-        speedFontRow.add(new JLabel("Font:"));
-        speedFontRow.add(fontBox);
-        speedFontRow.add(Box.createHorizontalStrut(30));
-        speedFontRow.add(new JLabel("Incremental:"));
-        speedFontRow.add(exponentialGrowthBox);
-        speedFontRow.add(Box.createHorizontalStrut(30));
-        speedFontRow.add(new JLabel("Original Script:"));
-        speedFontRow.add(originalScriptBox);
-
         langPanel.add(languageRow);
-        langPanel.add(speedFontRow);
 
         JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 20));
         buttonPanel.add(pickFileButton);
         buttonPanel.add(startButton);
         buttonPanel.add(closeButton);
+        buttonPanel.add(settingsButton);
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomPanel.add(logoutButton);
@@ -249,27 +212,23 @@ public class MainUI extends JFrame {
                 return;
             }
 
-            ConfigDataRetriever.set("increment", exponentialGrowthBox.isSelected());
-            ConfigDataRetriever.set("original_script", originalScriptBox.isSelected());
-            ConfigDataRetriever.set("target_language",
-                    LanguageCodes.LANGUAGES.get(targetLangBox.getSelectedItem()));
-            ConfigDataRetriever.set("speed", String.valueOf(speedBox.getSelectedItem()));
-            ConfigDataRetriever.set("font", FontList.FONTS.get(fontBox.getSelectedItem()));
+            ConfigDataRetriever.set("target_language", LanguageCodes.LANGUAGES.get(targetLangBox.getSelectedItem()));
             ConfigDataRetriever.saveConfig();
 
             translatorUseCase.execute(pages.get(0));
 
-            // Set up TTS with stored credentials
             String credsPath = ConfigDataRetriever.get("google_credentials_path");
             SpeechManager speechManager = new SpeechManager(credsPath);
             SpeakWordsUseCase speakUseCase = new SpeakWordsInteractor(speechManager);
-            speakController = new SpeakController(speakUseCase);
+            speakController = new SpeakController(speakUseCase, speechManager);
 
             new PageUI(pages, darkMode, translatorUseCase, speakController).setVisible(true);
             dispose();
         });
 
         closeButton.addActionListener(e -> dispose());
+
+        settingsButton.addActionListener(e -> new SettingsUI());
 
         logoutButton.addActionListener(e -> {
             ConfigDataRetriever.set("api_key", "none");

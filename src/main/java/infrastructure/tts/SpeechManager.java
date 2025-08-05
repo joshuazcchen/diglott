@@ -1,6 +1,6 @@
 package infrastructure.tts;
 
-import Configuration.ConfigDataRetriever;
+import configuration.ConfigDataRetriever;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.texttospeech.v1.*;

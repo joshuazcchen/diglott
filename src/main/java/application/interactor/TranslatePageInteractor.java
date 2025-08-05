@@ -1,6 +1,6 @@
 package application.interactor;
 
-import Configuration.ConfigDataRetriever;
+import configuration.ConfigDataRetriever;
 import application.usecase.TranslatePageUseCase;
 import domain.gateway.Translator;
 import domain.gateway.WordTransliterator;

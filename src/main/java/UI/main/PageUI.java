@@ -1,6 +1,6 @@
 package UI.main;
 
-import Configuration.ConfigDataRetriever;
+import configuration.ConfigDataRetriever;
 import application.controller.SpeakController;
 import application.usecase.TranslatePageUseCase;
 import domain.model.Page;

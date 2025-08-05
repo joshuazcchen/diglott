@@ -1,7 +1,7 @@
 package UI.main;
 
-import Configuration.ConfigDataRetriever;
-import Configuration.FontList;
+import configuration.ConfigDataRetriever;
+import configuration.FontList;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;

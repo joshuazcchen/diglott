@@ -1,7 +1,7 @@
 package UI.main;
 
-import Configuration.ConfigDataRetriever;
-import Configuration.LanguageCodes;
+import configuration.ConfigDataRetriever;
+import configuration.LanguageCodes;
 import UI.components.UIThemeManager;
 import UI.login.LoginUI;
 import application.controller.SpeakController;

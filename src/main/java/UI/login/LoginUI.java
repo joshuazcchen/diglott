@@ -1,13 +1,17 @@
 package UI.login;
 
-import Configuration.ConfigDataRetriever;
+import configuration.ConfigDataRetriever;
 import UI.main.MainUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 public class LoginUI extends JFrame {
 
@@ -16,6 +20,7 @@ public class LoginUI extends JFrame {
     private static final Color LIGHT_BG_COLOR = Color.WHITE;
     private static final Color LIGHT_LINK_COLOR = new Color(0, 102, 204);
 
+    @SuppressWarnings("checkstyle:FinalLocalVariable")
     public LoginUI() {
         setTitle("Diglott Login");
         setSize(350, 220);
@@ -67,17 +72,43 @@ public class LoginUI extends JFrame {
 
         // Clicking "Login" should store the API key and launch MainUI
         loginButton.addActionListener(e -> {
-            String apiKey = keyField.getText().trim();
+            int responseCode = 0;
+            final String apiKey = keyField.getText().trim();
             if (apiKey.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "API key is required.");
                 return;
             }
 
-            ConfigDataRetriever.set("api_key", apiKey);
-            ConfigDataRetriever.saveConfig();
+            try {
+                final URL url = new URL("https://api-free.deepl.com/v2/usage?auth_key=" + apiKey);
 
-            dispose();
-            MainUI.createInstance(apiKey).setVisible(true);
+                final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+
+                responseCode = connection.getResponseCode();
+                System.out.println(connection.getResponseMessage());
+
+                connection.disconnect();
+            }
+            catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Please verify your key is correctly inputted.",
+                        "Could not connect to the API",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                System.out.println(responseCode);
+            } else {
+                ConfigDataRetriever.set("api_key", apiKey);
+                ConfigDataRetriever.saveConfig();
+
+                dispose();
+                MainUI.createInstance(apiKey).setVisible(true);
+            }
         });
 
         // Clicking the link should open DeepL’s API page
@@ -86,7 +117,8 @@ public class LoginUI extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 try {
                     Desktop.getDesktop().browse(new URI("https://www.deepl.com/en/pro-api"));
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     JOptionPane.showMessageDialog(null, "Could not open the link.");
                 }
             }

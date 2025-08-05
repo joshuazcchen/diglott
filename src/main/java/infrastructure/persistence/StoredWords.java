@@ -1,9 +1,9 @@
 package infrastructure.persistence;
 
-import Configuration.ConfigDataRetriever;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import configuration.ConfigDataRetriever;
 
 /**
  * Stores translated words in memory during application runtime.

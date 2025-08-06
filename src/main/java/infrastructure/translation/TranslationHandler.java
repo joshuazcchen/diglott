@@ -16,59 +16,99 @@ import domain.gateway.Translator;
 import infrastructure.persistence.StoredWords;
 
 /**
- * Handles translation requests using the DeepL API and stores translated words.
+ * Handles translation requests using the DeepL API
+ * and stores translated words in local memory.
  */
 public class TranslationHandler implements Translator {
 
+    /**
+     * API key used to authenticate with DeepL.
+     */
     private final String apiKey;
+
+    /**
+     * Local store of translated words.
+     */
     private final StoredWords storedWords;
 
     /**
      * Creates a TranslationHandler instance.
      *
-     * @param apiKey      the API key for the translation service, or {@code null} to use the config value
-     * @param storedWords the storage for translated words
+     * @param inputApiKey
+     * the API key for the translation service, or
+     * {@code null} to use the config value
+     * @param wordStorage
+     * the storage for translated words
      */
-    public TranslationHandler(final String apiKey, final StoredWords storedWords) {
-        this.storedWords = storedWords;
-        if (apiKey == null || apiKey.trim().isEmpty() || "none".equals(apiKey)) {
+    public TranslationHandler(final String inputApiKey,
+                              final StoredWords wordStorage) {
+        this.storedWords = wordStorage;
+
+        if (inputApiKey == null || inputApiKey.trim().isEmpty()
+                || "none".equals(inputApiKey)) {
             this.apiKey = ConfigDataRetriever.get("api_key");
         } else {
-            this.apiKey = apiKey;
-            ConfigDataRetriever.set("api_key", apiKey);
+            this.apiKey = inputApiKey;
+            ConfigDataRetriever.set("api_key", inputApiKey);
             ConfigDataRetriever.saveConfig();
         }
     }
 
+    /**
+     * Translates a word using the DeepL API and stores the result
+     * if not already present.
+     *
+     * @param word the word to translate
+     * @throws Exception if the API key is missing or the request fails
+     */
     @Override
     public void addWord(final String word) throws Exception {
         if ("none".equals(apiKey)) {
             throw new Exception("Missing API Key");
         }
 
-        final String urlParams = "auth_key=" + URLEncoder.encode(apiKey, StandardCharsets.UTF_8)
-                + "&text=" + URLEncoder.encode(word, StandardCharsets.UTF_8)
-                + "&target_lang=" + ConfigDataRetriever.get("target_language");
+        final String encodedKey = URLEncoder.encode(
+                apiKey, StandardCharsets.UTF_8);
+        final String encodedWord = URLEncoder.encode(
+                word, StandardCharsets.UTF_8);
+        final String targetLang = ConfigDataRetriever.get("target_language");
+
+        final String urlParams = "auth_key=" + encodedKey
+                + "&text=" + encodedWord
+                + "&target_lang=" + targetLang;
 
         final JSONObject responseJson = makeApiCall(urlParams);
 
-        final JSONArray translations = responseJson.optJSONArray("translations");
+        final JSONArray translations =
+                responseJson.optJSONArray("translations");
         if (translations != null && translations.length() > 0) {
-            final String translated = translations.getJSONObject(0).getString("text");
+            final String translated =
+                    translations.getJSONObject(0).getString("text");
 
-            if (!storedWords.getTranslations().containsKey(word.toLowerCase())) {
-                storedWords.addTranslation(word.toLowerCase(), translated);
+            final String key = word.toLowerCase();
+            if (!storedWords.getTranslations().containsKey(key)) {
+                storedWords.addTranslation(key, translated);
             }
         }
     }
 
-    protected JSONObject makeApiCall(String urlParams) throws Exception {
+    /**
+     * Makes a POST request to the DeepL translation API.
+     *
+     * @param urlParams the encoded request parameters
+     * @return the JSON response as a JSONObject
+     * @throws Exception if the request fails
+     */
+    protected JSONObject makeApiCall(final String urlParams)
+            throws Exception {
         final String url = "https://api-free.deepl.com/v2/translate";
 
-        final HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        final HttpURLConnection conn =
+                (HttpURLConnection) new URL(url).openConnection();
         conn.setRequestMethod("POST");
         conn.setDoOutput(true);
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        conn.setRequestProperty("Content-Type",
+                "application/x-www-form-urlencoded");
 
         try (OutputStream os = conn.getOutputStream()) {
             os.write(urlParams.getBytes(StandardCharsets.UTF_8));
@@ -76,7 +116,8 @@ public class TranslationHandler implements Translator {
 
         final StringBuilder responseBuilder = new StringBuilder();
         try (BufferedReader in = new BufferedReader(
-                new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                new InputStreamReader(
+                        conn.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = in.readLine()) != null) {
                 responseBuilder.append(line);

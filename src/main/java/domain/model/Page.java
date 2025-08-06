@@ -6,39 +6,58 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Represents a single page in a book, containing both original and translated scripts.
+ * Represents a single page in a book,
+ * containing both original and translated scripts.
  */
 public class Page {
+    /**
+     * The page number associated with this page.
+     */
     private final int pageNumber;
+
+    /**
+     * The maximum number of words allowed on this page.
+     */
     private final int maxWords;
+
+    /**
+     * The list of original words as they appeared in the source text.
+     */
     private final List<String> originalWords;
+
+    /**
+     * The list of words currently displayed on
+     * this page (translated or original).
+     */
     private List<String> translatedWords;
 
     /**
      * Constructs a Page object with given content and metadata.
      *
      * @param words      the original list of words for this page
-     * @param pageNumber the page number
-     * @param maxWords   the maximum number of words allowed
+     * @param pageNum the page number
+     * @param max   the maximum number of words allowed
      */
-    public Page(final List<String> words, final int pageNumber, final int maxWords) {
+    public Page(final List<String> words, final int pageNum, final int max) {
         if (words == null || words.isEmpty()) {
-            throw new IllegalArgumentException("Content cannot be null or empty.");
+            throw new IllegalArgumentException(
+                    "Content cannot be null or empty.");
         }
-        if (maxWords <= 0) {
+        if (max <= 0) {
             throw new IllegalArgumentException("Max words must be positive.");
         }
-        if (words.size() > maxWords) {
+        if (words.size() > max) {
             throw new IllegalArgumentException(
                     "Content exceeds the maximum allowed words per page: "
-                            + words.size() + " > " + maxWords);
+                            + words.size() + " > " + max);
         }
 
-        this.pageNumber = pageNumber;
-        this.maxWords = maxWords;
+        this.pageNumber = pageNum;
+        this.maxWords = max;
         this.originalWords = new ArrayList<>(words);
-        this.translatedWords = new ArrayList<>(words); // initially same as original
+        this.translatedWords = new ArrayList<>(words);
     }
+
 
     /**
      * @return the translated content as a single space-separated string

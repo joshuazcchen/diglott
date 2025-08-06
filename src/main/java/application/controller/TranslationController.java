@@ -17,7 +17,7 @@ import ui.components.FileSelector;
 /**
  * Controller for loading and preparing book content for translation.
  */
-public class TranslationController {
+public final class TranslationController {
 
     /**
      * Loads a book file, parses it into pages, and returns a result object.
@@ -27,68 +27,83 @@ public class TranslationController {
     public LoadResult loadBook() {
         LoadResult result = null;
         final File selected = FileSelector.selectBookFile();
+
         if (selected != null) {
             try {
-                final BookImporter importer = BookImporterFactory.getImporter(selected);
-                final String text = importer.importBook(selected);
-                final List<String> words = Arrays.asList(text.split(" "));
-                final int pageLength = ConfigDataRetriever.getInt("page_length");
-                final List<Page> pages = PageFactory.paginate(words, pageLength);
-                result = new LoadResult(pages, text, selected);
-            }
-            catch (IOException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Failed to load book.");
+                final BookImporter importer =
+                        BookImporterFactory.getImporter(selected);
+                final String rawText = importer.importBook(selected);
+                final List<String> words =
+                        Arrays.asList(rawText.split(" "));
+                final int pageLength =
+                        ConfigDataRetriever.getInt("page_length");
+                final List<Page> parsedPages =
+                        PageFactory.paginate(words, pageLength);
+
+                result = new LoadResult(parsedPages, rawText, selected);
+            } catch (IOException ex) {
+                System.err.println("Book loading failed: " + ex.getMessage());
+                JOptionPane.showMessageDialog(
+                        null, "Failed to load book."
+                );
             }
         }
+
         return result;
     }
 
     /**
      * Container for book loading result.
+     * Holds parsed pages, raw text, and the original file reference.
      */
-    public static class LoadResult {
+    public static final class LoadResult {
+
+        /** Parsed list of book pages. */
         private final List<Page> pages;
+
+        /** Raw text content of the book. */
         private final String text;
+
+        /** The original book file. */
         private final File file;
 
         /**
          * Constructs a load result object containing loaded data.
          *
-         * @param pages the list of pages generated from the book
-         * @param text  the raw text content of the book
-         * @param file  the original book file
+         * @param loadedPages the list of pages from the book
+         * @param rawText     the raw text content of the book
+         * @param original    the original file
          */
         public LoadResult(
-                final List<Page> pages,
-                final String text,
-                final File file
+                final List<Page> loadedPages,
+                final String rawText,
+                final File original
         ) {
-            this.pages = pages;
-            this.text = text;
-            this.file = file;
+            this.pages = loadedPages;
+            this.text = rawText;
+            this.file = original;
         }
 
         /**
-         * Gets the list of pages.
+         * Gets the list of parsed pages.
          *
-         * @return the list of pages
+         * @return the page list
          */
         public List<Page> getPages() {
             return pages;
         }
 
         /**
-         * Gets the raw text content.
+         * Gets the raw text of the book.
          *
-         * @return the text content
+         * @return the text
          */
         public String getText() {
             return text;
         }
 
         /**
-         * Gets the original file.
+         * Gets the original file object.
          *
          * @return the file
          */

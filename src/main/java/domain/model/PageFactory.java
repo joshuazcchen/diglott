@@ -6,20 +6,26 @@ import java.util.List;
 /**
  * Factory class responsible for dividing a list of words into pages.
  */
-public class PageFactory {
+public final class PageFactory {
 
     /**
-     * Splits a list of words into pages with a maximum number of words per page.
+     * Private constructor to prevent instantiation.
+     */
+    private PageFactory() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
+    /**
+     * Splits a list of words into pages with a
+     * maximum number of words per page.
      *
      * @param words           the complete list of words to paginate
      * @param maxWordsPerPage the maximum number of words allowed per page
      * @return a list of Page objects representing paginated content
      * @throws IllegalArgumentException if maxWordsPerPage is not positive
      */
-    public static List<Page> paginate(
-            final List<String> words,
-            final int maxWordsPerPage
-    ) {
+    public static List<Page> paginate(final List<String> words,
+                                      final int maxWordsPerPage) {
         if (maxWordsPerPage <= 0) {
             throw new IllegalArgumentException(
                     "maxWordsPerPage must be greater than zero.");

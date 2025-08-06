@@ -4,9 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Stores bidirectional mappings between human-readable language names and their ISO language codes.
+ * Stores bidirectional mappings between
+ * human-readable language names and their ISO language codes.
  */
-public class LanguageCodes {
+public final class LanguageCodes {
 
     /**
      * Maps language names to their ISO codes.
@@ -51,7 +52,8 @@ public class LanguageCodes {
     /**
      * Maps ISO codes to their language names.
      */
-    public static final Map<String, String> REVERSELANGUAGES = new LinkedHashMap<>() {{
+    public static final Map<String, String> REVERSELANGUAGES =
+            new LinkedHashMap<>() {{
         put("ar", "Arabic");
         put("bg", "Bulgarian");
         put("cs", "Czech");

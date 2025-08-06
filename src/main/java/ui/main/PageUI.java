@@ -128,7 +128,7 @@ public class PageUI extends JFrame {
                         JOptionPane.WARNING_MESSAGE
                 );
             } else {
-                new SpeakUI(pages.get(currentPage), speakController, darkMode);
+                new SpeakUi(pages.get(currentPage), speakController, darkMode);
             }
         });
 

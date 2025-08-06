@@ -1,4 +1,4 @@
-package UI.main;
+package ui.main;
 
 import static org.mockito.Mockito.*;
 

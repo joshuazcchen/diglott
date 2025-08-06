@@ -1,9 +1,9 @@
-package UI.main;
+package ui.main;
 
 import configuration.ConfigDataRetriever;
 import configuration.LanguageCodes;
-import UI.components.UIThemeManager;
-import UI.login.LoginUI;
+import ui.components.UIThemeManager;
+import ui.login.LoginUI;
 import application.controller.SpeakController;
 import application.controller.TranslationController;
 import application.interactor.SpeakWordsInteractor;
@@ -181,13 +181,13 @@ public class MainUI extends JFrame {
     /** Adds listeners to UI components for button actions. */
     private void addListeners() {
         pickFileButton.addActionListener(e -> {
-            var result = controller.loadBook();
+            final var result = controller.loadBook();
             if (result != null) {
-                pages = result.pages;
-                bookText = result.text;
-                selectedFile = result.file;
+                pages = result.getPages();
+                bookText = result.getText();
+                selectedFile = result.getFile();
                 JOptionPane.showMessageDialog(this, "Book loaded successfully!");
-                pickFileButton.setText("Loaded: " + result.file.getName());
+                pickFileButton.setText("Loaded: " + result.getFile().getName());
             }
         });
 
@@ -214,7 +214,7 @@ public class MainUI extends JFrame {
 
         closeButton.addActionListener(e -> dispose());
 
-        settingsButton.addActionListener(e -> new SettingsUI());
+        settingsButton.addActionListener(e -> new SettingsUi());
 
         logoutButton.addActionListener(e -> {
             ConfigDataRetriever.set("api_key", "none");

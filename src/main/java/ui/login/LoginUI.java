@@ -1,17 +1,14 @@
-package UI.login;
+package ui.login;
 
 import configuration.ConfigDataRetriever;
-import UI.main.MainUI;
+import ui.main.MainUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.nio.charset.StandardCharsets;
 
 public class LoginUI extends JFrame {
 

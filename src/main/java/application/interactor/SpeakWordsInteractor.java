@@ -1,10 +1,10 @@
 package application.interactor;
 
+import java.util.List;
+
 import application.usecase.SpeakWordsUseCase;
 import domain.gateway.Speaker;
 import infrastructure.tts.SpeechManager;
-
-import java.util.List;
 
 public class SpeakWordsInteractor implements SpeakWordsUseCase {
 
@@ -24,12 +24,24 @@ public class SpeakWordsInteractor implements SpeakWordsUseCase {
         speaker.speak(words);
     }
 
+    /**
+     * Speaks a pair of words, typically an original word and its translation.
+     *
+     * @param original the original word to speak
+     * @param translated the translated version of the word to speak
+     */
     public void speakWordPair(String original, String translated) {
         if (speaker instanceof SpeechManager sm) {
             sm.speakWordPair(original, translated);
         }
     }
 
+    /**
+     * Speaks a word in the specified language.
+     *
+     * @param word the word to speak
+     * @param languageCode the language code to use for speaking the word
+     */
     public void speakWord(String word, String languageCode) {
         if (speaker instanceof SpeechManager sm) {
             sm.speakWord(word, languageCode);

@@ -1,4 +1,4 @@
-package UI.components;
+package ui.components;
 
 import javax.swing.JComponent;
 import java.awt.Color;

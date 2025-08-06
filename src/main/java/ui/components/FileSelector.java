@@ -1,4 +1,4 @@
-package UI.components;
+package ui.components;
 
 import javax.swing.JFileChooser;
 import java.io.File;

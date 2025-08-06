@@ -1,9 +1,9 @@
-package UI.main;
+package ui.main;
 
 import configuration.ConfigDataRetriever;
 import configuration.LanguageCodes;
-import UI.components.UIThemeManager;
-import UI.login.LoginUI;
+import ui.components.UIThemeManager;
+import ui.login.LoginUI;
 import application.controller.SpeakController;
 import application.controller.TranslationController;
 import application.interactor.SpeakWordsInteractor;
@@ -214,7 +214,7 @@ public class MainUI extends JFrame {
 
         closeButton.addActionListener(e -> dispose());
 
-        settingsButton.addActionListener(e -> new SettingsUI());
+        settingsButton.addActionListener(e -> new SettingsUi());
 
         logoutButton.addActionListener(e -> {
             ConfigDataRetriever.set("api_key", "none");

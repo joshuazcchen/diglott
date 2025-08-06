@@ -1,7 +1,7 @@
 package application.controller;
 
 import configuration.ConfigDataRetriever;
-import UI.components.FileSelector;
+import ui.components.FileSelector;
 import domain.gateway.BookImporter;
 import domain.model.Page;
 import domain.model.PageFactory;

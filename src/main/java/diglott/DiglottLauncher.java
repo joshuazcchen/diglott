@@ -1,7 +1,7 @@
 package diglott;
 
-import UI.login.LoginUI;
-import UI.main.MainUI;
+import ui.login.LoginUI;
+import ui.main.MainUI;
 import configuration.ConfigDataRetriever;
 
 /**

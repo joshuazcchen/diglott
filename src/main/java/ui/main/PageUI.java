@@ -120,7 +120,7 @@ public class PageUI extends JFrame {
         previousPageButton.addActionListener(e -> goToPreviousPage(previousPageButton, nextPageButton));
 
         speakButton.addActionListener(e -> {
-            if (!speakController.isTTSAvailable()) {
+            if (!speakController.isTtsAvailable()) {
                 JOptionPane.showMessageDialog(
                         this,
                         "Google Cloud credentials not configured. Please upload a valid file to use speech.",

@@ -62,7 +62,8 @@ public class SettingsUi extends JFrame {
     public SettingsUi() {
         initializeFrame();
 
-        final boolean darkMode = Boolean.parseBoolean(ConfigDataRetriever.get("dark_mode"));
+        final boolean darkMode =
+                Boolean.parseBoolean(ConfigDataRetriever.get("dark_mode"));
 
         // UI controls
         final JButton pickCredsButton = createCredentialsButton();
@@ -109,7 +110,8 @@ public class SettingsUi extends JFrame {
     private void handleCredentialsSelection() {
         final JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Select Google Credentials JSON File");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("JSON files", "json"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter(
+                "JSON files", "json"));
 
         final int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
@@ -132,7 +134,8 @@ public class SettingsUi extends JFrame {
         final JComboBox<Integer> box = new JComboBox<>(SPEED_OPTIONS);
         box.setSelectedItem(ConfigDataRetriever.getSpeed());
         box.addActionListener(actionEvent -> {
-            ConfigDataRetriever.set("speed", String.valueOf(box.getSelectedItem()));
+            ConfigDataRetriever.set("speed",
+                    String.valueOf(box.getSelectedItem()));
             ConfigDataRetriever.saveConfig();
         });
         return box;
@@ -165,7 +168,8 @@ public class SettingsUi extends JFrame {
                 new JComboBox<>(FontList.FONTS.keySet().toArray(new String[0]));
         box.setSelectedItem(ConfigDataRetriever.get("font"));
         box.addActionListener(actionEvent -> {
-            ConfigDataRetriever.set("font", FontList.FONTS.get(box.getSelectedItem()));
+            ConfigDataRetriever.set("font",
+                    FontList.FONTS.get(box.getSelectedItem()));
             ConfigDataRetriever.saveConfig();
         });
         return box;
@@ -223,7 +227,8 @@ public class SettingsUi extends JFrame {
             final boolean darkMode) {
 
         final JPanel content = new JPanel();
-        content.setLayout(new GridLayout(GRID_ROWS, GRID_COLUMNS, GRID_SPACING, GRID_SPACING));
+        content.setLayout(new GridLayout(
+                GRID_ROWS, GRID_COLUMNS, GRID_SPACING, GRID_SPACING));
         content.setBorder(BorderFactory.createEmptyBorder(
                 PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
 

@@ -14,40 +14,54 @@ import java.util.Random;
 
 /**
  * Interactor for executing the translation and transliteration of a page.
+ * Applies the diglot method incrementally, using cached translations
+ * and formatting logic.
  */
-public class TranslatePageInteractor implements TranslatePageUseCase {
+public final class TranslatePageInteractor implements TranslatePageUseCase {
 
+    /** Handles word translation using an external service. */
     private final Translator translator;
+
+    /** Converts translated words into a readable phonetic form. */
     private final WordTransliterator wordTransliterator;
+
+    /** Stores and retrieves previously translated words. */
     private final StoredWords storedWords;
+
+    /** Random number generator for selecting words to translate. */
     private final Random random;
+
+    /** Minimum word length for eligibility to translate. */
+    private static final int MIN_TRANSLATABLE_LENGTH = 3;
 
     /**
      * Constructs a TranslatePageInteractor with its required dependencies.
      *
-     * @param translator         the translator used to retrieve translations
-     * @param wordTransliterator the transliterator used for formatting
-     * @param storedWords        the word store for caching translations
+     * @param translate         the translator used to retrieve translations
+     * @param transliterator the transliterator used for formatting
+     * @param stored       the word store for caching translations
      */
     public TranslatePageInteractor(
-            final Translator translator,
-            final WordTransliterator wordTransliterator,
-            final StoredWords storedWords
+            final Translator translate,
+            final WordTransliterator transliterator,
+            final StoredWords stored
     ) {
-        this.translator = translator;
-        this.wordTransliterator = wordTransliterator;
-        this.storedWords = storedWords;
+        this.translator = translate;
+        this.wordTransliterator = transliterator;
+        this.storedWords = stored;
         this.random = new Random("DIGLOTTLANGUAGE".hashCode());
     }
 
     /**
-     * Translates the content of a page and updates it with formatted replacements.
+     * Translates the content of a page and updates it with
+     * transliterated replacements based on speed and page number.
      *
      * @param page the page to process and rewrite
      */
     @Override
     public void execute(final Page page) {
-        final Map<String, String> wordDatabase = storedWords.getTranslations();
+        final Map<String, String> wordDatabase =
+                storedWords.getTranslations();
         final List<String> pageContent = page.getWords();
 
         final boolean incremental = ConfigDataRetriever.getBool("increment");
@@ -55,26 +69,32 @@ public class TranslatePageInteractor implements TranslatePageUseCase {
         final int pageNumber = page.getPageNumber();
 
         final int internalSpeed = incremental
-                ? (int) Math.floor((double) pageNumber / (6 - configuredSpeed))
+                ? (int) Math.floor(
+                (double) pageNumber / (6 - configuredSpeed))
                 : configuredSpeed;
+
         try {
             if (pageNumber != 0) {
-                addRandomWordsToDatabase(pageContent, wordDatabase, internalSpeed);
+                addRandomWordsToDatabase(
+                        pageContent, wordDatabase, internalSpeed);
             }
         } catch (Exception e) {
             System.out.println("Translation error: " + e.getMessage());
         }
 
-        final List<String> newPageContent = buildTranslatedContent(pageContent, wordDatabase);
+        final List<String> newPageContent =
+                buildTranslatedContent(pageContent, wordDatabase);
         page.rewriteTranslatedContent(newPageContent);
     }
 
     /**
-     * Adds random words from the page to the translation database if not already present.
+     * Adds random words from the page to the translation database
+     * if they are not already translated.
      *
      * @param pageContent  the words on the page
      * @param wordDatabase the translation database
      * @param count        number of words to attempt adding
+     * @throws Exception if translation API fails
      */
     private void addRandomWordsToDatabase(
             final List<String> pageContent,
@@ -84,16 +104,19 @@ public class TranslatePageInteractor implements TranslatePageUseCase {
         for (int z = 0; z < count; z++) {
             final int randomIndex = random.nextInt(pageContent.size());
             final String word = pageContent.get(randomIndex).toLowerCase();
-            if (!wordDatabase.containsKey(word) && word.length() >= 3) {
+
+            if (!wordDatabase.containsKey(word) && word.length()
+                    >= MIN_TRANSLATABLE_LENGTH) {
                 translator.addWord(pageContent.get(randomIndex));
             } else {
-                z--;
+                z--; // Retry until 'count' words are added
             }
         }
     }
 
     /**
-     * Builds the translated page content.
+     * Builds the final page content by replacing translated words
+     * with formatted versions.
      *
      * @param pageContent  the original page content
      * @param wordDatabase the translation database
@@ -104,7 +127,8 @@ public class TranslatePageInteractor implements TranslatePageUseCase {
             final Map<String, String> wordDatabase
     ) {
         final List<String> newPageContent = new ArrayList<>();
-        final boolean showOriginal = ConfigDataRetriever.getBool("original_script");
+        final boolean showOriginal =
+                ConfigDataRetriever.getBool("original_script");
 
         for (String word : pageContent) {
             final String lower = word.toLowerCase();
@@ -120,6 +144,7 @@ public class TranslatePageInteractor implements TranslatePageUseCase {
                 newPageContent.add(word);
             }
         }
+
         return newPageContent;
     }
 }

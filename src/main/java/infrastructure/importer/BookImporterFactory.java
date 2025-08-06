@@ -8,7 +8,14 @@ import java.io.File;
  * Factory class to return the correct BookImporter implementation
  * based on the file extension.
  */
-public class BookImporterFactory {
+public final class BookImporterFactory {
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private BookImporterFactory() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
     /**
      * Returns the appropriate BookImporter for the given file type.

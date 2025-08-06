@@ -11,7 +11,8 @@ public class DiglottLauncher {
 
     /**
      * Starts the application by attempting to load a saved API key.
-     * If the key is valid, it proceeds to the main UI; otherwise, it shows the login UI.
+     * If the key is valid,
+     * it proceeds to the main UI; otherwise, it shows the login UI.
      */
     public void start() {
         String savedKey = null;

@@ -1,23 +1,7 @@
 package ui.main;
 
-import configuration.ConfigDataRetriever;
-import configuration.LanguageCodes;
-import ui.components.UIThemeManager;
-import ui.login.LoginUI;
-import application.controller.SpeakController;
-import application.controller.TranslationController;
-import application.interactor.SpeakWordsInteractor;
-import application.interactor.TranslatePageInteractor;
-import application.usecase.SpeakWordsUseCase;
-import application.usecase.TranslatePageUseCase;
-import domain.gateway.Translator;
-import domain.gateway.WordTransliterator;
-import domain.model.Page;
-import infrastructure.persistence.StoredWords;
-import infrastructure.translation.TranslationHandler;
-import infrastructure.translation.TransliterationHandler;
-import infrastructure.tts.SpeechManager;
-
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -25,26 +9,52 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.BorderFactory;
 import javax.swing.UIManager;
+
+import application.controller.SpeakController;
+import application.controller.TranslationController;
+import application.interactor.SpeakWordsInteractor;
+import application.interactor.TranslatePageInteractor;
+import application.usecase.SpeakWordsUseCase;
+import application.usecase.TranslatePageUseCase;
+import configuration.ConfigDataRetriever;
+import configuration.LanguageCodes;
+import domain.gateway.Translator;
+import domain.gateway.WordTransliterator;
+import domain.model.Page;
+import infrastructure.persistence.StoredWords;
+import infrastructure.translation.TranslationHandler;
+import infrastructure.translation.TransliterationHandler;
+import infrastructure.tts.SpeechManager;
+import ui.components.UIThemeManager;
+import ui.login.LoginUI;
+
+import java.util.List;
+import javax.swing.BorderFactory;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.io.File;
-import java.util.List;
 
 /**
- * Main UI window for selecting book files, configuring translation settings, and launching page view.
+ * Main UI window for selecting book files, configuring
+ * translation settings, and launching page view.
  */
 public class MainUI extends JFrame {
 
     /** Buttons. */
     private JButton pickFileButton;
+
+    /** Start button. */
     private JButton startButton;
+
+    /** Close button. */
     private JButton closeButton;
+
+    /** Logout button. */
     private JButton logoutButton;
+
+    /** Settings button. */
     private JButton settingsButton;
 
     /** Dark mode toggle. */
@@ -66,7 +76,8 @@ public class MainUI extends JFrame {
     private final StoredWords storedWords = new StoredWords();
 
     /** Translation controller. */
-    private final TranslationController controller = new TranslationController();
+    private final TranslationController controller =
+            new TranslationController();
 
     /** Speak controller. */
     private SpeakController speakController;
@@ -74,9 +85,29 @@ public class MainUI extends JFrame {
     /** Page translator use case. */
     private final TranslatePageUseCase translatorUseCase;
 
-    /** Language selection boxes. */
+    /** Input language box. */
     private JComboBox<String> inputLangBox;
+
+    /** Target language box. */
     private JComboBox<String> targetLangBox;
+
+    /** Ui width. */
+    private static final int WIDTH = 700;
+
+    /** UI height. */
+    private static final int HEIGHT = 300;
+
+    /** Small UI element size. */
+    private static final int SMALLUIELEMENT = 10;
+
+    /** Number of rows. */
+    private static final int ROWS = 2;
+
+    /** Number of columns. */
+    private static final int COLS = 2;
+
+    /** Medium UI element size. */
+    private static final int MEDIUMUIELEMENT = 20;
 
     /**
      * Creates a MainUI instance with saved API key.
@@ -97,16 +128,19 @@ public class MainUI extends JFrame {
      */
     MainUI(final String apiKey) {
         System.setProperty(
-                "javax.xml.xpath.XPathFactory:http://java.sun.com/jaxp/xpath/dom",
+                "javax.xml.xpath.XPathFactory:"
+                + "http://java.sun.com/jaxp/xpath/dom",
                 "net.sf.saxon.xpath.XPathFactoryImpl"
         );
 
         Translator translator = new TranslationHandler(apiKey, storedWords);
         WordTransliterator wordTransliterator = new TransliterationHandler();
-        translatorUseCase = new TranslatePageInteractor(translator, wordTransliterator, storedWords);
+        translatorUseCase = new TranslatePageInteractor(
+                translator, wordTransliterator, storedWords);
 
         try {
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            UIManager.setLookAndFeel(UIManager.
+                    getCrossPlatformLookAndFeelClassName());
         } catch (Exception ignored) {
             // Ignore exception and keep default LookAndFeel
         }
@@ -118,16 +152,18 @@ public class MainUI extends JFrame {
     private void setupUI() {
         darkMode = Boolean.parseBoolean(ConfigDataRetriever.get("dark_mode"));
         setTitle("Diglott Translator");
-        setSize(700, 300);
+        setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         inputLangBox = new JComboBox<>(new String[]{"en"});
-        targetLangBox = new JComboBox<>(LanguageCodes.LANGUAGES.keySet().toArray(new String[0]));
+        targetLangBox = new JComboBox<>(LanguageCodes.
+                LANGUAGES.keySet().toArray(new String[0]));
 
         inputLangBox.setSelectedItem("en-us");
         targetLangBox.setSelectedItem(
-                LanguageCodes.REVERSELANGUAGES.get(ConfigDataRetriever.get("target_language"))
+                LanguageCodes.REVERSELANGUAGES.
+                        get(ConfigDataRetriever.get("target_language"))
         );
 
         pickFileButton = new JButton("Pick File");
@@ -148,19 +184,22 @@ public class MainUI extends JFrame {
     private void arrangeLayout() {
         JPanel langPanel = new JPanel();
         langPanel.setLayout(new BoxLayout(langPanel, BoxLayout.Y_AXIS));
-        langPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        langPanel.setBorder(BorderFactory.createEmptyBorder(SMALLUIELEMENT,
+                SMALLUIELEMENT, SMALLUIELEMENT, SMALLUIELEMENT));
 
         JPanel languageRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
         languageRow.add(new JLabel("From:"));
         languageRow.add(inputLangBox);
-        languageRow.add(Box.createHorizontalStrut(20));
+        languageRow.add(Box.createHorizontalStrut(MEDIUMUIELEMENT));
         languageRow.add(new JLabel("To:"));
         languageRow.add(targetLangBox);
 
         langPanel.add(languageRow);
 
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 10, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 20));
+        JPanel buttonPanel = new JPanel(
+                new GridLayout(ROWS, COLS, SMALLUIELEMENT, SMALLUIELEMENT));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(
+                MEDIUMUIELEMENT, MEDIUMUIELEMENT, 0, MEDIUMUIELEMENT));
         buttonPanel.add(pickFileButton);
         buttonPanel.add(startButton);
         buttonPanel.add(closeButton);
@@ -186,29 +225,35 @@ public class MainUI extends JFrame {
                 pages = result.getPages();
                 bookText = result.getText();
                 selectedFile = result.getFile();
-                JOptionPane.showMessageDialog(this, "Book loaded successfully!");
+                JOptionPane.showMessageDialog(
+                        this, "Book loaded successfully!");
                 pickFileButton.setText("Loaded: " + result.getFile().getName());
             }
         });
 
         startButton.addActionListener(e -> {
             if (bookText == null) {
-                JOptionPane.showMessageDialog(this, "Please load a book first.");
+                JOptionPane.showMessageDialog(
+                        this, "Please load a book first.");
                 return;
             }
 
             ConfigDataRetriever.set("target_language",
-                    LanguageCodes.LANGUAGES.get(targetLangBox.getSelectedItem()));
+                    LanguageCodes.LANGUAGES.get(
+                            targetLangBox.getSelectedItem()));
             ConfigDataRetriever.saveConfig();
 
             translatorUseCase.execute(pages.get(0));
 
             String credsPath = ConfigDataRetriever.get("credentials_path");
             SpeechManager speechManager = new SpeechManager(credsPath);
-            SpeakWordsUseCase speakUseCase = new SpeakWordsInteractor(speechManager);
+            SpeakWordsUseCase speakUseCase =
+                    new SpeakWordsInteractor(speechManager);
             speakController = new SpeakController(speakUseCase, speechManager);
 
-            new PageUI(pages, darkMode, translatorUseCase, speakController).setVisible(true);
+            new PageUI(
+                    pages, darkMode, translatorUseCase,
+                    speakController).setVisible(true);
             dispose();
         });
 

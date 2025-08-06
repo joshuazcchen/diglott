@@ -16,7 +16,8 @@ public class StoredWords {
     private final Map<String, String> translated;
 
     /**
-     * Creates a new instance of {@code StoredWords} with an empty translations map.
+     * Creates a new instance of {@code StoredWords}
+     * with an empty translations map.
      */
     public StoredWords() {
         this.translated = new HashMap<>();

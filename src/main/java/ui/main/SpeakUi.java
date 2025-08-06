@@ -73,11 +73,15 @@ public class SpeakUi extends JFrame {
     /**
      * Constructs the SpeakUi window and populates it with word buttons.
      *
-     * @param page            the page containing translated (or untranslated) words
-     * @param speakController the controller responsible for handling speech playback
-     * @param darkMode        whether to render the UI in dark mode
+     * @param page
+     * the page containing translated (or untranslated) words
+     * @param speakController
+     * the controller responsible for handling speech playback
+     * @param darkMode
+     * whether to render the UI in dark mode
      */
-    public SpeakUi(final Page page, final SpeakController speakController, final boolean darkMode) {
+    public SpeakUi(final Page page, final SpeakController speakController,
+                   final boolean darkMode) {
         // Set window title
         setTitle("Speak Words");
         // Set window size
@@ -87,17 +91,22 @@ public class SpeakUi extends JFrame {
         // Close only this window when X is clicked
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // Whether the original script should be preserved alongside translations
-        final boolean preserveOriginal = ConfigDataRetriever.getBool("original_script");
+        // Whether the original script should
+        // be preserved alongside translations
+        final boolean preserveOriginal =
+                ConfigDataRetriever.getBool("original_script");
 
         // Get the correct list of words to display depending on settings
-        // If preserveOriginal is true, words will contain original + translation in parentheses
+        // If preserveOriginal is true, words will contain original +
+        // translation in parentheses
         final List<String> pageWords = page.getWords();
-        final String targetLangCode = ConfigDataRetriever.get("target_language");
+        final String targetLangCode = ConfigDataRetriever.get(
+                "target_language");
 
         // Create the UI components
         final JPanel gridPanel = createGridPanel(darkMode);
-        populateGridPanel(gridPanel, pageWords, preserveOriginal, targetLangCode, speakController, darkMode);
+        populateGridPanel(gridPanel, pageWords,
+                preserveOriginal, targetLangCode, speakController, darkMode);
 
         // Make the grid scrollable in case there are many words
         final JScrollPane scrollPane = new JScrollPane(gridPanel);
@@ -119,12 +128,12 @@ public class SpeakUi extends JFrame {
      */
     private JPanel createGridPanel(final boolean darkMode) {
         final JPanel gridPanel = new JPanel(new GridLayout(0, 3, 10, 10));
-        gridPanel.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
+        gridPanel.setBorder(BorderFactory.createEmptyBorder(
+                PADDING, PADDING, PADDING, PADDING));
 
         if (darkMode) {
             gridPanel.setBackground(Color.DARK_GRAY);
-        }
-        else {
+        } else {
             gridPanel.setBackground(Color.WHITE);
         }
 
@@ -141,9 +150,12 @@ public class SpeakUi extends JFrame {
      * @param speakController the controller for speech
      * @param darkMode whether dark mode is enabled
      */
-    private void populateGridPanel(final JPanel gridPanel, final List<String> pageWords,
-                                   final boolean preserveOriginal, final String targetLangCode,
-                                   final SpeakController speakController, final boolean darkMode) {
+    private void populateGridPanel(final JPanel gridPanel,
+                                   final List<String> pageWords,
+                                   final boolean preserveOriginal,
+                                   final String targetLangCode,
+                                   final SpeakController speakController,
+                                   final boolean darkMode) {
         // Track translations we have already added to avoid duplicate buttons
         final Set<String> seenTranslations = new HashSet<>();
 
@@ -154,20 +166,22 @@ public class SpeakUi extends JFrame {
             String translatedWord;
 
             if (preserveOriginal) {
-                // If preserving original script, only process words with parentheses
+                // If preserving original script,
+                // only process words with parentheses
                 if (!clean.contains("(") || !clean.contains(")")) {
                     // Skip words without translations
                     continue;
                 }
                 translatedWord = extractInsideParentheses(clean);
-            }
-            else {
-                // Without original script, the word is already the translated form
+            } else {
+                // Without original script,
+                // the word is already the translated form
                 translatedWord = clean;
             }
 
             // Remove punctuation (.,!? etc.) from the translated word
-            translatedWord = translatedWord.replaceAll("[\\p{Punct}]", "").trim();
+            translatedWord = translatedWord.replaceAll(
+                    "[\\p{Punct}]", "").trim();
 
             // Skip empty translations after cleaning
             if (translatedWord.isEmpty()) {
@@ -214,7 +228,8 @@ public class SpeakUi extends JFrame {
      * Extracts the text inside parentheses.
      *
      * @param text the text containing parentheses
-     * @return the string inside the first pair of parentheses, or empty if not found
+     * @return the string inside the first pair of parentheses,
+     * or empty if not found
      */
     private String extractInsideParentheses(final String text) {
         final int start = text.indexOf('(');
@@ -229,7 +244,8 @@ public class SpeakUi extends JFrame {
     }
 
     /**
-     * Creates a styled button for a given word and attaches a click listener to speak it.
+     * Creates a styled button for a given word
+     * and attaches a click listener to speak it.
      *
      * @param label           the text displayed on the button
      * @param spokenText      the text to speak when clicked
@@ -249,19 +265,20 @@ public class SpeakUi extends JFrame {
         wordButton.setFocusPainted(false);
         wordButton.setFont(new Font("SansSerif", Font.BOLD, BUTTON_FONT_SIZE));
         wordButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        wordButton.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        wordButton.setBorder(BorderFactory.createLineBorder(
+                Color.LIGHT_GRAY, 1));
 
         // Apply dark or light mode styling
         if (darkMode) {
             styleDarkButton(wordButton);
-        }
-        else {
+        } else {
             styleLightButton(wordButton);
         }
 
         // Speak the word when clicked
         wordButton.addActionListener(
-                (final ActionEvent actionEvent) -> speakController.speakWord(spokenText, langCode)
+                (final ActionEvent actionEvent) ->
+                        speakController.speakWord(spokenText, langCode)
         );
         return wordButton;
     }
@@ -278,7 +295,8 @@ public class SpeakUi extends JFrame {
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(final MouseEvent e) {
-                button.setBackground(new Color(DARK_HOVER_COLOR, DARK_HOVER_COLOR, DARK_HOVER_COLOR));
+                button.setBackground(new Color(
+                        DARK_HOVER_COLOR, DARK_HOVER_COLOR, DARK_HOVER_COLOR));
             }
 
             @Override
@@ -294,17 +312,26 @@ public class SpeakUi extends JFrame {
      * @param button the button to style
      */
     private void styleLightButton(final JButton button) {
-        button.setBackground(new Color(LIGHT_BG_COLOR, LIGHT_BG_COLOR, LIGHT_BG_COLOR));
+        button.setBackground(new Color(
+                LIGHT_BG_COLOR,
+                LIGHT_BG_COLOR,
+                LIGHT_BG_COLOR));
         button.setForeground(Color.BLACK);
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(final MouseEvent e) {
-                button.setBackground(new Color(LIGHT_HOVER_COLOR, LIGHT_HOVER_COLOR, LIGHT_HOVER_COLOR));
+                button.setBackground(new Color(
+                        LIGHT_HOVER_COLOR,
+                        LIGHT_HOVER_COLOR,
+                        LIGHT_HOVER_COLOR));
             }
 
             @Override
             public void mouseExited(final MouseEvent e) {
-                button.setBackground(new Color(LIGHT_BG_COLOR, LIGHT_BG_COLOR, LIGHT_BG_COLOR));
+                button.setBackground(new Color(
+                        LIGHT_BG_COLOR,
+                        LIGHT_BG_COLOR,
+                        LIGHT_BG_COLOR));
             }
         });
     }

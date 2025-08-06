@@ -9,7 +9,15 @@ import java.util.NoSuchElementException;
  * Represents a book composed of ordered pages.
  */
 public class Book {
+    /**
+     * The list of all pages in the book, sorted by page number.
+     * This list is unmodifiable after construction.
+     */
     private final List<Page> pages;
+
+    /**
+     * The page number currently being viewed.
+     */
     private int currentPageNumber;
 
     /**
@@ -68,7 +76,8 @@ public class Book {
      * @param pageNumber the target page number
      */
     public void goToPage(final int pageNumber) {
-        if (pages.stream().noneMatch(page -> page.getPageNumber() == pageNumber)) {
+        if (pages.stream().noneMatch(page ->
+                page.getPageNumber() == pageNumber)) {
             throw new NoSuchElementException(
                     "Invalid page number: " + pageNumber);
         }

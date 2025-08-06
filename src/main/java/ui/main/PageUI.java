@@ -55,27 +55,36 @@ public class PageUI extends JFrame {
     /** Label for showing the current page number and total page count. */
     private final JLabel pageLabel;
 
+    /** Width of the UI. */
+    private static final int WIDTH = 600;
+
+    /** Width of the UI. */
+    private static final int HEIGHT = 750;
+
+    /** Size of the button (w&l). */
+    private static final int BUTTONSIZE = 10;
+
     /**
      * Creates a PageUI instance for viewing and navigating pages.
      *
      * @param pageSet         the list of pages to display
      * @param darkModeEnabled whether dark mode is enabled
      * @param translatorUseCase the translator use case for translating pages
-     * @param speakController the controller for the speaker
+     * @param speakControl the controller for the speaker
      */
     public PageUI(final List<Page> pageSet,
                   final boolean darkModeEnabled,
                   final TranslatePageUseCase translatorUseCase,
-                  final SpeakController speakController) {
+                  final SpeakController speakControl) {
 
         this.pages = pageSet;
         this.darkMode = darkModeEnabled;
         this.translator = translatorUseCase;
-        this.speakController = speakController;
+        this.speakController = speakControl;
         this.currentPage = 0;
 
         setTitle("Page View");
-        setSize(600, 750);
+        setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -86,7 +95,8 @@ public class PageUI extends JFrame {
         setupStyle();
 
         JScrollPane scrollPane = new JScrollPane(content);
-        scrollPane.getViewport().setBackground(darkMode ? DARK_BG : Color.WHITE);
+        scrollPane.getViewport().setBackground(
+                darkMode ? DARK_BG : Color.WHITE);
         add(scrollPane, BorderLayout.CENTER);
 
         // Create buttons
@@ -98,7 +108,8 @@ public class PageUI extends JFrame {
         pageLabel = new JLabel("", SwingConstants.CENTER);
 
         // Button panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JPanel buttonPanel = new JPanel(
+                new FlowLayout(FlowLayout.CENTER, BUTTONSIZE, BUTTONSIZE));
         buttonPanel.add(backButton);
         buttonPanel.add(previousPageButton);
         buttonPanel.add(nextPageButton);
@@ -116,19 +127,22 @@ public class PageUI extends JFrame {
             new MainUI(ConfigDataRetriever.get("api_key"));
         });
 
-        nextPageButton.addActionListener(e -> goToNextPage(previousPageButton, nextPageButton));
-        previousPageButton.addActionListener(e -> goToPreviousPage(previousPageButton, nextPageButton));
+        nextPageButton.addActionListener(
+                e -> goToNextPage(previousPageButton, nextPageButton));
+        previousPageButton.addActionListener(
+                e -> goToPreviousPage(previousPageButton, nextPageButton));
 
         speakButton.addActionListener(e -> {
-            if (!speakController.isTtsAvailable()) {
+            if (!speakControl.isTtsAvailable()) {
                 JOptionPane.showMessageDialog(
                         this,
-                        "Google Cloud credentials not configured. Please upload a valid file to use speech.",
+                        "Google Cloud credentials not configured. "
+                                + "Please upload a valid file to use speech.",
                         "Text-to-Speech Unavailable",
                         JOptionPane.WARNING_MESSAGE
                 );
             } else {
-                new SpeakUi(pages.get(currentPage), speakController, darkMode);
+                new SpeakUi(pages.get(currentPage), speakControl, darkMode);
             }
         });
 
@@ -146,7 +160,8 @@ public class PageUI extends JFrame {
 
         // Apply dark mode if enabled
         if (darkMode) {
-            applyDarkTheme(buttonPanel, backButton, previousPageButton, nextPageButton, speakButton);
+            applyDarkTheme(buttonPanel, backButton,
+                    previousPageButton, nextPageButton, speakButton);
         }
 
         updateContent();
@@ -157,9 +172,11 @@ public class PageUI extends JFrame {
         HTMLEditorKit kit = new HTMLEditorKit();
         StyleSheet styleSheet = new StyleSheet();
         styleSheet.addRule(
-                "body { font-family: " + ConfigDataRetriever.get("font") + "; font-size: "
+                "body { font-family: "
+                        + ConfigDataRetriever.get("font") + "; font-size: "
                         + ConfigDataRetriever.get("font_size") + "; color: "
-                        + (darkMode ? "white" : "black") + "; background-color: "
+                        + (darkMode ? "white" : "black")
+                        + "; background-color: "
                         + (darkMode ? "#333333" : "white") + "; }"
         );
         kit.setStyleSheet(styleSheet);
@@ -168,7 +185,8 @@ public class PageUI extends JFrame {
 
     /** Updates the displayed page content and the page label. */
     private void updateContent() {
-        String htmlContent = "<html><body>" + pages.get(currentPage).getContent() + "</body></html>";
+        String htmlContent = "<html><body>"
+                + pages.get(currentPage).getContent() + "</body></html>";
         content.setText(htmlContent);
         content.setCaretPosition(0);
         pageLabel.setText("Page " + (currentPage + 1) + " of " + pages.size());
@@ -180,7 +198,8 @@ public class PageUI extends JFrame {
      * @param previousPageButton the previous page button
      * @param nextPageButton     the next page button
      */
-    void goToNextPage(final JButton previousPageButton, final JButton nextPageButton) {
+    void goToNextPage(final JButton previousPageButton,
+                      final JButton nextPageButton) {
         if (currentPage < pages.size() - 1) {
             currentPage++;
 
@@ -191,10 +210,12 @@ public class PageUI extends JFrame {
             updateContent();
             previousPageButton.setEnabled(true);
 
-            final int pagesTranslated = ConfigDataRetriever.getInt("pages_translated");
+            final int pagesTranslated =
+                    ConfigDataRetriever.getInt("pages_translated");
             for (int i = 1; i < pagesTranslated; i++) {
                 int nextIndex = currentPage + i;
-                if (nextIndex < pages.size() && !pages.get(nextIndex).isTranslated()) {
+                if (nextIndex < pages.size()
+                        && !pages.get(nextIndex).isTranslated()) {
                     translatePageAsync(pages.get(nextIndex));
                 }
             }
@@ -211,7 +232,8 @@ public class PageUI extends JFrame {
      * @param previousPageButton the previous page button
      * @param nextPageButton     the next page button
      */
-    private void goToPreviousPage(final JButton previousPageButton, final JButton nextPageButton) {
+    private void goToPreviousPage(final JButton previousPageButton,
+                                  final JButton nextPageButton) {
         if (currentPage > 0) {
             currentPage--;
             updateContent();
@@ -246,8 +268,9 @@ public class PageUI extends JFrame {
     /*
     Translates async
      */
-    private void translatePageAsync(Page page) {
-        PageTranslationTask task = new PageTranslationTask(translator, page, () -> {
+    private void translatePageAsync(final Page page) {
+        PageTranslationTask task =
+                new PageTranslationTask(translator, page, () -> {
             if (page == pages.get(currentPage)) {
                 updateContent();
             }

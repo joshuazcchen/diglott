@@ -6,12 +6,20 @@ import java.io.File;
 /**
  * Utility component for selecting supported book files.
  */
-public class FileSelector {
+public final class FileSelector {
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private FileSelector() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
     /**
      * Opens a file chooser dialog and returns a valid book file.
      *
-     * @return a File with .txt, .pdf, or .epub extension, or null if cancelled/invalid
+     * @return a File with .txt, .pdf,
+     * or .epub extension, or null if cancelled/invalid
      */
     public static File selectBookFile() {
         final JFileChooser chooser = new JFileChooser();

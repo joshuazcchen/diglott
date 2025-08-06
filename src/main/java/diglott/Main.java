@@ -6,6 +6,13 @@ package diglott;
 public final class Main {
 
     /**
+     * Private constructor to prevent instantiation.
+     */
+    private Main() {
+        // Prevent instantiation
+    }
+
+    /**
      * Launches the Diglott application.
      *
      * @param args the command-line arguments (unused)

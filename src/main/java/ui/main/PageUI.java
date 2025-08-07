@@ -124,7 +124,7 @@ public class PageUI extends JFrame {
         // Actions
         backButton.addActionListener(e -> {
             dispose();
-            new MainUI(ConfigDataRetriever.get("api_key"));
+            new MainUI(ConfigDataRetriever.get("deepl_api_key"));
         });
 
         nextPageButton.addActionListener(
@@ -142,7 +142,7 @@ public class PageUI extends JFrame {
                         JOptionPane.WARNING_MESSAGE
                 );
             } else {
-                new SpeakUi(pages.get(currentPage), speakControl, darkMode);
+                new SpeakUI(pages.get(currentPage), speakControl, darkMode);
             }
         });
 

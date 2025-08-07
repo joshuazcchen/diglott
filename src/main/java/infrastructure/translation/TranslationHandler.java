@@ -24,7 +24,7 @@ public class TranslationHandler implements Translator {
     /**
      * API key used to authenticate with DeepL.
      */
-    private final String apiKey;
+    private final String deepLApiKey;
 
     /**
      * Local store of translated words.
@@ -34,22 +34,22 @@ public class TranslationHandler implements Translator {
     /**
      * Creates a TranslationHandler instance.
      *
-     * @param inputApiKey
+     * @param inputDeepLApiKey
      * the API key for the translation service, or
      * {@code null} to use the config value
      * @param wordStorage
      * the storage for translated words
      */
-    public TranslationHandler(final String inputApiKey,
+    public TranslationHandler(final String inputDeepLApiKey,
                               final StoredWords wordStorage) {
         this.storedWords = wordStorage;
 
-        if (inputApiKey == null || inputApiKey.trim().isEmpty()
-                || "none".equals(inputApiKey)) {
-            this.apiKey = ConfigDataRetriever.get("api_key");
+        if (inputDeepLApiKey == null || inputDeepLApiKey.trim().isEmpty()
+                || "none".equals(inputDeepLApiKey)) {
+            this.deepLApiKey = ConfigDataRetriever.get("deepl_api_key");
         } else {
-            this.apiKey = inputApiKey;
-            ConfigDataRetriever.set("api_key", inputApiKey);
+            this.deepLApiKey = inputDeepLApiKey;
+            ConfigDataRetriever.set("deepl_api_key", inputDeepLApiKey);
             ConfigDataRetriever.saveConfig();
         }
     }
@@ -63,12 +63,12 @@ public class TranslationHandler implements Translator {
      */
     @Override
     public void addWord(final String word) throws Exception {
-        if ("none".equals(apiKey)) {
+        if ("none".equals(deepLApiKey)) {
             throw new Exception("Missing API Key");
         }
 
         final String encodedKey = URLEncoder.encode(
-                apiKey, StandardCharsets.UTF_8);
+                deepLApiKey, StandardCharsets.UTF_8);
         final String encodedWord = URLEncoder.encode(
                 word, StandardCharsets.UTF_8);
         final String targetLang = ConfigDataRetriever.get("target_language");

@@ -27,7 +27,7 @@ import infrastructure.translation.TranslationHandler;
 import infrastructure.translation.TransliterationHandler;
 import infrastructure.tts.SpeechManager;
 import ui.components.UIThemeManager;
-import ui.login.LoginUI;
+import ui.login.DeepLLoginUI;
 
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -112,28 +112,28 @@ public class MainUI extends JFrame {
     /**
      * Creates a MainUI instance with saved API key.
      *
-     * @param apiKey API key for translation service
+     * @param deepLApiKey API key for translation service
      * @return a new MainUI instance
      */
-    public static MainUI createInstance(final String apiKey) {
-        ConfigDataRetriever.set("api_key", apiKey);
+    public static MainUI createInstance(final String deepLApiKey) {
+        ConfigDataRetriever.set("deepl_api_key", deepLApiKey);
         ConfigDataRetriever.saveConfig();
-        return new MainUI(apiKey);
+        return new MainUI(deepLApiKey);
     }
 
     /**
      * Constructs a MainUI and sets up translators, UI, and theme.
      *
-     * @param apiKey API key for translation service
+     * @param deepLApiKey DeepL API key for translation service
      */
-    MainUI(final String apiKey) {
+    MainUI(final String deepLApiKey) {
         System.setProperty(
                 "javax.xml.xpath.XPathFactory:"
                 + "http://java.sun.com/jaxp/xpath/dom",
                 "net.sf.saxon.xpath.XPathFactoryImpl"
         );
 
-        Translator translator = new TranslationHandler(apiKey, storedWords);
+        Translator translator = new TranslationHandler(deepLApiKey, storedWords);
         WordTransliterator wordTransliterator = new TransliterationHandler();
         translatorUseCase = new TranslatePageInteractor(
                 translator, wordTransliterator, storedWords);
@@ -259,13 +259,13 @@ public class MainUI extends JFrame {
 
         closeButton.addActionListener(e -> dispose());
 
-        settingsButton.addActionListener(e -> new SettingsUi());
+        settingsButton.addActionListener(e -> new SettingsUI());
 
         logoutButton.addActionListener(e -> {
-            ConfigDataRetriever.set("api_key", "none");
+            ConfigDataRetriever.set("deepl_api_key", "none");
             ConfigDataRetriever.saveConfig();
             dispose();
-            new LoginUI().setVisible(true);
+            new DeepLLoginUI().setVisible(true);
         });
 
         darkModeToggle.addActionListener(e -> {

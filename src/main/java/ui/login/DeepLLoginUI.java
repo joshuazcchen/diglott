@@ -29,7 +29,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 
-public class LoginUI extends JFrame {
+public class DeepLLoginUI extends JFrame {
 
     // === Constants for layout and styling ===
 
@@ -83,7 +83,7 @@ public class LoginUI extends JFrame {
      * for clarity and to allow conditional reassignment.
      */
     @SuppressWarnings("checkstyle:FinalLocalVariable")
-    public LoginUI() {
+    public DeepLLoginUI() {
         setTitle("Diglott Login");
         setSize(FRAME_WIDTH, FRAME_HEIGHT);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -142,8 +142,8 @@ public class LoginUI extends JFrame {
         // Clicking "Login" should store the API key and launch MainUI
         loginButton.addActionListener(e -> {
             int responseCode = 0;
-            final String apiKey = keyField.getText().trim();
-            if (apiKey.isEmpty()) {
+            final String deepLApiKey = keyField.getText().trim();
+            if (deepLApiKey.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "API key is required.");
                 return;
             }
@@ -151,7 +151,7 @@ public class LoginUI extends JFrame {
             try {
                 final URL url = new URL(
                         "https://api-free.deepl.com/v2/usage?auth_key="
-                                + apiKey);
+                                + deepLApiKey);
                 final HttpURLConnection connection =
                         (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
@@ -170,10 +170,10 @@ public class LoginUI extends JFrame {
                 );
                 System.out.println(responseCode);
             } else {
-                ConfigDataRetriever.set("api_key", apiKey);
+                ConfigDataRetriever.set("deepl_api_key", deepLApiKey);
                 ConfigDataRetriever.saveConfig();
                 dispose();
-                MainUI.createInstance(apiKey).setVisible(true);
+                MainUI.createInstance(deepLApiKey).setVisible(true);
             }
         });
 

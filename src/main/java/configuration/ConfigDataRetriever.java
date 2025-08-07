@@ -89,7 +89,7 @@ public final class ConfigDataRetriever {
         final String[] requiredKeys = {
                 "input_language", "target_language", "dark_mode",
                 "font_size", "speed", "increment", "original_script",
-                "page_length", "logs", "font", "api_key",
+                "page_length", "logs", "font", "deepl_api_key",
                 "credentials_path", "pages_translated"
         };
 

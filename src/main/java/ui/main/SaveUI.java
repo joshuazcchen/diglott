@@ -6,6 +6,7 @@ import configuration.ConfigDataRetriever;
 import domain.model.Book;
 import infrastructure.exporter.SaveBook;
 import infrastructure.importer.LoadBook;
+import ui.components.UIThemeManager;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -88,7 +89,10 @@ public class SaveUI extends JFrame {
                     ConfigDataRetriever.get("azure_api_key")).setVisible(true);
         });
         add(closeButton);
-
+        if (darkModeEnabled) {
+            UIThemeManager.applyTheme(getContentPane(), darkModeEnabled);
+            repaint();
+        }
         setVisible(true);
     }
 }

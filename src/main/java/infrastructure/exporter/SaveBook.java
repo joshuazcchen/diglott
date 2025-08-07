@@ -1,5 +1,6 @@
 package infrastructure.exporter;
 
+import configuration.ConfigDataRetriever;
 import domain.model.Book;
 import domain.model.Page;
 
@@ -44,7 +45,8 @@ public class SaveBook {
         createSavesDirectory();
         Path folder = getSaveDirectory();
 
-        String fileName = book.getTitle() + ".dig";
+        String fileName = book.getTitle()
+                + ConfigDataRetriever.get("target_language") + ".dig";
         Path filePath = folder.resolve(fileName);
 
         try (BufferedWriter writer = Files.newBufferedWriter(filePath)) {

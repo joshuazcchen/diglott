@@ -16,9 +16,16 @@ import java.nio.file.Path;
  */
 public class SaveUI extends JFrame {
 
+    /** the width. */
     private static final int WIDTH = 600;
+    /** the height. */
     private static final int HEIGHT = 750;
-
+    /**
+     * opens a saved file.
+     * @param darkModeEnabled checks to see if already dark mode.
+     * @param translatorUseCase translator use case.
+     * @param speakCtrl the speak controller.
+     */
     public SaveUI(final boolean darkModeEnabled,
                   final TranslatePageUseCase translatorUseCase,
                   final SpeakController speakCtrl) {
@@ -33,7 +40,9 @@ public class SaveUI extends JFrame {
         filePanel.setLayout(new BoxLayout(filePanel, BoxLayout.Y_AXIS));
 
         Path saveDir = SaveBook.getSaveDirectory();
-        File[] digFiles = saveDir.toFile().listFiles((dir, name) -> name.endsWith(".dig"));
+        File[] digFiles = saveDir.toFile().listFiles((dir,
+                                                      name)
+                -> name.endsWith(".dig"));
 
         if (digFiles != null) {
             for (File file : digFiles) {
@@ -48,7 +57,9 @@ public class SaveUI extends JFrame {
                                 speakCtrl).setVisible(true);
                     } catch (Exception ex) {
                         ex.printStackTrace();
-                        JOptionPane.showMessageDialog(this, "Failed to load: " + file.getName(), "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this,
+                                "Failed to load: " + file.getName(),
+                                "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 });
 

@@ -21,64 +21,33 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 /**
- * UI window for listing, loading, and opening saved books.
- *
- * <p>Responsibility is limited to Swing concerns and wiring user actions
- * to use cases/controllers passed in via the constructor.</p>
+ * UI window for saving and viewing saved books.
  */
-public final class SaveUI extends JFrame {
+public class SaveUI extends JFrame {
 
-    /** Width of the window in pixels. */
+    /** the width. */
     private static final int WIDTH = 600;
-
-    /** Height of the window in pixels. */
+    /** the height. */
     private static final int HEIGHT = 750;
-
     /**
-     * Creates a new {@code SaveUI} window and populates it with buttons for
-     * each saved book found in the save directory.
-     *
-     * @param darkModeEnabled whether dark mode is enabled
-     * @param translatorUseCase use case for translating pages
-     * @param speakController controller for text‑to‑speech actions
+     * opens a saved file.
+     * @param darkModeEnabled checks to see if already dark mode.
+     * @param translatorUseCase translator use case.
+     * @param speakCtrl the speak controller.
      */
     public SaveUI(final boolean darkModeEnabled,
                   final TranslatePageUseCase translatorUseCase,
-                  final SpeakController speakController) {
-        super("Saved Books");
+                  final SpeakController speakCtrl) {
+        setTitle("Saved Books");
         setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
-        final JPanel filePanel = createFilePanel(
-                SaveBook.getSaveDirectory(),
-                darkModeEnabled,
-                translatorUseCase,
-                speakController
-        );
-
-        final JScrollPane scrollPane = new JScrollPane(filePanel);
-        add(scrollPane, BorderLayout.CENTER);
-
-        setVisible(true);
-    }
-
-    /**
-     * Builds the panel that lists all saved book files as buttons.
-     *
-     * @param saveDir the directory where .dig files are stored
-     * @param darkModeEnabled whether dark mode is enabled
-     * @param translatorUseCase use case for translating pages
-     * @param speakController controller for text‑to‑speech actions
-     * @return a populated panel
-     */
-    private JPanel createFilePanel(final Path saveDir,
-                                   final boolean darkModeEnabled,
-                                   final TranslatePageUseCase translatorUseCase,
-                                   final SpeakController speakController) {
-        final JPanel filePanel = new JPanel();
+        // Load all .dig files
+        JPanel filePanel = new JPanel();
         filePanel.setLayout(new BoxLayout(filePanel, BoxLayout.Y_AXIS));
+
         Path saveDir = SaveBook.getSaveDirectory();
         File[] digFiles = saveDir.toFile().listFiles((dir,
                                                       name)
@@ -107,19 +76,10 @@ public final class SaveUI extends JFrame {
             }
         } else {
             filePanel.add(new JLabel("No saved books found."));
-            return filePanel;
         }
 
-        for (final File file : digFiles) {
-            final JButton button = createFileButton(
-                    file,
-                    darkModeEnabled,
-                    translatorUseCase,
-                    speakController
-            );
-            button.setAlignmentX(Component.LEFT_ALIGNMENT);
-            filePanel.add(button);
-        }
+        JScrollPane scrollPane = new JScrollPane(filePanel);
+        add(scrollPane, BorderLayout.CENTER);
 
         final JButton closeButton = new JButton("Close");
         closeButton.addActionListener(e -> {

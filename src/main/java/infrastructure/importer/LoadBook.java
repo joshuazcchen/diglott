@@ -24,7 +24,7 @@ public class LoadBook {
      * @return list of Page objects built from the file
      * @throws IOException if file reading fails
      */
-    public List<Page> importBook(final File file) throws IOException {
+    public static List<Page> importBook(final File file) throws IOException {
         String content = Files.readString(file.toPath(),
                 StandardCharsets.UTF_8);
 

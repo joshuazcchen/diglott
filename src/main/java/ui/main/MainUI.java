@@ -51,7 +51,7 @@ public class MainUI extends JFrame {
     private JButton startButton;
 
     /** Close button. */
-    private JButton closeButton;
+    private JButton saveButton;
 
     /** Logout button. */
     private JButton logoutButton;
@@ -178,7 +178,7 @@ public class MainUI extends JFrame {
 
         pickFileButton = new JButton("Pick File");
         startButton = new JButton("Start");
-        closeButton = new JButton("Close App");
+        saveButton = new JButton("Saves");
         settingsButton = new JButton("Settings");
         logoutButton = new JButton("Logout");
         darkModeToggle = new JToggleButton("Dark Mode");
@@ -212,7 +212,7 @@ public class MainUI extends JFrame {
                 MEDIUMUIELEMENT, MEDIUMUIELEMENT, 0, MEDIUMUIELEMENT));
         buttonPanel.add(pickFileButton);
         buttonPanel.add(startButton);
-        buttonPanel.add(closeButton);
+        buttonPanel.add(saveButton);
         buttonPanel.add(settingsButton);
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -239,6 +239,11 @@ public class MainUI extends JFrame {
                         this, "Book loaded successfully!");
                 pickFileButton.setText("Loaded: " + result.getFile().getName());
             }
+        });
+
+        saveButton.addActionListener(e -> {
+            dispose();
+            new SaveUI(darkMode);
         });
 
         startButton.addActionListener(e -> {
@@ -269,9 +274,10 @@ public class MainUI extends JFrame {
             dispose();
         });
 
-        closeButton.addActionListener(e -> dispose());
 
-        settingsButton.addActionListener(e -> new SettingsUI());
+
+        settingsButton.addActionListener(e ->
+                new SettingsUI());
 
         logoutButton.addActionListener(e -> {
             ConfigDataRetriever.set("deepl_api_key", "none");

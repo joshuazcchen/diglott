@@ -3,7 +3,9 @@ package ui.main;
 import configuration.ConfigDataRetriever;
 import application.controller.SpeakController;
 import application.usecase.TranslatePageUseCase;
+import domain.model.Book;
 import domain.model.Page;
+import infrastructure.exporter.SaveBook;
 import infrastructure.translation.PageTranslationTask;
 
 import javax.swing.JButton;
@@ -104,6 +106,7 @@ public class PageUI extends JFrame {
         JButton previousPageButton = new JButton("Last Page");
         JButton nextPageButton = new JButton("Next Page");
         JButton speakButton = new JButton("Speak");
+        JButton saveButton = new JButton("Save");
 
         pageLabel = new JLabel("", SwingConstants.CENTER);
 
@@ -114,6 +117,7 @@ public class PageUI extends JFrame {
         buttonPanel.add(previousPageButton);
         buttonPanel.add(nextPageButton);
         buttonPanel.add(speakButton);
+        buttonPanel.add(saveButton);
         buttonPanel.add(pageLabel);
         add(buttonPanel, BorderLayout.SOUTH);
 
@@ -131,6 +135,14 @@ public class PageUI extends JFrame {
                 e -> goToNextPage(previousPageButton, nextPageButton));
         previousPageButton.addActionListener(
                 e -> goToPreviousPage(previousPageButton, nextPageButton));
+
+        saveButton.addActionListener(e -> {
+            SaveBook saveBook = new SaveBook();
+            if (saveBook.save(new Book(pageSet))) {
+                saveButton.setEnabled(false);
+                saveButton.setText("Saved.");
+            }
+        });
 
         speakButton.addActionListener(e -> {
             if (!speakControl.isTtsAvailable()) {

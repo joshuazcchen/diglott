@@ -45,7 +45,7 @@ public class SaveBook {
         createSavesDirectory();
         Path folder = getSaveDirectory();
 
-        String fileName = book.getName() + ".dig";
+        String fileName = book.getTitle() + ".dig";
         Path filePath = folder.resolve(fileName);
 
         try (BufferedWriter writer = Files.newBufferedWriter(filePath)) {

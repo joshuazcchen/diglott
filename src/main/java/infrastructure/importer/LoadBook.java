@@ -1,6 +1,7 @@
 package infrastructure.importer;
 
 import configuration.ConfigDataRetriever;
+import domain.model.Book;
 import domain.model.Page;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,7 +25,7 @@ public class LoadBook {
      * @return list of Page objects built from the file
      * @throws IOException if file reading fails
      */
-    public static List<Page> importBook(final File file) throws IOException {
+    public static Book importBook(final File file) throws IOException {
         String content = Files.readString(file.toPath(),
                 StandardCharsets.UTF_8);
 
@@ -37,15 +38,19 @@ public class LoadBook {
             int pageNumber = pageObj.getInt("pageNumber");
             String pageContent = pageObj.getString("content");
             boolean translated = pageObj.getBoolean("translated");
+            System.out.println(translated);
+            System.out.println("asdfasdfasdfasdfasdfasdfsadf:"+translated);
             List<String> words = List.of(pageContent.split("\\s+"));
-            int maxWords = ConfigDataRetriever.getInt("page_length");
+            int maxWords = ConfigDataRetriever.getInt("page_length")
+                    * ConfigDataRetriever.getInt("page_length");
             Page page = new Page(words, pageNumber, maxWords);
             if (translated) {
                 page.translated();
             }
+            System.out.println("as'dfadsfasdfasdf"+page.isTranslated());
             pages.add(page);
         }
 
-        return pages;
+        return new Book(file.getName(), pages);
     }
 }

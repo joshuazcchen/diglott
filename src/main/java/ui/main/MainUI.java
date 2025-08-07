@@ -243,7 +243,7 @@ public class MainUI extends JFrame {
 
         saveButton.addActionListener(e -> {
             dispose();
-            new SaveUI(darkMode);
+            new SaveUI(darkMode, translatorUseCase, speakController);
         });
 
         startButton.addActionListener(e -> {

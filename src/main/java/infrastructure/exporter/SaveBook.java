@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static jdk.jfr.consumer.EventStream.openFile;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeJson;
 
 public class SaveBook {
@@ -62,12 +61,11 @@ public class SaveBook {
                         + page.getPageNumber() + ",");
                 writer.newLine();
                 writer.write("    \"content\": \""
-                        + escapeJson(page.getContent()) + "\"");
+                        + escapeJson(page.getContent()) + "\",");
                 writer.newLine();
                 writer.write("    \"translated\": \""
                         + escapeJson(page.isTranslated() ? "true"
                         : "false") + "\"");
-                writer.newLine();
                 writer.write("  }");
 
                 if (i < pages.size() - 1) {
@@ -78,8 +76,6 @@ public class SaveBook {
 
             writer.write("]");
             writer.newLine();
-
-            openFile(filePath);
 
             System.out.println("Saving to: " + filePath);
             return true;

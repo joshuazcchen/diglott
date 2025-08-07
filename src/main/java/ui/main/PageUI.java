@@ -111,9 +111,9 @@ public class PageUI extends JFrame {
         buttonPanel.add(backBtn);
         buttonPanel.add(prevBtn);
         buttonPanel.add(nextBtn);
-        buttonPanel.add(speakBtn);
-        buttonPanel.add(pageIndicator);
         buttonPanel.add(saveButton);
+        buttonPanel.add(pageIndicator);
+        buttonPanel.add(speakBtn);
         add(buttonPanel, BorderLayout.SOUTH);
 
         nextBtn.setEnabled(book.getTotalPages() > 1);
@@ -141,14 +141,14 @@ public class PageUI extends JFrame {
 
         saveButton.addActionListener(e -> {
             SaveBook saveBook = new SaveBook();
-            if (saveBook.save(new Book(pageSet))) {
+            if (saveBook.save(displayedBook)) {
                 saveButton.setEnabled(false);
                 saveButton.setText("Saved.");
             }
         });
 
-        speakButton.addActionListener(e -> {
-            if (!speakControl.isTtsAvailable()) {
+        speakBtn.addActionListener(e -> {
+            if (!speakCtrl.isTtsAvailable()) {
                 JOptionPane.showMessageDialog(
                         this,
                         "Google Cloud credentials not configured.",

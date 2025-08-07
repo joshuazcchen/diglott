@@ -97,7 +97,7 @@ public class Page {
      * @return true if the translated words differ from the original words
      */
     public boolean isTranslated() {
-        return !Objects.equals(originalWords, translatedWords);
+        return translated;
     }
 
     /**

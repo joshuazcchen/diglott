@@ -33,7 +33,7 @@ public class SaveUI extends JFrame {
         setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
         // Load all .dig files
         JPanel filePanel = new JPanel();

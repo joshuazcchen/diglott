@@ -1,7 +1,6 @@
 package ui.login;
 
 import configuration.ConfigDataRetriever;
-import ui.main.MainUI;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -31,7 +30,8 @@ import java.net.URL;
 
 public class DeepLLoginUI extends JFrame {
 
-    // === Constants for layout and styling ===
+    /** Callback function. */
+    private final LoginCallback callback;
 
     /** Frame width in pixels. */
     private static final int FRAME_WIDTH = 350;
@@ -81,9 +81,10 @@ public class DeepLLoginUI extends JFrame {
      * Suppresses Checkstyle warning for non-final local variables.
      * This constructor uses non-final variables (e.g., darkMode) intentionally
      * for clarity and to allow conditional reassignment.
+     * @param loginCallback is a callback.
      */
-    @SuppressWarnings("checkstyle:FinalLocalVariable")
-    public DeepLLoginUI() {
+    public DeepLLoginUI(final LoginCallback loginCallback) {
+        this.callback = loginCallback;
         setTitle("Diglott Login");
         setSize(FRAME_WIDTH, FRAME_HEIGHT);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -103,6 +104,8 @@ public class DeepLLoginUI extends JFrame {
 
         JButton loginButton = new JButton("Login");
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel linkLabel = new JLabel(String.format(
                 "<html><span style='font-size:10pt; "
@@ -125,6 +128,9 @@ public class DeepLLoginUI extends JFrame {
             loginButton.setBackground(new Color(
                     DARK_BUTTON_RGB, DARK_BUTTON_RGB, DARK_BUTTON_RGB));
             loginButton.setForeground(Color.WHITE);
+            cancelButton.setBackground(new Color(
+                    DARK_BUTTON_RGB, DARK_BUTTON_RGB, DARK_BUTTON_RGB));
+            cancelButton.setForeground(Color.WHITE);
             linkLabel.setForeground(DARK_LINK_COLOR);
             getContentPane().setBackground(DARK_BG_COLOR);
         } else {
@@ -132,6 +138,9 @@ public class DeepLLoginUI extends JFrame {
             keyField.setBackground(Color.WHITE);
             keyField.setForeground(Color.BLACK);
             keyField.setCaretColor(Color.BLACK);
+            cancelButton.setBackground(new Color(
+                    LIGHT_BUTTON_RGB, LIGHT_BUTTON_RGB, LIGHT_BUTTON_RGB));
+            cancelButton.setForeground(Color.BLACK);
             loginButton.setBackground(new Color(
                     LIGHT_BUTTON_RGB, LIGHT_BUTTON_RGB, LIGHT_BUTTON_RGB));
             loginButton.setForeground(Color.BLACK);
@@ -173,7 +182,7 @@ public class DeepLLoginUI extends JFrame {
                 ConfigDataRetriever.set("deepl_api_key", deepLApiKey);
                 ConfigDataRetriever.saveConfig();
                 dispose();
-                MainUI.createInstance(deepLApiKey).setVisible(true);
+                callback.onSuccess(deepLApiKey);
             }
         });
 
@@ -191,6 +200,11 @@ public class DeepLLoginUI extends JFrame {
             }
         });
 
+        // Clicking cancel should return you to the original page.
+        cancelButton.addActionListener(e -> {
+            dispose();
+        });
+
         // UI Layout
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -206,8 +220,11 @@ public class DeepLLoginUI extends JFrame {
         panel.add(linkLabel);
         panel.add(Box.createVerticalStrut(BUTTON_SPACING));
         panel.add(loginButton);
+        panel.add(Box.createVerticalStrut(VERTICAL_SPACING));
+        panel.add(cancelButton);
 
         setLayout(new GridBagLayout());
         add(panel);
+        setVisible(true);
     }
 }

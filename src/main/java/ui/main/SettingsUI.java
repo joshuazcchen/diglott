@@ -22,6 +22,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import configuration.ConfigDataRetriever;
 import configuration.FontList;
 import ui.login.AzureLoginUI;
+import ui.login.DeepLLoginUI;
 
 /**
  * UI window for adjusting Diglott application settings.
@@ -37,7 +38,7 @@ public class SettingsUI extends JFrame {
     private static final int DEFAULT_WIDTH = 500;
 
     /** Default height for the settings window. */
-    private static final int DEFAULT_HEIGHT = 300;
+    private static final int DEFAULT_HEIGHT = 350;
 
     /** Default padding for the content panel. */
     private static final int PANEL_PADDING = 15;
@@ -46,10 +47,10 @@ public class SettingsUI extends JFrame {
     private static final int GRID_SPACING = 10;
 
     /** Number of rows in the grid layout. */
-    private static final int GRID_ROWS = 7;
+    private static final int GRID_ROWS = 10;
 
     /** Number of columns in the grid layout. */
-    private static final int GRID_COLUMNS = 1;
+    private static final int GRID_COLUMNS = 2;
 
     /** Speed option values. */
     private static final Integer[] SPEED_OPTIONS = {1, 2, 3, 4, 5};
@@ -63,22 +64,32 @@ public class SettingsUI extends JFrame {
     public SettingsUI() {
         initializeFrame();
 
-        final boolean darkMode =
-                Boolean.parseBoolean(ConfigDataRetriever.get("dark_mode"));
+        final boolean darkMode = Boolean.
+                parseBoolean(ConfigDataRetriever.get("dark_mode"));
 
-        // UI controls
+        // Create UI controls
         final JButton addAzureButton = createAzureButton();
         final JButton pickCredsButton = createCredentialsButton();
+        final JButton addDeepLButton = createDeepLButton();
+
         final JComboBox<Integer> speedBox = createSpeedBox();
         final JComboBox<Integer> pagesTranslated = createPagesBox();
         final JComboBox<String> fontBox = createFontBox();
+
         final JCheckBox exponentialGrowthBox = createGrowthBox();
         final JCheckBox originalScriptBox = createScriptBox();
 
-        // Main content panel
-        final JPanel content = createContentPanel(
-                addAzureButton, pickCredsButton, speedBox, pagesTranslated,
-                fontBox, exponentialGrowthBox, originalScriptBox, darkMode);
+        // Group
+        final JButton[] buttons = {addAzureButton,
+                addDeepLButton, pickCredsButton};
+        final JComboBox<?>[] comboBoxes =
+                {speedBox, pagesTranslated, fontBox};
+        final JCheckBox[] checkBoxes =
+                {exponentialGrowthBox, originalScriptBox};
+
+        // Build panel
+        final JPanel content = createContentPanel(buttons,
+                comboBoxes, checkBoxes, darkMode);
 
         add(content, BorderLayout.CENTER);
         setVisible(true);
@@ -101,9 +112,14 @@ public class SettingsUI extends JFrame {
      * @return the configured button
      */
     private JButton createAzureButton() {
-        final JButton button = new JButton("Microsoft Azure "
-                + "Translation (Adds 102 Languages)");
+        final JButton button = new JButton("Update Azure Key");
         button.addActionListener(actionEvent -> handleAzureLogin());
+        return button;
+    }
+
+    private JButton createDeepLButton() {
+        final JButton button = new JButton("Update DeepL Key");
+        button.addActionListener(actionEvent -> handleDeepLLogin());
         return button;
     }
 
@@ -111,8 +127,24 @@ public class SettingsUI extends JFrame {
      * Handles the credential file selection process.
      */
     private void handleAzureLogin() {
-        new AzureLoginUI();
+        new AzureLoginUI(key -> {
+            ConfigDataRetriever.set("azure_api_key", key);
+            ConfigDataRetriever.saveConfig();
+            JOptionPane.showMessageDialog(this, "Key saved!");
+        }).setVisible(true);
     }
+
+    /**
+     * Handles the credential file selection process for DeepL.
+     */
+    private void handleDeepLLogin() {
+        new DeepLLoginUI(key -> {
+            ConfigDataRetriever.set("deepl_api_key", key);
+            ConfigDataRetriever.saveConfig();
+            JOptionPane.showMessageDialog(this, "Key saved!");
+        }).setVisible(true);
+    }
+
 
     /**
      * Creates the credentials button with its action listener.
@@ -229,47 +261,45 @@ public class SettingsUI extends JFrame {
     /**
      * Creates the main content panel with all UI controls.
      *
-     * @param addAzureButton the azure button
-     * @param pickCredsButton the credentials button
-     * @param speedBox the speed selection box
-     * @param pagesTranslated the pages translation box
-     * @param fontBox the font selection box
-     * @param exponentialGrowthBox the growth checkbox
-     * @param originalScriptBox the script checkbox
+     * @param buttons , all the buttons.
+     * @param comboBoxes , all the combo boxes.
+     * @param checkBoxes , all the checkboxes.
      * @param darkMode whether to apply dark mode
      * @return the configured content panel
      */
     private JPanel createContentPanel(
-            final JButton addAzureButton,
-            final JButton pickCredsButton,
-            final JComboBox<Integer> speedBox,
-            final JComboBox<Integer> pagesTranslated,
-            final JComboBox<String> fontBox,
-            final JCheckBox exponentialGrowthBox,
-            final JCheckBox originalScriptBox,
+            final JButton[] buttons,
+            final JComboBox<?>[] comboBoxes,
+            final JCheckBox[] checkBoxes,
             final boolean darkMode) {
 
         final JPanel content = new JPanel();
-        content.setLayout(new GridLayout(
-                GRID_ROWS, GRID_COLUMNS, GRID_SPACING, GRID_SPACING));
-        content.setBorder(BorderFactory.createEmptyBorder(
-                PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
+        content.setLayout(new GridLayout(GRID_ROWS, GRID_COLUMNS,
+                GRID_SPACING, GRID_SPACING));
+        content.setBorder(BorderFactory.createEmptyBorder(PANEL_PADDING,
+                PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
 
-        // Add all settings controls
-        content.add(addAzureButton);
-        content.add(pickCredsButton);
-        content.add(wrapLabeled("Speed:", speedBox));
-        content.add(wrapLabeled("Pages to Translate:", pagesTranslated));
-        content.add(wrapLabeled("Font:", fontBox));
-        content.add(exponentialGrowthBox);
-        content.add(originalScriptBox);
+        // add buttons
+        for (JButton button : buttons) {
+            content.add(button);
+        }
 
-        // Close button at bottom
+        // match labels
+        final String[] labels = {"Speed:", "Pages to Translate:", "Font:"};
+        for (int i = 0; i < comboBoxes.length; i++) {
+            content.add(wrapLabeled(labels[i], comboBoxes[i]));
+        }
+
+        // add checkboxes
+        for (JCheckBox checkBox : checkBoxes) {
+            content.add(checkBox);
+        }
+
+        // close button
         final JButton closeButton = new JButton("Close");
-        closeButton.addActionListener(actionEvent -> dispose());
+        closeButton.addActionListener(e -> dispose());
         content.add(closeButton);
 
-        // Apply dark theme if enabled
         if (darkMode) {
             applyDarkTheme(content);
         }

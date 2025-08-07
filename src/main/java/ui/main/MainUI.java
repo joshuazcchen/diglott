@@ -27,7 +27,7 @@ import infrastructure.translation.TranslationHandler;
 import infrastructure.translation.TransliterationHandler;
 import infrastructure.tts.SpeechManager;
 import ui.components.UIThemeManager;
-import ui.login.DeepLLoginUI;
+import ui.login.LoginUI;
 
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -113,11 +113,18 @@ public class MainUI extends JFrame {
      * Creates a MainUI instance with saved API key.
      *
      * @param deepLApiKey API key for translation service
+     * @param azureApiKey API key for azure
      * @return a new MainUI instance
      */
-    public static MainUI createInstance(final String deepLApiKey) {
+    public static MainUI createInstance(final String deepLApiKey,
+                                        final String azureApiKey) {
         ConfigDataRetriever.set("deepl_api_key", deepLApiKey);
+        ConfigDataRetriever.set("azure_api_key", azureApiKey);
         ConfigDataRetriever.saveConfig();
+        System.out.println("DeepL key: "
+                + ConfigDataRetriever.get("deepl_api_key"));
+        System.out.println("Azure key: "
+                + ConfigDataRetriever.get("azure_api_key"));
         return new MainUI(deepLApiKey);
     }
 
@@ -133,7 +140,8 @@ public class MainUI extends JFrame {
                 "net.sf.saxon.xpath.XPathFactoryImpl"
         );
 
-        Translator translator = new TranslationHandler(deepLApiKey, storedWords);
+        Translator translator =
+                new TranslationHandler(deepLApiKey, storedWords);
         WordTransliterator wordTransliterator = new TransliterationHandler();
         translatorUseCase = new TranslatePageInteractor(
                 translator, wordTransliterator, storedWords);
@@ -263,9 +271,10 @@ public class MainUI extends JFrame {
 
         logoutButton.addActionListener(e -> {
             ConfigDataRetriever.set("deepl_api_key", "none");
+            ConfigDataRetriever.set("azure_api_key", "none");
             ConfigDataRetriever.saveConfig();
             dispose();
-            new DeepLLoginUI().setVisible(true);
+            new LoginUI().setVisible(true);
         });
 
         darkModeToggle.addActionListener(e -> {

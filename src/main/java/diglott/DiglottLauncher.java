@@ -1,6 +1,6 @@
 package diglott;
 
-import ui.login.DeepLLoginUI;
+import ui.login.LoginUI;
 import ui.main.MainUI;
 import configuration.ConfigDataRetriever;
 
@@ -15,19 +15,33 @@ public class DiglottLauncher {
      * it proceeds to the main UI; otherwise, it shows the login UI.
      */
     public void start() {
-        String savedKey = null;
-        try {
-            savedKey = ConfigDataRetriever.get("deepl_api_key");
-        } catch (Exception ignored) {
-            // intentionally ignored
-        }
+        String savedDeepL = "none";
+        String savedAzure = "none";
 
-        if (isValidDeepLApiKey(savedKey)) {
-            MainUI.createInstance(savedKey).setVisible(true);
+        try {
+            savedDeepL = ConfigDataRetriever.get("deepl_api_key");
+        } catch (Exception ignored) { }
+        try {
+            savedAzure = ConfigDataRetriever.get("azure_api_key");
+        } catch (Exception ignored) { }
+        boolean hasDeepL = isValidApiKey(savedDeepL);
+        boolean hasAzure = isValidApiKey(savedAzure);
+
+        if (hasDeepL || hasAzure) {
+            MainUI.createInstance(
+                    hasDeepL ? savedDeepL : "none",
+                    hasAzure ? savedAzure : "none"
+            ).setVisible(true);
         } else {
-            new DeepLLoginUI().setVisible(true);
+            new LoginUI().setVisible(true);
         }
     }
+
+    private boolean isValidApiKey(final String key) {
+        return key != null && !key.trim().isEmpty()
+                && !"none".equalsIgnoreCase(key);
+    }
+
 
     /**
      * Validates the given DeepL API key.

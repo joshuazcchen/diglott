@@ -16,7 +16,14 @@ import java.util.List;
 /**
  * .dig file importer.
  */
-public class LoadBook {
+public final class LoadBook {
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private LoadBook() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
     /**
      * Reads the .dig file, parses JSON array, and returns list of pages.
@@ -38,16 +45,15 @@ public class LoadBook {
             int pageNumber = pageObj.getInt("pageNumber");
             String pageContent = pageObj.getString("content");
             boolean translated = pageObj.getBoolean("translated");
-            System.out.println(translated);
-            System.out.println("asdfasdfasdfasdfasdfasdfsadf:"+translated);
+
             List<String> words = List.of(pageContent.split("\\s+"));
             int maxWords = ConfigDataRetriever.getInt("page_length")
                     * ConfigDataRetriever.getInt("page_length");
+
             Page page = new Page(words, pageNumber, maxWords);
             if (translated) {
                 page.translated();
             }
-            System.out.println("as'dfadsfasdfasdf"+page.isTranslated());
             pages.add(page);
         }
 

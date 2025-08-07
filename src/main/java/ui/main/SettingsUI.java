@@ -21,6 +21,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import configuration.ConfigDataRetriever;
 import configuration.FontList;
+import ui.login.AzureLoginUI;
 
 /**
  * UI window for adjusting Diglott application settings.
@@ -30,7 +31,7 @@ import configuration.FontList;
  * toggle incremental growth, preserve original script,
  * and select Google API credentials.
  */
-public class SettingsUi extends JFrame {
+public class SettingsUI extends JFrame {
 
     /** Default width for the settings window. */
     private static final int DEFAULT_WIDTH = 500;
@@ -59,13 +60,14 @@ public class SettingsUi extends JFrame {
     /**
      * Creates and displays the Settings UI.
      */
-    public SettingsUi() {
+    public SettingsUI() {
         initializeFrame();
 
         final boolean darkMode =
                 Boolean.parseBoolean(ConfigDataRetriever.get("dark_mode"));
 
         // UI controls
+        final JButton addAzureButton = createAzureButton();
         final JButton pickCredsButton = createCredentialsButton();
         final JComboBox<Integer> speedBox = createSpeedBox();
         final JComboBox<Integer> pagesTranslated = createPagesBox();
@@ -75,7 +77,7 @@ public class SettingsUi extends JFrame {
 
         // Main content panel
         final JPanel content = createContentPanel(
-                pickCredsButton, speedBox, pagesTranslated,
+                addAzureButton, pickCredsButton, speedBox, pagesTranslated,
                 fontBox, exponentialGrowthBox, originalScriptBox, darkMode);
 
         add(content, BorderLayout.CENTER);
@@ -91,6 +93,25 @@ public class SettingsUi extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
+    }
+
+    /**
+     * Creates the azure button with its action listener.
+     *
+     * @return the configured button
+     */
+    private JButton createAzureButton() {
+        final JButton button = new JButton("Microsoft Azure "
+                + "Translation (Adds 102 Languages)");
+        button.addActionListener(actionEvent -> handleAzureLogin());
+        return button;
+    }
+
+    /**
+     * Handles the credential file selection process.
+     */
+    private void handleAzureLogin() {
+        new AzureLoginUI();
     }
 
     /**
@@ -208,6 +229,7 @@ public class SettingsUi extends JFrame {
     /**
      * Creates the main content panel with all UI controls.
      *
+     * @param addAzureButton the azure button
      * @param pickCredsButton the credentials button
      * @param speedBox the speed selection box
      * @param pagesTranslated the pages translation box
@@ -218,6 +240,7 @@ public class SettingsUi extends JFrame {
      * @return the configured content panel
      */
     private JPanel createContentPanel(
+            final JButton addAzureButton,
             final JButton pickCredsButton,
             final JComboBox<Integer> speedBox,
             final JComboBox<Integer> pagesTranslated,
@@ -233,6 +256,7 @@ public class SettingsUi extends JFrame {
                 PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
 
         // Add all settings controls
+        content.add(addAzureButton);
         content.add(pickCredsButton);
         content.add(wrapLabeled("Speed:", speedBox));
         content.add(wrapLabeled("Pages to Translate:", pagesTranslated));

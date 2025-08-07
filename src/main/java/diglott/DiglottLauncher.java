@@ -1,6 +1,6 @@
 package diglott;
 
-import ui.login.LoginUI;
+import ui.login.DeepLLoginUI;
 import ui.main.MainUI;
 import configuration.ConfigDataRetriever;
 
@@ -17,25 +17,25 @@ public class DiglottLauncher {
     public void start() {
         String savedKey = null;
         try {
-            savedKey = ConfigDataRetriever.get("api_key");
+            savedKey = ConfigDataRetriever.get("deepl_api_key");
         } catch (Exception ignored) {
             // intentionally ignored
         }
 
-        if (isValidApiKey(savedKey)) {
+        if (isValidDeepLApiKey(savedKey)) {
             MainUI.createInstance(savedKey).setVisible(true);
         } else {
-            new LoginUI().setVisible(true);
+            new DeepLLoginUI().setVisible(true);
         }
     }
 
     /**
-     * Validates the given API key.
+     * Validates the given DeepL API key.
      *
      * @param key the key to validate
      * @return true if the key is non-null, non-empty, and not equal to "none"
      */
-    private boolean isValidApiKey(final String key) {
+    private boolean isValidDeepLApiKey(final String key) {
         return key != null && !key.trim().isEmpty() && !"none".equals(key);
     }
 }

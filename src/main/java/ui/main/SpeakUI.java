@@ -28,7 +28,7 @@ import domain.model.Page;
  * This class dynamically creates a grid of buttons, one per translated word,
  * allowing the user to click a word to have it spoken aloud.
  */
-public class SpeakUi extends JFrame {
+public class SpeakUI extends JFrame {
 
     /**
      * Default window width.
@@ -80,7 +80,7 @@ public class SpeakUi extends JFrame {
      * @param darkMode
      * whether to render the UI in dark mode
      */
-    public SpeakUi(final Page page, final SpeakController speakController,
+    public SpeakUI(final Page page, final SpeakController speakController,
                    final boolean darkMode) {
         // Set window title
         setTitle("Speak Words");

@@ -5,7 +5,7 @@
  * <ul>
  *     <li>{@code Main} — the main application entry point</li>
  *     <li>{@code DiglottLauncher} — determines whether to
- *     show the login or main UI based on API key status</li>
+ *     show the login or main UI based on DeepL API key status</li>
  * </ul>
  *
  * <p>These classes coordinate the initial flow of the program and route control

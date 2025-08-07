@@ -1,6 +1,8 @@
 {
     "dark_mode": "false",
-    "api_key": "none",
+    "deepl_api_key": "none",
+    "azure_api_key": "none",
+    "azure_region": "canadaeast",
     "original_script": true,
     "input_language": "en",
     "target_language": "fr",

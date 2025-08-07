@@ -48,8 +48,8 @@ public class MainUI extends JFrame {
     /** Start button. */
     private JButton startButton;
 
-    /** Close button. */
-    private JButton closeButton;
+    /** Saved books button. */
+    private JButton savedButton;
 
     /** Logout button. */
     private JButton logoutButton;
@@ -176,7 +176,7 @@ public class MainUI extends JFrame {
 
         pickFileButton = new JButton("Pick File");
         startButton = new JButton("Start");
-        closeButton = new JButton("Close App");
+        savedButton = new JButton("Saved Books");
         settingsButton = new JButton("Settings");
         logoutButton = new JButton("Logout");
         darkModeToggle = new JToggleButton("Dark Mode");
@@ -210,7 +210,7 @@ public class MainUI extends JFrame {
                 MEDIUMUIELEMENT, MEDIUMUIELEMENT, 0, MEDIUMUIELEMENT));
         buttonPanel.add(pickFileButton);
         buttonPanel.add(startButton);
-        buttonPanel.add(closeButton);
+        buttonPanel.add(savedButton);
         buttonPanel.add(settingsButton);
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -265,7 +265,8 @@ public class MainUI extends JFrame {
             dispose();
         });
 
-        closeButton.addActionListener(e -> dispose());
+        savedButton.addActionListener(e ->
+                new SaveUI(darkMode).setVisible(true));
 
         settingsButton.addActionListener(e -> new SettingsUI());
 

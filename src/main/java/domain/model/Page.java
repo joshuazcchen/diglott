@@ -32,6 +32,11 @@ public class Page {
     private List<String> translatedWords;
 
     /**
+     * If this page is already translated.
+     */
+    private boolean translated;
+
+    /**
      * Constructs a Page object with given content and metadata.
      *
      * @param words      the original list of words for this page
@@ -54,6 +59,7 @@ public class Page {
 
         this.pageNumber = pageNum;
         this.maxWords = max;
+        this.translated = false;
         this.originalWords = new ArrayList<>(words);
         this.translatedWords = new ArrayList<>(words);
     }
@@ -92,6 +98,13 @@ public class Page {
      */
     public boolean isTranslated() {
         return !Objects.equals(originalWords, translatedWords);
+    }
+
+    /**
+     * Marks the page as translated.
+     */
+    public void translated() {
+        this.translated = true;
     }
 
     /**

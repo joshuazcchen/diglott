@@ -34,13 +34,16 @@ import java.nio.charset.StandardCharsets;
 
 public class AzureLoginUI extends JFrame {
 
+    /** Callback function. */
+    private final LoginCallback callback;
+
     // === Constants for layout and styling ===
 
     /** Frame width in pixels. */
     private static final int FRAME_WIDTH = 350;
 
     /** Frame height in pixels. */
-    private static final int FRAME_HEIGHT = 220;
+    private static final int FRAME_HEIGHT = 300;
 
     /** Text field width in pixels. */
     private static final int TEXT_FIELD_WIDTH = 250;
@@ -84,9 +87,10 @@ public class AzureLoginUI extends JFrame {
      * Suppresses Checkstyle warning for non-final local variables.
      * This constructor uses non-final variables (e.g., darkMode) intentionally
      * for clarity and to allow conditional reassignment.
+     * @param loginCallback is a callback function which allows for a return.
      */
-    @SuppressWarnings("checkstyle:FinalLocalVariable")
-    public AzureLoginUI() {
+    public AzureLoginUI(final LoginCallback loginCallback) {
+        this.callback = loginCallback;
         setTitle("Diglott Login");
         setSize(FRAME_WIDTH, FRAME_HEIGHT);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -98,144 +102,262 @@ public class AzureLoginUI extends JFrame {
             darkMode = darkModeStr != null && Boolean.parseBoolean(darkModeStr);
         } catch (Exception ignored) { }
 
-        JLabel label = new JLabel("Enter API Key:");
-        JTextField keyField = new JTextField();
-        keyField.setMaximumSize(new Dimension(
-                TEXT_FIELD_WIDTH, TEXT_FIELD_HEIGHT));
-        keyField.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel label = createLabel("Enter API Key:", darkMode);
+        JTextField keyField = createTextField(darkMode);
+        JLabel regionLabel = createLabel("Enter Azure Region:", darkMode);
+        JTextField regionField = createTextField(darkMode);
 
-        JLabel regionLabel = new JLabel("Enter Azure Region:");
-        JTextField regionField = new JTextField();
-        regionField.setMaximumSize(new Dimension(TEXT_FIELD_WIDTH, TEXT_FIELD_HEIGHT));
-        regionField.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JButton loginButton = new JButton("Login");
+        JButton loginButton = createButton("Login", darkMode);
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JButton cancelButton = createButton("Cancel", darkMode);
+        cancelButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel linkLabel = new JLabel(String.format(
-                "<html><span style='font-size:10pt; "
-                        + "color:%s'>To get an API key, "
-                        + "click <a style='color:%s;' "
-                        + "href=''>here</a>.</span></html>",
-                darkMode ? "white" : "black",
-                darkMode ? "rgb(90,156,255)" : "rgb(0,102,204)"
-        ));
-        linkLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        linkLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Apply dark/light styles
-        if (darkMode) {
-            label.setForeground(Color.WHITE);
-            keyField.setBackground(new Color(
-                    DARK_INPUT_RGB, DARK_INPUT_RGB, DARK_INPUT_RGB));
-            keyField.setForeground(Color.WHITE);
-            keyField.setCaretColor(Color.WHITE);
-            regionLabel.setForeground(Color.WHITE);
-            regionField.setBackground(new Color(
-                    DARK_INPUT_RGB, DARK_INPUT_RGB, DARK_INPUT_RGB));
-            regionField.setForeground(Color.WHITE);
-            regionField.setCaretColor(Color.WHITE);
-            loginButton.setBackground(new Color(
-                    DARK_BUTTON_RGB, DARK_BUTTON_RGB, DARK_BUTTON_RGB));
-            loginButton.setForeground(Color.WHITE);
-            linkLabel.setForeground(DARK_LINK_COLOR);
-            getContentPane().setBackground(DARK_BG_COLOR);
-        } else {
-            label.setForeground(Color.BLACK);
-            keyField.setBackground(Color.WHITE);
-            keyField.setForeground(Color.BLACK);
-            keyField.setCaretColor(Color.BLACK);
-            loginButton.setBackground(new Color(
-                    LIGHT_BUTTON_RGB, LIGHT_BUTTON_RGB, LIGHT_BUTTON_RGB));
-            loginButton.setForeground(Color.BLACK);
-            linkLabel.setForeground(LIGHT_LINK_COLOR);
-            getContentPane().setBackground(LIGHT_BG_COLOR);
-        }
+        JLabel linkLabel = createLinkLabel(darkMode);
 
         // Clicking "Login" should store the API key and launch MainUI
-        loginButton.addActionListener(e -> {
-            int responseCode = 0;
-            final String azureApiKey = keyField.getText().trim();
-            final String azureRegion = regionField.getText().trim();
-            if (azureApiKey.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "API key is required.");
-                return;
-            }
+        loginButton.addActionListener(e -> handleLogin(keyField, regionField));
 
-            try {
-                final URL url = new URL("https://api.cognitive.microsoft"
-                        + "translator.com/translate?api-version=3.0&to=fr");
-                final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Ocp-Apim-Subscription-Key", azureApiKey);
-                connection.setRequestProperty("Ocp-Apim-Subscription-Region", azureRegion);
-                connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                connection.setDoOutput(true);
-
-                // Dummy JSON payload for test request
-                String jsonPayload = "[{\"Text\": \"test\"}]";
-                byte[] postData = jsonPayload.getBytes(StandardCharsets.UTF_8);
-                try (OutputStream outputStream = connection.getOutputStream()) {
-                    outputStream.write(postData);
-                }
-                responseCode = connection.getResponseCode();
-                connection.disconnect();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Please verify your key is correctly inputted.",
-                        "Could not connect to the API",
-                        JOptionPane.WARNING_MESSAGE
-                );
-                System.out.println(responseCode);
-            } else {
-                ConfigDataRetriever.set("azure_api_key", azureApiKey);
-                ConfigDataRetriever.saveConfig();
-                dispose();
-                MainUI.createInstance(azureApiKey).setVisible(true);
-            }
+        // Clicking cancel should return you to the original page.
+        cancelButton.addActionListener(e -> {
+            dispose();
         });
 
         // Clicking the link should open Microsoft Azure’s API page
         linkLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(final MouseEvent e) {
-                try {
-                    Desktop.getDesktop().browse(new URI(
-                            "https://azure.microsoft.com/en-us/services/"
-                                    + "cognitive-services/translator/"));
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null,
-                            "Could not open the link.");
-                }
+                openAzureLink();
             }
         });
 
-        // UI Layout
-        JPanel panel = new JPanel();
+        UIComponents components = new UIComponents(label, keyField, regionLabel,
+                regionField, linkLabel, loginButton, cancelButton);
+        JPanel panel = createMainPanel(darkMode, components);
+        setLayout(new GridBagLayout());
+        add(panel);
+        setVisible(true);
+    }
+
+    /** Creates a JLabel with appropriate color and alignment.
+     * @param text the text associated with the label.
+     * @param darkMode whether its in dark mode.
+     * @return a label it made.
+     * */
+    private JLabel createLabel(final String text,
+                               final boolean darkMode) {
+        JLabel label = new JLabel(text);
+        label.setForeground(darkMode ? Color.WHITE : Color.BLACK);
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        return label;
+    }
+
+    /** Creates a JTextField styled according to the darkMode flag.
+     * @param darkMode whether it's in dark mode
+     * @return a text field it made
+     * */
+    private JTextField createTextField(final boolean darkMode) {
+        JTextField field = new JTextField();
+        field.setMaximumSize(new Dimension(TEXT_FIELD_WIDTH,
+                TEXT_FIELD_HEIGHT));
+        field.setAlignmentX(Component.CENTER_ALIGNMENT);
+        if (darkMode) {
+            field.setBackground(new Color(DARK_INPUT_RGB,
+                    DARK_INPUT_RGB, DARK_INPUT_RGB));
+            field.setForeground(Color.WHITE);
+            field.setCaretColor(Color.WHITE);
+        } else {
+            field.setBackground(Color.WHITE);
+            field.setForeground(Color.BLACK);
+            field.setCaretColor(Color.BLACK);
+        }
+        return field;
+    }
+
+    /** Creates a JButton styled according to the darkMode flag.
+     * @param darkMode whether thine function ist be in dark mode.
+     * @param text the text associated with the button being created.
+     * @return a button, since this is a button creator.
+     * */
+    private JButton createButton(final String text,
+                                 final boolean darkMode) {
+        JButton button = new JButton(text);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        if (darkMode) {
+            button.setBackground(new Color(DARK_BUTTON_RGB,
+                    DARK_BUTTON_RGB, DARK_BUTTON_RGB));
+            button.setForeground(Color.WHITE);
+        } else {
+            button.setBackground(new Color(LIGHT_BUTTON_RGB,
+                    LIGHT_BUTTON_RGB, LIGHT_BUTTON_RGB));
+            button.setForeground(Color.BLACK);
+        }
+        return button;
+    }
+
+    /** Creates the clickable link label with proper styling.
+     * @param darkMode whether the UI is in dark mode
+     * @return a link label.
+     * */
+    private JLabel createLinkLabel(final boolean darkMode) {
+        JLabel linkLabel = new JLabel(String.format(
+                "<html><span style='font-size:10pt;"
+                        + "color:%s'>To get an API key, "
+                        + "click <a style='color:%s;'"
+                        + "href=''>here</a>.</span></html>",
+                darkMode ? "white" : "black",
+                darkMode ? "rgb(90,156,255)" : "rgb(0,102,204)"));
+        linkLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        linkLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        linkLabel.setForeground(darkMode ? DARK_LINK_COLOR : LIGHT_LINK_COLOR);
+        return linkLabel;
+    }
+
+    /**
+     * Creates and lays out the main JPanel with all components.
+     *
+     * @param darkMode whether dark mode styling is enabled
+     * @param components the container of UI components
+     * @return the fully constructed JPanel
+     */
+    private JPanel createMainPanel(final boolean darkMode,
+                                   final UIComponents components) {
+        final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(
                 PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
         panel.setBackground(darkMode ? DARK_BG_COLOR : LIGHT_BG_COLOR);
 
-        label.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(label);
+        components.label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(components.label);
         panel.add(Box.createVerticalStrut(VERTICAL_SPACING));
-        panel.add(keyField);
-        panel.add(regionLabel);
+        panel.add(components.keyField);
+        panel.add(components.regionLabel);
         panel.add(Box.createVerticalStrut(VERTICAL_SPACING));
-        panel.add(regionField);
+        panel.add(components.regionField);
         panel.add(Box.createVerticalStrut(VERTICAL_SPACING));
-        panel.add(linkLabel);
+        panel.add(components.linkLabel);
         panel.add(Box.createVerticalStrut(BUTTON_SPACING));
-        panel.add(loginButton);
+        panel.add(components.loginButton);
+        panel.add(Box.createVerticalStrut(VERTICAL_SPACING));
+        panel.add(components.cancelButton);
 
-        setLayout(new GridBagLayout());
-        add(panel);
-        setVisible(true);
+        return panel;
+    }
+
+        /**
+         * Container class for grouping UI components.
+         * @param regionLabel
+         * @param label
+         * @param regionField
+         * @param loginButton
+         * @param linkLabel
+         * @param keyField
+         * @param cancelButton
+         */
+        private record UIComponents(JLabel label, JTextField keyField,
+                                    JLabel regionLabel,
+                                    JTextField regionField,
+                                    JLabel linkLabel, JButton loginButton,
+                                    JButton cancelButton) {
+        /**
+         * Constructs UIComponents to group components together.
+         *
+         * @param label        the API key label
+         * @param keyField     the API key input field
+         * @param regionLabel  the Azure region label
+         * @param regionField  the Azure region input field
+         * @param linkLabel    the hyperlink label
+         * @param loginButton  the login button
+         * @param cancelButton the cancel button
+         */
+        private UIComponents {
+        }
+        }
+
+    /**
+     * Handles login button logic, testing API key validity,
+     * saving configuration, and launching the appropriate UI.
+     * @param keyField is an API key field.
+     * @param regionField is the region field.
+     */
+    private void handleLogin(final JTextField keyField,
+                             final JTextField regionField) {
+        final String azureApiKey = keyField.getText().trim();
+        final String azureRegion = regionField.getText().trim();
+
+        if (azureApiKey.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "API key is required.");
+            return;
+        }
+
+        int responseCode = 0;
+
+        try {
+            responseCode = testAzureApiKey(azureApiKey, azureRegion);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            ConfigDataRetriever.set("azure_api_key", azureApiKey);
+            ConfigDataRetriever.saveConfig();
+            dispose();
+            callback.onSuccess(azureApiKey);
+        } else {
+            ConfigDataRetriever.set("azure_api_key", azureApiKey);
+            ConfigDataRetriever.saveConfig();
+            dispose();
+            MainUI.createInstance(ConfigDataRetriever.get("deepl_api_key"),
+                    azureApiKey).setVisible(true);
+        }
+    }
+
+    /**
+     * Sends a test request to Azure Translator API to validate the API key.
+     * @return HTTP response code of the request, or -1 if failed.
+     * @param apiKey is the API key to be tested.
+     * @param region is the region for testing.
+     */
+    private int testAzureApiKey(final String apiKey,
+                                final String region) {
+        try {
+            final URL url = new URL("https://api.cognitive."
+                    + "microsofttranslator.com"
+                    + "/translate?api-version=3.0&to=fr");
+            final HttpURLConnection connection =
+                    (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Ocp-Apim-Subscription-Key", apiKey);
+            connection.setRequestProperty("Ocp-Apim-Subscription-Region",
+                    region);
+            connection.setRequestProperty("Content-Type",
+                    "application/json; charset=UTF-8");
+            connection.setDoOutput(true);
+
+            // Dummy JSON payload for test request
+            String jsonPayload = "[{\"Text\": \"test\"}]";
+            byte[] postData = jsonPayload.getBytes(StandardCharsets.UTF_8);
+            try (OutputStream outputStream = connection.getOutputStream()) {
+                outputStream.write(postData);
+            }
+            int responseCode = connection.getResponseCode();
+            connection.disconnect();
+            return responseCode;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    /** Opens the Azure API key page in the user's default browser. */
+    private void openAzureLink() {
+        try {
+            Desktop.getDesktop().browse(new URI(
+                    "https://azure.microsoft.com/en-us/"
+                    + "services/cognitive-services/translator/"));
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null,
+                    "Could not open the link.");
+        }
     }
 }

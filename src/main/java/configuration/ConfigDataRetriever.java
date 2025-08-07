@@ -90,13 +90,14 @@ public final class ConfigDataRetriever {
                 "input_language", "target_language", "dark_mode",
                 "font_size", "speed", "increment", "original_script",
                 "page_length", "logs", "font", "deepl_api_key",
-                "credentials_path", "pages_translated"
+                "credentials_path", "pages_translated",
+                "azure_api_key", "azure_region"
         };
 
         final Object[] defaultValues = {
                 "en", "fr", "false", DEFAULT_FONT_SIZE, DEFAULT_SPEED, true,
                 true, DEFAULT_PAGE_LENGTH, "none", "times new roman",
-                "none", "path", DEFAULT_PAGES_TRANSLATED
+                "none", "path", DEFAULT_PAGES_TRANSLATED, "none", "canadaeast",
         };
 
         for (int i = 0; i < requiredKeys.length; i++) {
@@ -112,7 +113,7 @@ public final class ConfigDataRetriever {
      * @param key the config key
      * @return the associated string value
      */
-    public static String get(final String key) {
+    public static String get(final String key) throws NoSuchElementException {
         return CONFIG.getString(key);
     }
 

@@ -36,6 +36,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.io.File;
 
+import domain.model.Book;
+
 /**
  * Main UI window for selecting book files, configuring
  * translation settings, and launching page view.
@@ -259,9 +261,11 @@ public class MainUI extends JFrame {
                     new SpeakWordsInteractor(speechManager);
             speakController = new SpeakController(speakUseCase, speechManager);
 
-            new PageUI(
-                    pages, darkMode, translatorUseCase,
+            Book book = new Book(
+                    selectedFile.getName().replace(".txt", ""), pages);
+            new PageUI(book, darkMode, translatorUseCase,
                     speakController).setVisible(true);
+
             dispose();
         });
 

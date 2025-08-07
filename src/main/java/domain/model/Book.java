@@ -21,15 +21,26 @@ public class Book {
     private int currentPageNumber;
 
     /**
+     * The name of the book.
+     */
+    private String title;
+
+    /**
      * Constructs a new Book and initializes to the first page.
      *
      * @param pageList the list of pages to include in the book
+     * @param bookTitle the title of the book
      */
-    public Book(final List<Page> pageList) {
+    public Book(final String bookTitle, final List<Page> pageList) {
+        if (bookTitle == null || bookTitle.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Book title cannot be null or empty.");
+        }
         if (pageList == null || pageList.isEmpty()) {
             throw new IllegalArgumentException(
                     "A book must contain at least one page.");
         }
+        this.title = bookTitle;
         pageList.sort(Comparator.comparingInt(Page::getPageNumber));
         this.pages = Collections.unmodifiableList(pageList);
         this.currentPageNumber = pageList.get(0).getPageNumber();
@@ -116,5 +127,12 @@ public class Book {
      */
     public List<Page> getAllPages() {
         return pages;
+    }
+
+    /**
+     * @return the name of the book
+     */
+    public String getTitle() {
+        return this.title;
     }
 }

@@ -72,6 +72,10 @@ public class SaveUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(filePanel);
         add(scrollPane, BorderLayout.CENTER);
 
+        final JButton closeButton = new JButton("Close");
+        closeButton.addActionListener(e -> dispose());
+        add(closeButton);
+
         setVisible(true);
     }
 }

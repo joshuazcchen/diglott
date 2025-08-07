@@ -3,6 +3,7 @@ package ui.main;
 import configuration.ConfigDataRetriever;
 import application.controller.SpeakController;
 import application.usecase.TranslatePageUseCase;
+import domain.model.Book;
 import domain.model.Page;
 import infrastructure.translation.PageTranslationTask;
 
@@ -16,245 +17,216 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 /**
- * UI window for displaying book pages and navigating between them.
+ * UI window for displaying book pages and navigating between them,
+ * refactored to use Book model directly.
  */
 public class PageUI extends JFrame {
 
-    /** Dark mode background color. */
+    /** Background color in dark mode. */
     private static final Color DARK_BG = Color.DARK_GRAY;
 
-    /** Dark mode foreground (text) color. */
+    /** Foreground (text) color in dark mode. */
     private static final Color DARK_FG = Color.WHITE;
 
-    /** Speak controller. */
-    private final SpeakController speakController;
-
-    /** Index of the currently displayed page in the list. */
-    private int currentPage;
-
-    /** List of all pages in the book. */
-    private final List<Page> pages;
-
-    /** Editor pane used for displaying HTML-formatted page content. */
-    private final JEditorPane content;
-
-    /** Whether dark mode is currently enabled. */
-    private final boolean darkMode;
-
-    /** Translator use case for translating the displayed pages. */
-    private final TranslatePageUseCase translator;
-
-    /** Label for showing the current page number and total page count. */
-    private final JLabel pageLabel;
-
-    /** Width of the UI. */
+    /** Width of the UI window. */
     private static final int WIDTH = 600;
 
-    /** Width of the UI. */
+    /** Height of the UI window. */
     private static final int HEIGHT = 750;
 
-    /** Size of the button (w&l). */
+    /** Button spacing. */
     private static final int BUTTONSIZE = 10;
 
+    /** The book being displayed. */
+    private final Book displayedBook;
+
+    /** Whether dark mode is active. */
+    private final boolean isDarkMode;
+
+    /** Translator use case for translating content. */
+    private final TranslatePageUseCase pageTranslator;
+
+    /** Text-to-speech controller. */
+    private final SpeakController speechController;
+
+    /** Editor pane displaying the page content. */
+    private final JEditorPane contentArea;
+
+    /** Label showing current page number. */
+    private final JLabel pageIndicator;
+
     /**
-     * Creates a PageUI instance for viewing and navigating pages.
+     * Constructs the PageUI window.
      *
-     * @param pageSet         the list of pages to display
-     * @param darkModeEnabled whether dark mode is enabled
-     * @param translatorUseCase the translator use case for translating pages
-     * @param speakControl the controller for the speaker
+     * @param book the book to display
+     * @param darkMode whether dark mode is enabled
+     * @param translatorUseCase use case for translating pages
+     * @param speakCtrl controller for speaking pages
      */
-    public PageUI(final List<Page> pageSet,
-                  final boolean darkModeEnabled,
+    public PageUI(final Book book,
+                  final boolean darkMode,
                   final TranslatePageUseCase translatorUseCase,
-                  final SpeakController speakControl) {
+                  final SpeakController speakCtrl) {
 
-        this.pages = pageSet;
-        this.darkMode = darkModeEnabled;
-        this.translator = translatorUseCase;
-        this.speakController = speakControl;
-        this.currentPage = 0;
+        this.displayedBook = book;
+        this.isDarkMode = darkMode;
+        this.pageTranslator = translatorUseCase;
+        this.speechController = speakCtrl;
 
-        setTitle("Page View");
+        setTitle("Reading: " + book.getTitle());
         setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        content = new JEditorPane();
-        content.setContentType("text/html");
-        content.setEditable(false);
-        setupStyle();
+        contentArea = new JEditorPane();
+        contentArea.setContentType("text/html");
+        contentArea.setEditable(false);
+        configureHtmlStyle();
 
-        JScrollPane scrollPane = new JScrollPane(content);
+        JScrollPane scrollPane = new JScrollPane(contentArea);
         scrollPane.getViewport().setBackground(
-                darkMode ? DARK_BG : Color.WHITE);
+                isDarkMode ? DARK_BG : Color.WHITE);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Create buttons
-        JButton backButton = new JButton("Back to Main Page");
-        JButton previousPageButton = new JButton("Last Page");
-        JButton nextPageButton = new JButton("Next Page");
-        JButton speakButton = new JButton("Speak");
+        JButton backBtn = new JButton("Back to Main Page");
+        JButton prevBtn = new JButton("Last Page");
+        JButton nextBtn = new JButton("Next Page");
+        JButton speakBtn = new JButton("Speak");
 
-        pageLabel = new JLabel("", SwingConstants.CENTER);
+        pageIndicator = new JLabel("", SwingConstants.CENTER);
 
-        // Button panel
         JPanel buttonPanel = new JPanel(
                 new FlowLayout(FlowLayout.CENTER, BUTTONSIZE, BUTTONSIZE));
-        buttonPanel.add(backButton);
-        buttonPanel.add(previousPageButton);
-        buttonPanel.add(nextPageButton);
-        buttonPanel.add(speakButton);
-        buttonPanel.add(pageLabel);
+        buttonPanel.add(backBtn);
+        buttonPanel.add(prevBtn);
+        buttonPanel.add(nextBtn);
+        buttonPanel.add(speakBtn);
+        buttonPanel.add(pageIndicator);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // Initial button states
-        nextPageButton.setEnabled(pages.size() > 1);
-        previousPageButton.setEnabled(false);
+        nextBtn.setEnabled(book.getTotalPages() > 1);
+        prevBtn.setEnabled(false);
 
-        // Actions
-        backButton.addActionListener(e -> {
+        backBtn.addActionListener(e -> {
             dispose();
             new MainUI(ConfigDataRetriever.get("deepl_api_key"));
         });
 
-        nextPageButton.addActionListener(
-                e -> goToNextPage(previousPageButton, nextPageButton));
-        previousPageButton.addActionListener(
-                e -> goToPreviousPage(previousPageButton, nextPageButton));
+        nextBtn.addActionListener(e -> {
+            book.nextPage();
+            refreshContent();
+            prevBtn.setEnabled(true);
+            nextBtn.setEnabled(book.getCurrentPageNumber()
+                    < book.getTotalPages());
+        });
 
-        speakButton.addActionListener(e -> {
-            if (!speakControl.isTtsAvailable()) {
+        prevBtn.addActionListener(e -> {
+            book.previousPage();
+            refreshContent();
+            nextBtn.setEnabled(true);
+            prevBtn.setEnabled(book.getCurrentPageNumber() > 1);
+        });
+
+        speakBtn.addActionListener(e -> {
+            if (!speechController.isTtsAvailable()) {
                 JOptionPane.showMessageDialog(
                         this,
-                        "Google Cloud credentials not configured. "
-                                + "Please upload a valid file to use speech.",
+                        "Google Cloud credentials not configured.",
                         "Text-to-Speech Unavailable",
-                        JOptionPane.WARNING_MESSAGE
-                );
+                        JOptionPane.WARNING_MESSAGE);
             } else {
-                new SpeakUI(pages.get(currentPage), speakControl, darkMode);
+                new SpeakUI(book.getCurrentPage(),
+                        speechController, isDarkMode);
             }
         });
 
-        // Mouse navigation
-        content.addMouseListener(new MouseAdapter() {
+        contentArea.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(final MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    goToNextPage(previousPageButton, nextPageButton);
+                    nextBtn.doClick();
                 } else if (e.getButton() == MouseEvent.BUTTON3) {
-                    goToPreviousPage(previousPageButton, nextPageButton);
+                    prevBtn.doClick();
                 }
             }
         });
 
-        // Apply dark mode if enabled
-        if (darkMode) {
-            applyDarkTheme(buttonPanel, backButton,
-                    previousPageButton, nextPageButton, speakButton);
+        if (isDarkMode) {
+            applyDarkTheme(buttonPanel, backBtn,
+                    prevBtn, nextBtn, speakBtn);
         }
 
-        updateContent();
+        refreshContent();
     }
 
-    /** Sets up HTML/CSS styling for the page content. */
-    private void setupStyle() {
-        HTMLEditorKit kit = new HTMLEditorKit();
+    /** Applies HTML styling to the content pane. */
+    private void configureHtmlStyle() {
+        HTMLEditorKit editorKit = new HTMLEditorKit();
         StyleSheet styleSheet = new StyleSheet();
-        styleSheet.addRule(
-                "body { font-family: "
-                        + ConfigDataRetriever.get("font") + "; font-size: "
-                        + ConfigDataRetriever.get("font_size") + "; color: "
-                        + (darkMode ? "white" : "black")
-                        + "; background-color: "
-                        + (darkMode ? "#333333" : "white") + "; }"
-        );
-        kit.setStyleSheet(styleSheet);
-        content.setEditorKit(kit);
-    }
-
-    /** Updates the displayed page content and the page label. */
-    private void updateContent() {
-        String htmlContent = "<html><body>"
-                + pages.get(currentPage).getContent() + "</body></html>";
-        content.setText(htmlContent);
-        content.setCaretPosition(0);
-        pageLabel.setText("Page " + (currentPage + 1) + " of " + pages.size());
+        styleSheet.addRule("body { font-family: "
+                + ConfigDataRetriever.get("font")
+                + "; font-size: "
+                + ConfigDataRetriever.get("font_size")
+                + "; color: "
+                + (isDarkMode ? "white" : "black")
+                + "; background-color: "
+                + (isDarkMode ? "#333333" : "white") + "; }");
+        editorKit.setStyleSheet(styleSheet);
+        contentArea.setEditorKit(editorKit);
     }
 
     /**
-     * Moves to the next page if available and triggers translation if needed.
-     *
-     * @param previousPageButton the previous page button
-     * @param nextPageButton     the next page button
+     * Updates displayed content and triggers translation if needed.
      */
-    void goToNextPage(final JButton previousPageButton,
-                      final JButton nextPageButton) {
-        if (currentPage < pages.size() - 1) {
-            currentPage++;
+    private void refreshContent() {
+        Page page = displayedBook.getCurrentPage();
+        if (!page.isTranslated()) {
+            translatePageInBackground(page);
+        }
+        contentArea.setText("<html><body>"
+                + page.getContent() + "</body></html>");
+        contentArea.setCaretPosition(0);
+        pageIndicator.setText("Page "
+                + displayedBook.getCurrentPageNumber() + " of "
+                + displayedBook.getTotalPages());
+    }
 
-            if (!pages.get(currentPage).isTranslated()) {
-                translatePageAsync(pages.get(currentPage));
+    /**
+     * Asynchronously translates a page and updates UI if needed.
+     *
+     * @param page the page to translate
+     */
+    private void translatePageInBackground(final Page page) {
+        PageTranslationTask task = new PageTranslationTask(
+                pageTranslator, page, () -> {
+            if (displayedBook.getCurrentPage().equals(page)) {
+                refreshContent();
             }
-
-            updateContent();
-            previousPageButton.setEnabled(true);
-
-            final int pagesTranslated =
-                    ConfigDataRetriever.getInt("pages_translated");
-            for (int i = 1; i < pagesTranslated; i++) {
-                int nextIndex = currentPage + i;
-                if (nextIndex < pages.size()
-                        && !pages.get(nextIndex).isTranslated()) {
-                    translatePageAsync(pages.get(nextIndex));
-                }
-            }
-        }
-
-        if (currentPage == pages.size() - 1) {
-            nextPageButton.setEnabled(false);
-        }
+        });
+        task.execute();
     }
 
     /**
-     * Moves to the previous page if available.
+     * Applies dark mode styling to the UI components.
      *
-     * @param previousPageButton the previous page button
-     * @param nextPageButton     the next page button
+     * @param panel parent panel
+     * @param buttons buttons to style
      */
-    private void goToPreviousPage(final JButton previousPageButton,
-                                  final JButton nextPageButton) {
-        if (currentPage > 0) {
-            currentPage--;
-            updateContent();
-            nextPageButton.setEnabled(true);
-        }
-        if (currentPage == 0) {
-            previousPageButton.setEnabled(false);
-        }
-    }
-
-    /**
-     * Applies dark mode styling to the panel and given buttons.
-     *
-     * @param panel   the panel containing the buttons
-     * @param buttons the buttons to style
-     */
-    private void applyDarkTheme(final JPanel panel, final JButton... buttons) {
+    private void applyDarkTheme(final JPanel panel,
+                                final JButton... buttons) {
         panel.setBackground(DARK_BG);
-        pageLabel.setForeground(DARK_FG);
-        pageLabel.setBackground(DARK_BG);
-        pageLabel.setOpaque(true);
+        pageIndicator.setForeground(DARK_FG);
+        pageIndicator.setBackground(DARK_BG);
+        pageIndicator.setOpaque(true);
 
         for (JButton button : buttons) {
             button.setBackground(DARK_BG);
@@ -263,18 +235,5 @@ public class PageUI extends JFrame {
             button.setContentAreaFilled(true);
             button.setBorderPainted(true);
         }
-    }
-
-    /*
-    Translates async
-     */
-    private void translatePageAsync(final Page page) {
-        PageTranslationTask task =
-                new PageTranslationTask(translator, page, () -> {
-            if (page == pages.get(currentPage)) {
-                updateContent();
-            }
-        });
-        task.execute();
     }
 }

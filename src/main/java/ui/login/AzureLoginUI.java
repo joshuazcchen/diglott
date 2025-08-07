@@ -285,8 +285,11 @@ public class AzureLoginUI extends JFrame {
         final String azureApiKey = keyField.getText().trim();
         final String azureRegion = regionField.getText().trim();
 
-        if (azureApiKey.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "API key is required.");
+        if (azureApiKey.isEmpty() || azureRegion.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Both API key and region are required.",
+                    "Missing Information",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -298,17 +301,21 @@ public class AzureLoginUI extends JFrame {
             ex.printStackTrace();
         }
 
-        if (responseCode == HttpURLConnection.HTTP_OK) {
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please verify your Azure API key and region are "
+                            + "correctly inputted.",
+                    "Could not connect to the Azure API",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            System.out.println("Azure API response code: " + responseCode);
+        } else {
             ConfigDataRetriever.set("azure_api_key", azureApiKey);
+            ConfigDataRetriever.set("azure_region", azureRegion);
             ConfigDataRetriever.saveConfig();
             dispose();
             callback.onSuccess(azureApiKey);
-        } else {
-            ConfigDataRetriever.set("azure_api_key", azureApiKey);
-            ConfigDataRetriever.saveConfig();
-            dispose();
-            MainUI.createInstance(ConfigDataRetriever.get("deepl_api_key"),
-                    azureApiKey).setVisible(true);
         }
     }
 

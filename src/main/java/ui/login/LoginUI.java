@@ -77,8 +77,8 @@ public class LoginUI extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(
                 PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
 
-        JButton azureLoginButton = new JButton("Login with Azure");
-        JButton deepLLoginButton = new JButton("Login with DeepL");
+        JButton azureLoginButton = new JButton("Azure API");
+        JButton deepLLoginButton = new JButton("DeepL API");
 
         azureLoginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         deepLLoginButton.setAlignmentX(Component.CENTER_ALIGNMENT);

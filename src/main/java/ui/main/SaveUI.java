@@ -2,6 +2,7 @@ package ui.main;
 
 import application.controller.SpeakController;
 import application.usecase.TranslatePageUseCase;
+import configuration.ConfigDataRetriever;
 import domain.model.Book;
 import infrastructure.exporter.SaveBook;
 import infrastructure.importer.LoadBook;
@@ -73,7 +74,11 @@ public class SaveUI extends JFrame {
         add(scrollPane, BorderLayout.CENTER);
 
         final JButton closeButton = new JButton("Close");
-        closeButton.addActionListener(e -> dispose());
+        closeButton.addActionListener(e -> {
+            dispose();
+            MainUI.createInstance(ConfigDataRetriever.get("deepl_api_key"),
+                    ConfigDataRetriever.get("azure_api_key")).setVisible(true);
+        });
         add(closeButton);
 
         setVisible(true);

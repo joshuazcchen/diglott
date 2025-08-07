@@ -2,6 +2,7 @@ package ui.main;
 
 import application.controller.SpeakController;
 import application.usecase.TranslatePageUseCase;
+import configuration.ConfigDataRetriever;
 import domain.model.Book;
 import infrastructure.exporter.SaveBook;
 import infrastructure.importer.LoadBook;
@@ -48,7 +49,7 @@ public final class SaveUI extends JFrame {
         setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
         final JPanel filePanel = createFilePanel(
                 SaveBook.getSaveDirectory(),
@@ -78,12 +79,33 @@ public final class SaveUI extends JFrame {
                                    final SpeakController speakController) {
         final JPanel filePanel = new JPanel();
         filePanel.setLayout(new BoxLayout(filePanel, BoxLayout.Y_AXIS));
+        Path saveDir = SaveBook.getSaveDirectory();
+        File[] digFiles = saveDir.toFile().listFiles((dir,
+                                                      name)
+                -> name.endsWith(".dig"));
 
-        final File[] digFiles = saveDir
-                .toFile()
-                .listFiles((dir, name) -> name.endsWith(".dig"));
+        if (digFiles != null) {
+            for (File file : digFiles) {
+                JButton fileButton = new JButton(file.getName());
+                fileButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        if (digFiles == null || digFiles.length == 0) {
+                fileButton.addActionListener(e -> {
+                    try {
+                        Book loaded = LoadBook.importBook(file);
+                        dispose();
+                        new PageUI(loaded, darkModeEnabled, translatorUseCase,
+                                speakCtrl).setVisible(true);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(this,
+                                "Failed to load: " + file.getName(),
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+
+                filePanel.add(fileButton);
+            }
+        } else {
             filePanel.add(new JLabel("No saved books found."));
             return filePanel;
         }
@@ -99,58 +121,14 @@ public final class SaveUI extends JFrame {
             filePanel.add(button);
         }
 
-        return filePanel;
-    }
-
-    /**
-     * Creates a button that loads the
-     * given file and opens it in {@link PageUI}.
-     *
-     * @param file the saved book file
-     * @param darkModeEnabled whether dark mode is enabled
-     * @param translatorUseCase use case for translating pages
-     * @param speakController controller for text‑to‑speech actions
-     * @return a configured button
-     */
-    private JButton createFileButton(final File file,
-                                     final boolean darkModeEnabled,
-                                     final TranslatePageUseCase
-                                             translatorUseCase,
-                                     final SpeakController speakController) {
-        final JButton fileButton = new JButton(file.getName());
-
-        fileButton.addActionListener(event -> {
-            try {
-                final Book loaded = LoadBook.importBook(file);
-                dispose();
-                final PageUI pageUi = new PageUI(
-                        loaded,
-                        darkModeEnabled,
-                        translatorUseCase,
-                        speakController
-                );
-                pageUi.setVisible(true);
-            } catch (final Exception ex) {
-                showLoadError(file, ex);
-            }
+        final JButton closeButton = new JButton("Close");
+        closeButton.addActionListener(e -> {
+            dispose();
+            MainUI.createInstance(ConfigDataRetriever.get("deepl_api_key"),
+                    ConfigDataRetriever.get("azure_api_key")).setVisible(true);
         });
+        add(closeButton);
 
-        return fileButton;
-    }
-
-    /**
-     * Shows a load error dialog for a failed book import.
-     *
-     * @param file the file that failed to load
-     * @param ex   the thrown exception
-     */
-    private void showLoadError(final File file, final Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(
-                this,
-                "Failed to load: " + file.getName(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE
-        );
+        setVisible(true);
     }
 }

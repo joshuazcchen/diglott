@@ -5,6 +5,7 @@ import application.controller.SpeakController;
 import application.usecase.TranslatePageUseCase;
 import domain.model.Book;
 import domain.model.Page;
+import infrastructure.exporter.SaveBook;
 import infrastructure.translation.PageTranslationTask;
 
 import javax.swing.JButton;
@@ -101,6 +102,7 @@ public class PageUI extends JFrame {
         JButton prevBtn = new JButton("Last Page");
         JButton nextBtn = new JButton("Next Page");
         JButton speakBtn = new JButton("Speak");
+        JButton saveButton = new JButton("Save");
 
         pageIndicator = new JLabel("", SwingConstants.CENTER);
 
@@ -111,6 +113,7 @@ public class PageUI extends JFrame {
         buttonPanel.add(nextBtn);
         buttonPanel.add(speakBtn);
         buttonPanel.add(pageIndicator);
+        buttonPanel.add(saveButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
         nextBtn.setEnabled(book.getTotalPages() > 1);
@@ -136,8 +139,16 @@ public class PageUI extends JFrame {
             prevBtn.setEnabled(book.getCurrentPageNumber() > 1);
         });
 
-        speakBtn.addActionListener(e -> {
-            if (!speechController.isTtsAvailable()) {
+        saveButton.addActionListener(e -> {
+            SaveBook saveBook = new SaveBook();
+            if (saveBook.save(new Book(pageSet))) {
+                saveButton.setEnabled(false);
+                saveButton.setText("Saved.");
+            }
+        });
+
+        speakButton.addActionListener(e -> {
+            if (!speakControl.isTtsAvailable()) {
                 JOptionPane.showMessageDialog(
                         this,
                         "Google Cloud credentials not configured.",

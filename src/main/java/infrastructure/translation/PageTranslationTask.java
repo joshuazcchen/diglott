@@ -49,7 +49,9 @@ public class PageTranslationTask extends SwingWorker<Void, Void> {
      */
     @Override
     protected Void doInBackground() throws Exception {
-        translator.execute(page);
+        if (!page.isTranslated()) {
+            translator.execute(page);
+        }
         return null;
     }
 
@@ -59,6 +61,7 @@ public class PageTranslationTask extends SwingWorker<Void, Void> {
     @Override
     protected void done() {
         if (onTranslationDone != null) {
+            page.translated();
             onTranslationDone.run();
         }
     }

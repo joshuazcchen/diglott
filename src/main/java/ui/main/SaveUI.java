@@ -86,7 +86,8 @@ public class SaveUI extends JFrame {
         closeButton.addActionListener(e -> {
             dispose();
             MainUI.createInstance(ConfigDataRetriever.get("deepl_api_key"),
-                    ConfigDataRetriever.get("azure_api_key")).setVisible(true);
+                    ConfigDataRetriever.get("azure_api_key"),
+                    ConfigDataRetriever.get("azure_region")).setVisible(true);
         });
         add(closeButton);
         if (darkModeEnabled) {

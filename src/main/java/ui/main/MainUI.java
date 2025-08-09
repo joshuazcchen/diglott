@@ -23,7 +23,8 @@ import domain.gateway.Translator;
 import domain.gateway.WordTransliterator;
 import domain.model.Page;
 import infrastructure.persistence.StoredWords;
-import infrastructure.translation.TranslationHandler;
+import infrastructure.translation.DeepLTranslationHandler;
+import infrastructure.translation.AzureTranslationHandler;
 import infrastructure.translation.TransliterationHandler;
 import infrastructure.tts.SpeechManager;
 import ui.components.UIThemeManager;
@@ -116,34 +117,52 @@ public class MainUI extends JFrame {
      *
      * @param deepLApiKey API key for translation service
      * @param azureApiKey API key for azure
+     * @param azureRegion Region code for azure
      * @return a new MainUI instance
      */
     public static MainUI createInstance(final String deepLApiKey,
-                                        final String azureApiKey) {
+                                        final String azureApiKey,
+                                        final String azureRegion) {
         ConfigDataRetriever.set("deepl_api_key", deepLApiKey);
         ConfigDataRetriever.set("azure_api_key", azureApiKey);
+        ConfigDataRetriever.set("azure_region", azureRegion);
         ConfigDataRetriever.saveConfig();
         System.out.println("DeepL key: "
                 + ConfigDataRetriever.get("deepl_api_key"));
         System.out.println("Azure key: "
                 + ConfigDataRetriever.get("azure_api_key"));
-        return new MainUI(deepLApiKey);
+        System.out.println("Azure region: "
+                + ConfigDataRetriever.get("azure_region"));
+        return new MainUI(deepLApiKey, azureApiKey, azureRegion);
     }
 
     /**
      * Constructs a MainUI and sets up translators, UI, and theme.
      *
      * @param deepLApiKey DeepL API key for translation service
+     * @param azureApiKey Azure API key for translation service
+     * @param azureRegion Azure region code for translation service
      */
-    MainUI(final String deepLApiKey) {
+    MainUI(final String deepLApiKey, final String azureApiKey,
+           final String azureRegion) {
         System.setProperty(
                 "javax.xml.xpath.XPathFactory:"
                 + "http://java.sun.com/jaxp/xpath/dom",
                 "net.sf.saxon.xpath.XPathFactoryImpl"
         );
 
-        Translator translator =
-                new TranslationHandler(deepLApiKey, storedWords);
+        String targetLanguage = ConfigDataRetriever.get("target_language");
+        Translator translator;
+
+        if (LanguageCodes.DEEPL_LANG_CODES.contains(targetLanguage)) {
+            translator = new DeepLTranslationHandler(deepLApiKey, storedWords);
+        } else if (LanguageCodes.AZURE_LANG_CODES.contains(targetLanguage)) {
+            translator = new AzureTranslationHandler(azureApiKey, azureRegion,
+                    storedWords);
+        } else {
+            throw new IllegalArgumentException("Unsupported target language "
+                    + "code: " + targetLanguage);
+        }
         WordTransliterator wordTransliterator = new TransliterationHandler();
         translatorUseCase = new TranslatePageInteractor(
                 translator, wordTransliterator, storedWords);
@@ -253,10 +272,20 @@ public class MainUI extends JFrame {
                 return;
             }
 
-            ConfigDataRetriever.set("target_language",
-                    LanguageCodes.LANGUAGES.get(
-                            targetLangBox.getSelectedItem()));
-            ConfigDataRetriever.saveConfig();
+            String selectedKey = (String) targetLangBox.getSelectedItem();
+            String languageCode = LanguageCodes.LANGUAGES.get(selectedKey);
+            if (languageCode != null) {
+                ConfigDataRetriever.set("target_language", languageCode);
+                ConfigDataRetriever.saveConfig();
+            } else {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Invalid language selected.",
+                        "Language Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
 
             translatorUseCase.execute(pages.get(0));
 

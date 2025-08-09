@@ -1,7 +1,10 @@
 package configuration;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Stores bidirectional mappings between
@@ -15,10 +18,15 @@ public final class LanguageCodes {
     public static final Map<String, String> REVERSELANGUAGES =
             new LinkedHashMap<>();
 
+    /** Language codes supported by DeepL. */
+    public static final Set<String> DEEPL_LANG_CODES;
+    /** Language codes supported by Azure. */
+    public static final Set<String> AZURE_LANG_CODES;
+
     static {
-        boolean hasDeepLKey = false;
-        boolean hasAzureKey = false;
-        boolean hasAzureRegion = false;
+        boolean hasDeepLKey;
+        boolean hasAzureKey;
+        boolean hasAzureRegion;
 
         try {
             String deepLKey = ConfigDataRetriever.get("deepl_api_key");
@@ -34,6 +42,9 @@ public final class LanguageCodes {
             hasAzureKey = false;
             hasAzureRegion = false;
         }
+
+        Set<String> deepLSet = new LinkedHashSet<>();
+        Set<String> azureSet = new LinkedHashSet<>();
 
         // Populate DeepL languages if DeepL key is present
         if (hasDeepLKey) {
@@ -72,40 +83,13 @@ public final class LanguageCodes {
             LANGUAGES.put("(DeepL) Chinese (simplified)", "zh-hans");
             LANGUAGES.put("(DeepL) Chinese (traditional)", "zh-hant");
 
-            REVERSELANGUAGES.put("ar", "(DeepL) Arabic");
-            REVERSELANGUAGES.put("bg", "(DeepL) Bulgarian");
-            REVERSELANGUAGES.put("cs", "(DeepL) Czech");
-            REVERSELANGUAGES.put("da", "(DeepL) Danish");
-            REVERSELANGUAGES.put("de", "(DeepL) German");
-            REVERSELANGUAGES.put("el", "(DeepL) Greek");
-            REVERSELANGUAGES.put("en-gb", "(DeepL) English (Britain)");
-            REVERSELANGUAGES.put("en-us", "(DeepL) English (American)");
-            REVERSELANGUAGES.put("es", "(DeepL) Spanish");
-            REVERSELANGUAGES.put("et", "(DeepL) Estonian");
-            REVERSELANGUAGES.put("fi", "(DeepL) Finnish");
-            REVERSELANGUAGES.put("fr", "(DeepL) French");
-            REVERSELANGUAGES.put("hu", "(DeepL) Hungarian");
-            REVERSELANGUAGES.put("id", "(DeepL) Indonesian");
-            REVERSELANGUAGES.put("it", "(DeepL) Italian");
-            REVERSELANGUAGES.put("ja", "(DeepL) Japanese");
-            REVERSELANGUAGES.put("ko", "(DeepL) Korean");
-            REVERSELANGUAGES.put("lt", "(DeepL) Lithuanian");
-            REVERSELANGUAGES.put("lv", "(DeepL) Latvian");
-            REVERSELANGUAGES.put("nb", "(DeepL) Norwegian (Bokmål)");
-            REVERSELANGUAGES.put("nl", "(DeepL) Dutch");
-            REVERSELANGUAGES.put("pl", "(DeepL) Polish");
-            REVERSELANGUAGES.put("pt-br", "(DeepL) Portuguese (Brazilian)");
-            REVERSELANGUAGES.put("pt-pt", "(DeepL) Portuguese (European)");
-            REVERSELANGUAGES.put("ro", "(DeepL) Romanian");
-            REVERSELANGUAGES.put("ru", "(DeepL) Russian");
-            REVERSELANGUAGES.put("sk", "(DeepL) Slovak");
-            REVERSELANGUAGES.put("sl", "(DeepL) Slovenian");
-            REVERSELANGUAGES.put("sv", "(DeepL) Swedish");
-            REVERSELANGUAGES.put("tr", "(DeepL) Turkish");
-            REVERSELANGUAGES.put("uk", "(DeepL) Ukrainian");
-            REVERSELANGUAGES.put("zh", "(DeepL) Chinese");
-            REVERSELANGUAGES.put("zh-hans", "(DeepL) Chinese (simplified)");
-            REVERSELANGUAGES.put("zh-hant", "(DeepL) Chinese (traditional)");
+            // Populate reverse map and DeepL set
+            for (Map.Entry<String, String> entry : LANGUAGES.entrySet()) {
+                if (entry.getKey().startsWith("(DeepL)")) {
+                    REVERSELANGUAGES.put(entry.getValue(), entry.getKey());
+                    deepLSet.add(entry.getValue());
+                }
+            }
         }
 
         // Populate Azure languages if Azure key & region are present
@@ -213,109 +197,17 @@ public final class LanguageCodes {
             LANGUAGES.put("(Azure) Cantonese", "yue");
             LANGUAGES.put("(Azure) Zulu", "zu");
 
-            REVERSELANGUAGES.put("af", "(Azure) Afrikaans");
-            REVERSELANGUAGES.put("am", "(Azure) Amharic");
-            REVERSELANGUAGES.put("as", "(Azure) Assamese");
-            REVERSELANGUAGES.put("az", "(Azure) Azerbaijani");
-            REVERSELANGUAGES.put("ba", "(Azure) Bashkir");
-            REVERSELANGUAGES.put("be", "(Azure) Belarusian");
-            REVERSELANGUAGES.put("bho", "(Azure) Bhojpuri");
-            REVERSELANGUAGES.put("bn", "(Azure) Bangla");
-            REVERSELANGUAGES.put("bo", "(Azure) Tibetan");
-            REVERSELANGUAGES.put("brx", "(Azure) Bodo");
-            REVERSELANGUAGES.put("bs", "(Azure) Bosnian");
-            REVERSELANGUAGES.put("ca", "(Azure) Catalan");
-            REVERSELANGUAGES.put("cy", "(Azure) Welsh");
-            REVERSELANGUAGES.put("doi", "(Azure) Dogri");
-            REVERSELANGUAGES.put("dsb", "(Azure) Lower Sorbian");
-            REVERSELANGUAGES.put("dv", "(Azure) Divehi");
-            REVERSELANGUAGES.put("eu", "(Azure) Basque");
-            REVERSELANGUAGES.put("fa", "(Azure) Persian");
-            REVERSELANGUAGES.put("fil", "(Azure) Filipino");
-            REVERSELANGUAGES.put("fj", "(Azure) Fijian");
-            REVERSELANGUAGES.put("fo", "(Azure) Faroese");
-            REVERSELANGUAGES.put("fr-CA", "(Azure) Quebecois");
-            REVERSELANGUAGES.put("ga", "(Azure) Irish");
-            REVERSELANGUAGES.put("gl", "(Azure) Galician");
-            REVERSELANGUAGES.put("gom", "(Azure) Konkani");
-            REVERSELANGUAGES.put("gu", "(Azure) Gujarati");
-            REVERSELANGUAGES.put("ha", "(Azure) Hausa");
-            REVERSELANGUAGES.put("he", "(Azure) Hebrew");
-            REVERSELANGUAGES.put("hi", "(Azure) Hindi");
-            REVERSELANGUAGES.put("hne", "(Azure) Chhattisgarhi");
-            REVERSELANGUAGES.put("hr", "(Azure) Croatian");
-            REVERSELANGUAGES.put("hsb", "(Azure) Upper Sorbian");
-            REVERSELANGUAGES.put("ht", "(Azure) Haitian Creole");
-            REVERSELANGUAGES.put("hy", "(Azure) Armenian");
-            REVERSELANGUAGES.put("ig", "(Azure) Igbo");
-            REVERSELANGUAGES.put("ikt", "(Azure) Inuinnaqtun");
-            REVERSELANGUAGES.put("is", "(Azure) Icelandic");
-            REVERSELANGUAGES.put("iu", "(Azure) Inuktitut");
-            REVERSELANGUAGES.put("ka", "(Azure) Georgian");
-            REVERSELANGUAGES.put("kk", "(Azure) Kazakh");
-            REVERSELANGUAGES.put("km", "(Azure) Khmer");
-            REVERSELANGUAGES.put("kmr", "(Azure) Kurmanji Kurdish");
-            REVERSELANGUAGES.put("kn", "(Azure) Kannada");
-            REVERSELANGUAGES.put("ks", "(Azure) Kashmiri");
-            REVERSELANGUAGES.put("ku", "(Azure) Sorani Kurdish");
-            REVERSELANGUAGES.put("ky", "(Azure) Kyrgyz");
-            REVERSELANGUAGES.put("lb", "(Azure) Luxembourgish");
-            REVERSELANGUAGES.put("ln", "(Azure) Lingala");
-            REVERSELANGUAGES.put("lo", "(Azure) Lao");
-            REVERSELANGUAGES.put("lug", "(Azure) Ganda");
-            REVERSELANGUAGES.put("lzh", "(Azure) Literary Chinese");
-            REVERSELANGUAGES.put("mai", "(Azure) Maithili");
-            REVERSELANGUAGES.put("mg", "(Azure) Malagasy");
-            REVERSELANGUAGES.put("mi", "(Azure) Māori");
-            REVERSELANGUAGES.put("mk", "(Azure) Macedonian");
-            REVERSELANGUAGES.put("ml", "(Azure) Malayalam");
-            REVERSELANGUAGES.put("mn-Cyrl", "(Azure) Mongolian (Cyrillic)");
-            REVERSELANGUAGES.put("mn-Mong", "(Azure) Mongolian (Traditional)");
-            REVERSELANGUAGES.put("mni", "(Azure) Manipuri");
-            REVERSELANGUAGES.put("mr", "(Azure) Marathi");
-            REVERSELANGUAGES.put("ms", "(Azure) Malay");
-            REVERSELANGUAGES.put("mt", "(Azure) Maltese");
-            REVERSELANGUAGES.put("mww", "(Azure) HmongDaw");
-            REVERSELANGUAGES.put("my", "(Azure) Myanmar/Burmese");
-            REVERSELANGUAGES.put("ne", "(Azure) Nepali");
-            REVERSELANGUAGES.put("nso", "(Azure) Sesothosa Leboa");
-            REVERSELANGUAGES.put("nya", "(Azure) Nyanja");
-            REVERSELANGUAGES.put("or", "(Azure) Odia");
-            REVERSELANGUAGES.put("otq", "(Azure) Querétaro Otomi");
-            REVERSELANGUAGES.put("pa", "(Azure) Punjabi");
-            REVERSELANGUAGES.put("prs", "(Azure) Dari");
-            REVERSELANGUAGES.put("ps", "(Azure) Pashto");
-            REVERSELANGUAGES.put("run", "(Azure) Rundi");
-            REVERSELANGUAGES.put("rw", "(Azure) Kinyarwanda");
-            REVERSELANGUAGES.put("sd", "(Azure) Sindhi");
-            REVERSELANGUAGES.put("si", "(Azure) Sinhala");
-            REVERSELANGUAGES.put("sm", "(Azure) Samoan");
-            REVERSELANGUAGES.put("sn", "(Azure) Shona");
-            REVERSELANGUAGES.put("so", "(Azure) Somali");
-            REVERSELANGUAGES.put("sq", "(Azure) Albanian");
-            REVERSELANGUAGES.put("sr-Cyrl", "(Azure) Serbian");
-            REVERSELANGUAGES.put("st", "(Azure) Sesotho");
-            REVERSELANGUAGES.put("sw", "(Azure) Swahili");
-            REVERSELANGUAGES.put("ta", "(Azure) Tamil");
-            REVERSELANGUAGES.put("te", "(Azure) Telugu");
-            REVERSELANGUAGES.put("th", "(Azure) Thai");
-            REVERSELANGUAGES.put("ti", "(Azure) Tigrinya");
-            REVERSELANGUAGES.put("tk", "(Azure) Turkmen");
-            REVERSELANGUAGES.put("tlh-Latn", "(Azure) Klingon");
-            REVERSELANGUAGES.put("tn", "(Azure) Setswana");
-            REVERSELANGUAGES.put("to", "(Azure) Tongan");
-            REVERSELANGUAGES.put("tt", "(Azure) Tatar");
-            REVERSELANGUAGES.put("ty", "(Azure) Tahitian");
-            REVERSELANGUAGES.put("ug", "(Azure) Uyghur");
-            REVERSELANGUAGES.put("ur", "(Azure) Urdu");
-            REVERSELANGUAGES.put("uz", "(Azure) Uzbek");
-            REVERSELANGUAGES.put("vi", "(Azure) Vietnamese");
-            REVERSELANGUAGES.put("xh", "(Azure) Xhosa");
-            REVERSELANGUAGES.put("yo", "(Azure) Yoruba");
-            REVERSELANGUAGES.put("yua", "(Azure) Yucatec Maya");
-            REVERSELANGUAGES.put("yue", "(Azure) Cantonese");
-            REVERSELANGUAGES.put("zu", "(Azure) Zulu");
+            // Populate reverse map and Azure set
+            for (Map.Entry<String, String> entry : LANGUAGES.entrySet()) {
+                if (entry.getKey().startsWith("(Azure)")) {
+                    REVERSELANGUAGES.put(entry.getValue(), entry.getKey());
+                    azureSet.add(entry.getValue());
+                }
+            }
         }
+
+        DEEPL_LANG_CODES = Collections.unmodifiableSet(deepLSet);
+        AZURE_LANG_CODES = Collections.unmodifiableSet(azureSet);
     }
 
     private LanguageCodes() {

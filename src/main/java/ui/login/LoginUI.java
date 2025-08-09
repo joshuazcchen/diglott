@@ -37,6 +37,9 @@ public class LoginUI extends JFrame {
     /** the azure key. */
     private String azureKey = "none";
 
+    /** the azure region. */
+    private String azureRegion = "none";
+
     /** the deepl key. */
     private String deepLKey = "none";
 
@@ -116,10 +119,14 @@ public class LoginUI extends JFrame {
 
         // Azure login action
         azureLoginButton.addActionListener((ActionEvent e) -> {
-            new AzureLoginUI((key) -> {
-                azureKey = key;
-                azureLoggedIn = true;
-                updateContinueButton();
+            new AzureLoginUI(new AzureLoginUI.AzureLoginCallback() {
+                @Override
+                public void onSuccess(final String key, final String region) {
+                    azureKey = key;
+                    azureRegion = region;
+                    azureLoggedIn = true;
+                    updateContinueButton();
+                }
             });
         });
 
@@ -135,7 +142,8 @@ public class LoginUI extends JFrame {
         // Continue to main UI if at least one is done
         continueButton.addActionListener((ActionEvent e) -> {
             dispose();
-            MainUI.createInstance(deepLKey, azureKey).setVisible(true);
+            MainUI.createInstance(deepLKey, azureKey,
+                    azureRegion).setVisible(true);
         });
 
         panel.add(azureLoginButton);

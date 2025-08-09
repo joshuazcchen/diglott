@@ -1,7 +1,6 @@
 package ui.login;
 
 import configuration.ConfigDataRetriever;
-import ui.main.MainUI;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -34,8 +33,20 @@ import java.nio.charset.StandardCharsets;
 
 public class AzureLoginUI extends JFrame {
 
+    // Nested functional interface inside AzureLoginUI
+    @FunctionalInterface
+    public interface AzureLoginCallback {
+        /**
+         * Called when the Azure login is successful.
+         *
+         * @param apiKey the Azure API key obtained after login
+         * @param region the Azure service region associated with the account
+         */
+        void onSuccess(String apiKey, String region);
+    }
+
     /** Callback function. */
-    private final LoginCallback callback;
+    private final AzureLoginCallback callback;
 
     // === Constants for layout and styling ===
 
@@ -89,7 +100,7 @@ public class AzureLoginUI extends JFrame {
      * for clarity and to allow conditional reassignment.
      * @param loginCallback is a callback function which allows for a return.
      */
-    public AzureLoginUI(final LoginCallback loginCallback) {
+    public AzureLoginUI(final AzureLoginCallback loginCallback) {
         this.callback = loginCallback;
         setTitle("Diglott Login");
         setSize(FRAME_WIDTH, FRAME_HEIGHT);
@@ -315,7 +326,7 @@ public class AzureLoginUI extends JFrame {
             ConfigDataRetriever.set("azure_region", azureRegion);
             ConfigDataRetriever.saveConfig();
             dispose();
-            callback.onSuccess(azureApiKey);
+            callback.onSuccess(azureApiKey, azureRegion);
         }
     }
 

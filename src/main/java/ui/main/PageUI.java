@@ -121,7 +121,9 @@ public class PageUI extends JFrame {
 
         backBtn.addActionListener(e -> {
             dispose();
-            new MainUI(ConfigDataRetriever.get("deepl_api_key"));
+            new MainUI(ConfigDataRetriever.get("deepl_api_key"),
+                    ConfigDataRetriever.get("azure_api_key"),
+                    ConfigDataRetriever.get("azure_region"));
         });
 
         nextBtn.addActionListener(e -> {

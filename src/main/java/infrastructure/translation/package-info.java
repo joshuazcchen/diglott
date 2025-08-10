@@ -5,8 +5,11 @@
  *     <li>{@code TransliterationHandler} —
  *     uses ICU4J to convert words from any script
  *     to Latin ASCII characters</li>
- *     <li>{@code TranslationHandler} —
+ *     <li>{@code DeepLTranslationHandler} —
  *     connects to the DeepL API to perform translations
+ *     and stores translated words for reuse</li>
+ *     <li>{@code AzureTranslationHandler} —
+ *     connects to the Azure API to perform translations
  *     and stores translated words for reuse</li>
  *     <li>{@code PageTranslationTask} —
  *     wraps page translation in a background task

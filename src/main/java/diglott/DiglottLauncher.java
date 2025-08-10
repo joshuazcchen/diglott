@@ -17,6 +17,7 @@ public class DiglottLauncher {
     public void start() {
         String savedDeepL = "none";
         String savedAzure = "none";
+        String savedAzureRegion = "none";
 
         try {
             savedDeepL = ConfigDataRetriever.get("deepl_api_key");
@@ -24,32 +25,31 @@ public class DiglottLauncher {
         try {
             savedAzure = ConfigDataRetriever.get("azure_api_key");
         } catch (Exception ignored) { }
+        try {
+            savedAzureRegion = ConfigDataRetriever.get("azure_region");
+        } catch (Exception ignored) { }
         boolean hasDeepL = isValidApiKey(savedDeepL);
         boolean hasAzure = isValidApiKey(savedAzure);
+        boolean hasAzureRegion = isValidApiKey(savedAzureRegion);
 
-        if (hasDeepL || hasAzure) {
+        if (hasDeepL || (hasAzure && hasAzureRegion)) {
             MainUI.createInstance(
                     hasDeepL ? savedDeepL : "none",
-                    hasAzure ? savedAzure : "none"
+                    hasAzure ? savedAzure : "none",
+                    (hasAzure && hasAzureRegion) ? savedAzureRegion : "none"
             ).setVisible(true);
         } else {
             new LoginUI().setVisible(true);
         }
     }
 
-    private boolean isValidApiKey(final String key) {
-        return key != null && !key.trim().isEmpty()
-                && !"none".equalsIgnoreCase(key);
-    }
-
-
     /**
-     * Validates the given DeepL API key.
+     * Validates the given API key.
      *
      * @param key the key to validate
      * @return true if the key is non-null, non-empty, and not equal to "none"
      */
-    private boolean isValidDeepLApiKey(final String key) {
+    private boolean isValidApiKey(final String key) {
         return key != null && !key.trim().isEmpty() && !"none".equals(key);
     }
 }

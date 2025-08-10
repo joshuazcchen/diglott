@@ -127,10 +127,12 @@ public class SettingsUI extends JFrame {
      * Handles the credential file selection process.
      */
     private void handleAzureLogin() {
-        new AzureLoginUI(key -> {
+        new AzureLoginUI((key, region) -> {
             ConfigDataRetriever.set("azure_api_key", key);
+            ConfigDataRetriever.set("azure_region", region);
             ConfigDataRetriever.saveConfig();
-            JOptionPane.showMessageDialog(this, "Key saved!");
+            JOptionPane.showMessageDialog(this,
+                    "Key and region saved!");
         }).setVisible(true);
     }
 
@@ -221,9 +223,17 @@ public class SettingsUI extends JFrame {
                 new JComboBox<>(FontList.FONTS.keySet().toArray(new String[0]));
         box.setSelectedItem(ConfigDataRetriever.get("font"));
         box.addActionListener(actionEvent -> {
-            ConfigDataRetriever.set("font",
-                    FontList.FONTS.get(box.getSelectedItem()));
-            ConfigDataRetriever.saveConfig();
+            String selectedKey = (String) box.getSelectedItem();
+            String fontValue = FontList.FONTS.get(selectedKey);
+            if (fontValue != null) {
+                ConfigDataRetriever.set("font", fontValue);
+                ConfigDataRetriever.saveConfig();
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Selected font not found.",
+                        "Font Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
         });
         return box;
     }

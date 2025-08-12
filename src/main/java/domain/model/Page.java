@@ -59,7 +59,7 @@ public class Page {
         this.pageNumber = pageNum;
         this.maxWords = max;
         this.translated = false;
-        this.originalWords = new ArrayList<>(words);
+        this.originalWords = Collections.unmodifiableList(new ArrayList<>(words));
         this.translatedWords = new ArrayList<>(words);
     }
 
@@ -117,6 +117,7 @@ public class Page {
                     "New content exceeds max words or is null.");
         }
         this.translatedWords = new ArrayList<>(words);
+        this.translated = true;
     }
 
     /**
@@ -124,5 +125,6 @@ public class Page {
      */
     public void resetToOriginal() {
         this.translatedWords = new ArrayList<>(originalWords);
+        this.translated = false;
     }
 }

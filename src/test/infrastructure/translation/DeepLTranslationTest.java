@@ -12,14 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
-class TranslationHandlerTest {
+class DeepLTranslationHandlerTest {
     private StoredWords mockStorage;
-    private TranslationHandler handler;
+    private DeepLTranslationHandler handler;
 
     @BeforeEach
     public void setUp() {
         mockStorage = mock(StoredWords.class);
-        handler = new TranslationHandler("none", mockStorage);
+        handler = new DeepLTranslationHandler("none", mockStorage);
     }
 
     /*
@@ -33,7 +33,7 @@ class TranslationHandlerTest {
         Map<String, String> fakeStorage = new HashMap<>();
         when(mockStorage.getTranslations()).thenReturn(fakeStorage);
 
-        TranslationHandler spyHandler = spy(handler);
+        DeepLTranslationHandler spyHandler = spy(handler);
 
         doReturn(new JSONObject("""
             {"translations":[{"text":"Haus"}]}
@@ -49,7 +49,7 @@ class TranslationHandlerTest {
 
         when(mockStorage.getTranslations()).thenReturn(new HashMap<>());
 
-        TranslationHandler spyHandler = spy(handler);
+        DeepLTranslationHandler spyHandler = spy(handler);
 
         doReturn(new JSONObject("""
         {"translations":[]}
@@ -66,7 +66,7 @@ class TranslationHandlerTest {
 
         when(mockStorage.getTranslations()).thenReturn(new HashMap<>());
 
-        TranslationHandler spyHandler = spy(handler);
+        DeepLTranslationHandler spyHandler = spy(handler);
 
         doThrow(new RuntimeException("API error")).when(spyHandler).makeApiCall(anyString());
 
@@ -84,7 +84,7 @@ class TranslationHandlerTest {
         existingTranslations.put(word, "Wasser");
         when(mockStorage.getTranslations()).thenReturn(existingTranslations);
 
-        TranslationHandler spyHandler = spy(handler);
+        DeepLTranslationHandler spyHandler = spy(handler);
 
         doReturn(new JSONObject("""
         {"translations":[{"text":"Wasser"}]}

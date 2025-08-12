@@ -25,19 +25,24 @@ class BookTest {
         page2 = new Page(List.of("two"), 2, 5);
         page3 = new Page(List.of("three"), 3, 5);
         // Purposely pass in out-of-order pages to verify sorting
-        book = new Book(new ArrayList<>(List.of(page3, page1, page2)));
+        book = new Book("Test Book", List.of(page1, page2, page3));
     }
 
     @Test
     void constructorSortsPagesAndStartsAtFirstPage() {
-        assertEquals(1, book.getCurrentPageNumber());
-        assertEquals("one", book.getCurrentContent());
+        Book unsortedBook = new Book("Test Book", List.of(page3, page1, page2));
+        assertEquals(1, unsortedBook.getCurrentPageNumber());
+        assertEquals("one", unsortedBook.getCurrentContent());
     }
 
     @Test
     void constructorThrowsIfPagesNullOrEmpty() {
-        assertThrows(IllegalArgumentException.class, () -> new Book(null));
-        assertThrows(IllegalArgumentException.class, () -> new Book(List.of()));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Book(null, List.of(page1, page2, page3)));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Book("Test Book", null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Book("Test Book", List.of()));
     }
 
     @Test
@@ -93,7 +98,11 @@ class BookTest {
 
     @Test
     void getAllPagesReturnsUnmodifiableSortedList() {
-        List<Page> pages = book.getAllPages();
+        List<Page> pages = new ArrayList<>(List.of(
+                new Page(List.of("Page1"), 1, 5),
+                new Page(List.of("Page2"), 2, 5),
+                new Page(List.of("Page3"), 3, 5)
+        ));
         assertEquals(3, pages.size());
         assertEquals(1, pages.get(0).getPageNumber());
         assertThrows(UnsupportedOperationException.class, () -> pages.add(page1));

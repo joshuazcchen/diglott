@@ -36,6 +36,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.io.File;
+import domain.gateway.Speaker;
 
 import domain.model.Book;
 
@@ -289,11 +290,12 @@ public class MainUI extends JFrame {
 
             translatorUseCase.execute(pages.get(0));
 
-            String credsPath = ConfigDataRetriever.get("credentials_path");
-            SpeechManager speechManager = new SpeechManager(credsPath);
-            SpeakWordsUseCase speakUseCase =
-                    new SpeakWordsInteractor(speechManager);
-            speakController = new SpeakController(speakUseCase, speechManager);
+            final String credsPath =
+                    ConfigDataRetriever.get("credentials_path");
+            final Speaker speaker = new SpeechManager(credsPath);
+            final SpeakWordsUseCase speakUseCase =
+                    new SpeakWordsInteractor(speaker);
+            speakController = new SpeakController(speakUseCase, speaker);
 
             Book book = new Book(
                     selectedFile.getName().replace(".txt", ""), pages);

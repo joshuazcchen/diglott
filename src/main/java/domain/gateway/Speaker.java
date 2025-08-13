@@ -35,4 +35,13 @@ public interface Speaker {
      * @param languageCode the language code (e.g., "en", "fr")
      */
     void speak(String word, String languageCode);
+
+    /**
+     * Indicates whether the underlying TTS provider is currently available.
+     * <p>
+     * Examples: credentials loaded, client created successfully, etc.
+     *
+     * @return {@code true} if TTS is ready to use; {@code false} otherwise
+     */
+    boolean isAvailable();
 }

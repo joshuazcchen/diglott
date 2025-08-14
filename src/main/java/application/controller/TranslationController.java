@@ -1,55 +1,73 @@
 package application.controller;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import application.usecase.ImportBookUseCase;
+import application.usecase.model.ImportBookRequest;
+import application.usecase.model.ImportBookResponse;
 import configuration.ConfigDataRetriever;
-import domain.gateway.BookImporter;
+import domain.model.Book;
 import domain.model.Page;
-import domain.model.PageFactory;
-import infrastructure.importer.BookImporterFactory;
 import ui.components.FileSelector;
+
+import java.util.List;
 
 /**
  * Controller for loading and preparing book content for translation.
+ * <p>
+ * Depends only on the ImportBook use case (DIP). Infra details such as
+ * PDF/TXT/EPUB parsing are hidden behind the use case boundary.
+ * </p>
  */
 public final class TranslationController {
 
+    /** Import book use case boundary. */
+    private final ImportBookUseCase importBookUseCase;
+
     /**
-     * Loads a book file, parses it into pages, and returns a result object.
+     * Creates a controller that delegates to the import use case.
      *
-     * @return a LoadResult if successful, otherwise null
+     * @param importBook the ImportBook use case
+     */
+    public TranslationController(final ImportBookUseCase importBook) {
+        this.importBookUseCase = importBook;
+    }
+
+    /**
+     * Lets the user pick a file, imports it via the use case, and wraps
+     * the result for the UI.
+     *
+     * @return a LoadResult if successful; otherwise null
      */
     public LoadResult loadBook() {
-        LoadResult result = null;
         final File selected = FileSelector.selectBookFile();
-
-        if (selected != null) {
-            try {
-                final BookImporter importer =
-                        BookImporterFactory.getImporter(selected);
-                final String rawText = importer.importBook(selected);
-                final List<String> words =
-                        Arrays.asList(rawText.split(" "));
-                final int pageLength =
-                        ConfigDataRetriever.getInt("page_length");
-                final List<Page> parsedPages =
-                        PageFactory.paginate(words, pageLength);
-
-                result = new LoadResult(parsedPages, rawText, selected);
-            } catch (IOException ex) {
-                System.err.println("Book loading failed: " + ex.getMessage());
-                JOptionPane.showMessageDialog(
-                        null, "Failed to load book."
-                );
-            }
+        if (selected == null) {
+            return null;
         }
 
-        return result;
+        try {
+            final int maxPerPage =
+                    ConfigDataRetriever.getInt("page_length");
+
+            final ImportBookRequest req =
+                    new ImportBookRequest(selected, maxPerPage);
+
+            final ImportBookResponse res =
+                    importBookUseCase.importBook(req);
+
+            final Book book = res.getBook();
+            return new LoadResult(
+                    book.getAllPages(),
+                    res.getRawText(),
+                    res.getFile()
+            );
+        } catch (Exception ex) {
+            System.err.println("Book loading failed: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Failed to load book.");
+            return null;
+        }
     }
 
     /**
@@ -68,45 +86,31 @@ public final class TranslationController {
         private final File file;
 
         /**
-         * Constructs a load result object containing loaded data.
+         * Creates a load result object containing loaded data.
          *
          * @param loadedPages the list of pages from the book
          * @param rawText     the raw text content of the book
          * @param original    the original file
          */
-        public LoadResult(
-                final List<Page> loadedPages,
-                final String rawText,
-                final File original
-        ) {
+        public LoadResult(final List<Page> loadedPages,
+                          final String rawText,
+                          final File original) {
             this.pages = loadedPages;
             this.text = rawText;
             this.file = original;
         }
 
-        /**
-         * Gets the list of parsed pages.
-         *
-         * @return the page list
-         */
+        /** @return the page list */
         public List<Page> getPages() {
             return pages;
         }
 
-        /**
-         * Gets the raw text of the book.
-         *
-         * @return the text
-         */
+        /** @return the raw text */
         public String getText() {
             return text;
         }
 
-        /**
-         * Gets the original file object.
-         *
-         * @return the file
-         */
+        /** @return the original file */
         public File getFile() {
             return file;
         }

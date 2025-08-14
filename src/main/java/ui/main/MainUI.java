@@ -93,7 +93,6 @@ public class MainUI extends JFrame {
     private final TranslatePageUseCase translatorUseCase;
 
     /** Input language box. */
-    private JComboBox<String> inputLangBox;
 
     /** Target language box. */
     private JComboBox<String> targetLangBox;
@@ -171,12 +170,10 @@ public class MainUI extends JFrame {
         translatorUseCase = new TranslatePageInteractor(
                 translator, wordTransliterator, storedWords);
 
-        // --- NEW: build the ImportBook use case and controller wiring ---
         final ImporterSelector selector = new FactorySelector();
         final ImportBookUseCase importUc =
                 new ImportBookInteractor(selector);
         this.controller = new TranslationController(importUc);
-        // ----------------------------------------------------------------
 
         try {
             UIManager.setLookAndFeel(UIManager.
@@ -196,11 +193,9 @@ public class MainUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        inputLangBox = new JComboBox<>(new String[]{"en"});
         targetLangBox = new JComboBox<>(LanguageCodes.
                 LANGUAGES.keySet().toArray(new String[0]));
 
-        inputLangBox.setSelectedItem("en-us");
         targetLangBox.setSelectedItem(
                 LanguageCodes.REVERSELANGUAGES.
                         get(ConfigDataRetriever.get("target_language"))
@@ -228,8 +223,6 @@ public class MainUI extends JFrame {
                 SMALLUIELEMENT, SMALLUIELEMENT, SMALLUIELEMENT));
 
         JPanel languageRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        languageRow.add(new JLabel("From:"));
-        languageRow.add(inputLangBox);
         languageRow.add(Box.createHorizontalStrut(MEDIUMUIELEMENT));
         languageRow.add(new JLabel("To:"));
         languageRow.add(targetLangBox);

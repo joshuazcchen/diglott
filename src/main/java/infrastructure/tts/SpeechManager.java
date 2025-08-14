@@ -53,21 +53,24 @@ public class SpeechManager implements Speaker {
     public SpeechManager(final String credentialsPath) {
         try {
             if (credentialsPath != null && !credentialsPath.isEmpty()) {
-                final GoogleCredentials credentials =
-                        GoogleCredentials.fromStream(
-                                        new FileInputStream(credentialsPath))
-                                .createScoped(List.of(
-                                        "https://www.googleapis.com/"
-                                                + "auth/cloud-platform"));
+                // Ensure the credentials stream is closed properly.
+                try (FileInputStream fis = new FileInputStream(
+                        credentialsPath)) {
+                    final GoogleCredentials credentials =
+                            GoogleCredentials.fromStream(fis)
+                                    .createScoped(List.of(
+                                            "https://www.googleapis.com/"
+                                                    + "auth/cloud-platform"));
 
-                final TextToSpeechSettings settings =
-                        TextToSpeechSettings.newBuilder()
-                                .setCredentialsProvider(
-                                        FixedCredentialsProvider.
-                                                create(credentials))
-                                .build();
+                    final TextToSpeechSettings settings =
+                            TextToSpeechSettings.newBuilder()
+                                    .setCredentialsProvider(
+                                            FixedCredentialsProvider.
+                                                    create(credentials))
+                                    .build();
 
-                this.ttsClient = TextToSpeechClient.create(settings);
+                    this.ttsClient = TextToSpeechClient.create(settings);
+                }
             } else {
                 System.out.println(
                         "No credentials provided. TTS will be disabled.");
@@ -110,8 +113,14 @@ public class SpeechManager implements Speaker {
     @Override
     public void speak(final List<String> words,
                       final String languageCode) {
+        if (words == null || words.isEmpty()) {
+            return;
+        }
+        final String lang = normalizeLang(languageCode);
         for (final String word : words) {
-            speakWord(word, languageCode);
+            if (word != null && !word.isBlank()) {
+                speakWord(word, lang);
+            }
         }
     }
 
@@ -150,6 +159,10 @@ public class SpeechManager implements Speaker {
      * @param languageCode the language code for speech synthesis
      */
     public void speakWord(final String word, final String languageCode) {
+        if (ttsClient == null || word == null || word.isBlank()) {
+            return;
+        }
+        final String lang = normalizeLang(languageCode);
         try {
             final SynthesisInput input = SynthesisInput.newBuilder()
                     .setText(word)
@@ -157,7 +170,7 @@ public class SpeechManager implements Speaker {
 
             final VoiceSelectionParams voice = VoiceSelectionParams
                     .newBuilder()
-                    .setLanguageCode(languageCode)
+                    .setLanguageCode(lang)
                     .setSsmlGender(SsmlVoiceGender.NEUTRAL)
                     .build();
 
@@ -171,7 +184,8 @@ public class SpeechManager implements Speaker {
 
             final AudioInputStream audioStream =
                     AudioSystem.getAudioInputStream(
-                    new ByteArrayInputStream(audioContents.toByteArray()));
+                            new ByteArrayInputStream(
+                                    audioContents.toByteArray()));
 
             final Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
@@ -182,8 +196,12 @@ public class SpeechManager implements Speaker {
                  | UnsupportedAudioFileException
                  | LineUnavailableException ex) {
             System.err.println("Error speaking word: " + word
-                    + " in language " + languageCode);
+                    + " in language " + lang);
             ex.printStackTrace();
+            // Restore interrupt flag if we were interrupted.
+            if (ex instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
@@ -193,7 +211,19 @@ public class SpeechManager implements Speaker {
      * @return true if initialized with valid credentials,
      *         false otherwise
      */
+    @Override
     public boolean isAvailable() {
         return ttsClient != null;
+    }
+
+    /**
+     * Normalizes a possibly null/blank language code to a usable value.
+     *
+     * @param languageCode candidate language code
+     * @return a non-blank BCP-47 code (defaults to "en-US")
+     */
+    private static String normalizeLang(final String languageCode) {
+        return (languageCode == null || languageCode.isBlank())
+                ? "en-US" : languageCode;
     }
 }

@@ -8,7 +8,14 @@ Learning a language has never been more fun! With diglott, you are able learn la
 This is being made as a part of CSC207 as a course final project.
 
 ## Usage
-
+1. Download the provided JAR file at the top or bottom of this page.
+2. Ensure you have Java 17.0 or newer installed on your machine.
+3. Obtain a DeepL API Key from https://www.deepl.com/en/pro-api.
+4. Run the file and log in using a DeepL API.
+5. The other APIs are optional, including Azure. However, Azure, can also be used as an alternative to DeepL.
+6. Import a file (.epub, .txt or .pdf).
+7. Pick your desired language, update your settings and click Start.
+8. Read away!
 
 ## Group Members
 - Mustafa

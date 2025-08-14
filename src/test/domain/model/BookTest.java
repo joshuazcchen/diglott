@@ -98,14 +98,17 @@ class BookTest {
 
     @Test
     void getAllPagesReturnsUnmodifiableSortedList() {
-        List<Page> pages = new ArrayList<>(List.of(
-                new Page(List.of("Page1"), 1, 5),
-                new Page(List.of("Page2"), 2, 5),
-                new Page(List.of("Page3"), 3, 5)
-        ));
-        assertEquals(3, pages.size());
-        assertEquals(1, pages.get(0).getPageNumber());
-        assertThrows(UnsupportedOperationException.class, () -> pages.add(page1));
+        List<Page> fromBook = book.getAllPages();
+
+        // Sorted by page number
+        assertEquals(3, fromBook.size());
+        assertEquals(1, fromBook.get(0).getPageNumber());
+        assertEquals(2, fromBook.get(1).getPageNumber());
+        assertEquals(3, fromBook.get(2).getPageNumber());
+
+        // Unmodifiable
+        assertThrows(UnsupportedOperationException.class,
+                () -> fromBook.add(new Page(List.of("X"), 4, 5)));
     }
 
     @Test

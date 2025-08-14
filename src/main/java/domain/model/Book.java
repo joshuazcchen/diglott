@@ -1,7 +1,5 @@
 package domain.model;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -41,9 +39,12 @@ public class Book {
                     "A book must contain at least one page.");
         }
         this.title = bookTitle;
-        pageList.sort(Comparator.comparingInt(Page::getPageNumber));
-        this.pages = Collections.unmodifiableList(pageList);
-        this.currentPageNumber = pageList.get(0).getPageNumber();
+        // Make a defensive copy that we can sort
+        java.util.List<Page> copy = new java.util.ArrayList<>(pageList);
+        copy.sort(java.util.Comparator.comparingInt(Page::getPageNumber));
+
+        this.pages = java.util.Collections.unmodifiableList(copy);
+        this.currentPageNumber = copy.get(0).getPageNumber();
     }
 
     /**

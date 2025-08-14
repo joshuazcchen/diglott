@@ -59,7 +59,8 @@ public class Page {
         this.pageNumber = pageNum;
         this.maxWords = max;
         this.translated = false;
-        this.originalWords = Collections.unmodifiableList(new ArrayList<>(words));
+        this.originalWords = Collections.unmodifiableList(
+                new ArrayList<>(words));
         this.translatedWords = new ArrayList<>(words);
     }
 

@@ -17,11 +17,14 @@ import application.interactor.SpeakWordsInteractor;
 import application.interactor.TranslatePageInteractor;
 import application.usecase.SpeakWordsUseCase;
 import application.usecase.TranslatePageUseCase;
+import application.usecase.ImportBookUseCase;              // <-- added
 import configuration.ConfigDataRetriever;
 import configuration.LanguageCodes;
 import domain.gateway.Translator;
 import domain.gateway.WordTransliterator;
+import domain.gateway.ImporterSelector;                    // <-- added
 import domain.model.Page;
+import infrastructure.importer.FactorySelector;            // <-- added
 import infrastructure.persistence.StoredWords;
 import infrastructure.translation.DeepLTranslationHandler;
 import infrastructure.translation.AzureTranslationHandler;
@@ -37,6 +40,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.io.File;
 
+import application.interactor.ImportBookInteractor;        // <-- added
 import domain.model.Book;
 
 /**
@@ -79,8 +83,7 @@ public class MainUI extends JFrame {
     private final StoredWords storedWords = new StoredWords();
 
     /** Translation controller. */
-    private final TranslationController controller =
-            new TranslationController();
+    private final TranslationController controller;        // <-- changed
 
     /** Speak controller. */
     private SpeakController speakController;
@@ -147,7 +150,7 @@ public class MainUI extends JFrame {
            final String azureRegion) {
         System.setProperty(
                 "javax.xml.xpath.XPathFactory:"
-                + "http://java.sun.com/jaxp/xpath/dom",
+                        + "http://java.sun.com/jaxp/xpath/dom",
                 "net.sf.saxon.xpath.XPathFactoryImpl"
         );
 
@@ -166,6 +169,13 @@ public class MainUI extends JFrame {
         WordTransliterator wordTransliterator = new TransliterationHandler();
         translatorUseCase = new TranslatePageInteractor(
                 translator, wordTransliterator, storedWords);
+
+        // --- NEW: build the ImportBook use case and controller wiring ---
+        final ImporterSelector selector = new FactorySelector();
+        final ImportBookUseCase importUc =
+                new ImportBookInteractor(selector);
+        this.controller = new TranslationController(importUc);
+        // ----------------------------------------------------------------
 
         try {
             UIManager.setLookAndFeel(UIManager.
@@ -302,8 +312,6 @@ public class MainUI extends JFrame {
 
             dispose();
         });
-
-
 
         settingsButton.addActionListener(e ->
                 new SettingsUI());

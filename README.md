@@ -35,6 +35,9 @@ This is being made as a part of CSC207 as a course final project.
 
 **Nehan:** As someone who learns best through listening, Nehan wants to hear the translated words read aloud while reading the story. Being able to hear proper pronunciation helps reinforce vocabulary and makes it easier to remember new words. This would make the experience feel more immersive and engaging, especially when learning unfamiliar languages through context. Having this feature built right into the reading flow keeps learning smooth and enjoyable. 
 
+## Accessibility
+Although our Google TTS could help blind people in theory (if given assistance), the program is not entirely Blind-friendly. The program also isn't Deaf-friendly when it comes to our Google TTS feature. It also isn't accessible for anyone who wishes to learn a language that isn't included in DeepL or Azure. Use at your own discretion.
+
 
 ## Download
 

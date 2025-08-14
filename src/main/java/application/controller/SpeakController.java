@@ -5,7 +5,6 @@ import java.util.List;
 import application.interactor.SpeakWordsInteractor;
 import application.usecase.SpeakWordsUseCase;
 import domain.gateway.Speaker;
-import infrastructure.tts.SpeechManager;
 
 /**
  * Controller responsible for coordinating text-to-speech actions.
@@ -23,15 +22,15 @@ public final class SpeakController {
     /**
      * Constructs a SpeakController with the provided use case and speaker.
      *
-     * @param speakU  the use case to execute speaking actions
-     * @param speakG  the gateway for accessing speech capabilities
+     * @param useCase   the use case to execute speaking actions
+     * @param gateway   the gateway for accessing speech capabilities
      */
     public SpeakController(
-            final SpeakWordsUseCase speakU,
-            final Speaker speakG
+            final SpeakWordsUseCase useCase,
+            final Speaker gateway
     ) {
-        this.speakUseCase = speakU;
-        this.speakGateway = speakG;
+        this.speakUseCase = useCase;
+        this.speakGateway = gateway;
     }
 
     /**
@@ -90,7 +89,6 @@ public final class SpeakController {
      * @return true if available, false otherwise
      */
     public boolean isTtsAvailable() {
-        return speakGateway instanceof SpeechManager manager
-                && manager.isAvailable();
+        return speakGateway.isAvailable();
     }
 }

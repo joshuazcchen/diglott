@@ -40,7 +40,6 @@ public class Book {
         }
 
         this.title = bookTitle;
-      
         // Make a defensive copy that we can sort
         java.util.List<Page> copy = new java.util.ArrayList<>(pageList);
         copy.sort(java.util.Comparator.comparingInt(Page::getPageNumber));

@@ -3,6 +3,7 @@ package application.interactor;
 import domain.gateway.Speaker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 import java.util.List;
 
@@ -34,27 +35,30 @@ class SpeakWordsInteractorTest {
     }
 
     @Test
-    void testSpeakWordPair_WhenSpeakerIsNotSpeechManager() {
-        // Should not throw error, but nothing happens
+    void testSpeakWordPair_callsOriginalThenTranslated() {
         interactor.speakWordPair("hello", "bonjour");
-        verify(mockSpeaker, never()).speak(anyString());
+
+        InOrder inOrder = inOrder(mockSpeaker);
+        inOrder.verify(mockSpeaker).speak("hello");
+        inOrder.verify(mockSpeaker).speak("bonjour");
+        verifyNoMoreInteractions(mockSpeaker);
     }
 
     @Test
-    void testSpeakWordWithLanguage_WhenSpeakerIsNotSpeechManager() {
-        interactor.speakWord("hola", "es");
-        verify(mockSpeaker, never()).speak(anyString());
+    void testSpeakWordWithLanguage_delegatesToGateway() {
+        interactor.speak("hola", "es");
+        verify(mockSpeaker).speak("hola", "es");
+        verifyNoMoreInteractions(mockSpeaker);
     }
 
     @Test
-    void testSpeak_withNull() {
+    void testSpeak_withNull_passthrough() {
         interactor.speak(null);
         verify(mockSpeaker).speak((String) isNull());
     }
 
     @Test
-    void testSpeakWordPair_safeFallback() {
+    void testSpeakWordPair_safeFallback_noThrow() {
         assertDoesNotThrow(() -> interactor.speakWordPair("hi", "salut"));
     }
-
 }

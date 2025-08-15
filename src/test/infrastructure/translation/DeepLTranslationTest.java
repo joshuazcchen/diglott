@@ -8,90 +8,80 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class DeepLTranslationHandlerTest {
+
     private StoredWords mockStorage;
     private DeepLTranslationHandler handler;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         mockStorage = mock(StoredWords.class);
-        handler = new DeepLTranslationHandler("none", mockStorage);
+        // Use a non-empty key so we don't hit ConfigDataRetriever
+        handler = new DeepLTranslationHandler("test-key", mockStorage);
     }
 
-    /*
-    This test verifies that the test adds the correct words when the API succeeds.
-    This utilizes Mockito's verification.
-     */
     @Test
-    public void testAddWord_StoresTranslation_WhenApiSucceeds() throws Exception {
+    void testAddWord_StoresTranslation_WhenApiSucceeds() throws Exception {
         String word = "house";
-
-        Map<String, String> fakeStorage = new HashMap<>();
-        when(mockStorage.getTranslations()).thenReturn(fakeStorage);
+        when(mockStorage.getTranslations()).thenReturn(new HashMap<>());
 
         DeepLTranslationHandler spyHandler = spy(handler);
+        doReturn(new JSONObject("{\"translations\":[{\"text\":\"Haus\"}]}"))
+                .when(spyHandler).makeApiCall(anyString());
 
-        doReturn(new JSONObject("""
-            {"translations":[{"text":"Haus"}]}
-        """)).when(spyHandler).makeApiCall(anyString());
         spyHandler.addWord(word);
 
         verify(mockStorage).addTranslation("house", "Haus");
     }
 
     @Test
-    public void testAddWord_DoesNotStore_WhenApiReturnsEmpty() throws Exception {
-        String word = "car";
-
+    void testAddWord_DoesNotStore_WhenApiReturnsEmpty() throws Exception {
         when(mockStorage.getTranslations()).thenReturn(new HashMap<>());
 
         DeepLTranslationHandler spyHandler = spy(handler);
+        doReturn(new JSONObject("{\"translations\":[]}"))
+                .when(spyHandler).makeApiCall(anyString());
 
-        doReturn(new JSONObject("""
-        {"translations":[]}
-    """)).when(spyHandler).makeApiCall(anyString());
+        spyHandler.addWord("car");
 
-        spyHandler.addWord(word);
-
-        verify(mockStorage, never()).addTranslation(anyString(), anyString());
+        verify(mockStorage, never())
+                .addTranslation(anyString(), anyString());
     }
 
     @Test
-    public void testAddWord_ThrowsException_WhenApiCallFails() throws Exception {
-        String word = "tree";
-
+    void testAddWord_ThrowsException_WhenApiCallFails() throws Exception {
         when(mockStorage.getTranslations()).thenReturn(new HashMap<>());
 
         DeepLTranslationHandler spyHandler = spy(handler);
+        doThrow(new RuntimeException("API error"))
+                .when(spyHandler).makeApiCall(anyString());
 
-        doThrow(new RuntimeException("API error")).when(spyHandler).makeApiCall(anyString());
+        RuntimeException ex = assertThrows(
+                RuntimeException.class,
+                () -> spyHandler.addWord("tree")
+        );
+        assertTrue(ex.getMessage().contains("API error"));
 
-        Exception exception = assertThrows(RuntimeException.class, () -> spyHandler.addWord(word));
-        assertTrue(exception.getMessage().contains("API error"));
-
-        verify(mockStorage, never()).addTranslation(anyString(), anyString());
+        verify(mockStorage, never())
+                .addTranslation(anyString(), anyString());
     }
 
     @Test
-    public void testAddWord_DoesNotAddDuplicateTranslation() throws Exception {
-        String word = "water";
-
-        Map<String, String> existingTranslations = new HashMap<>();
-        existingTranslations.put(word, "Wasser");
-        when(mockStorage.getTranslations()).thenReturn(existingTranslations);
+    void testAddWord_DoesNotAddDuplicateTranslation() throws Exception {
+        Map<String, String> existing = new HashMap<>();
+        existing.put("water", "Wasser");
+        when(mockStorage.getTranslations()).thenReturn(existing);
 
         DeepLTranslationHandler spyHandler = spy(handler);
+        doReturn(new JSONObject("{\"translations\":[{\"text\":\"Wasser\"}]}"))
+                .when(spyHandler).makeApiCall(anyString());
 
-        doReturn(new JSONObject("""
-        {"translations":[{"text":"Wasser"}]}
-    """)).when(spyHandler).makeApiCall(anyString());
+        spyHandler.addWord("water");
 
-        spyHandler.addWord(word);
-
-        verify(mockStorage, never()).addTranslation(anyString(), anyString());
+        verify(mockStorage, never())
+                .addTranslation(anyString(), anyString());
     }
 }

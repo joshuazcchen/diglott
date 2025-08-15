@@ -7,7 +7,6 @@ import javax.swing.JOptionPane;
 import application.usecase.ImportBookUseCase;
 import application.usecase.model.ImportBookRequest;
 import application.usecase.model.ImportBookResponse;
-import configuration.ConfigDataRetriever;
 import domain.model.Book;
 import domain.model.Page;
 import ui.components.FileSelector;
@@ -22,6 +21,8 @@ import java.util.List;
  * </p>
  */
 public final class TranslationController {
+    /** Max words per page. */
+    private final int pL = 100;
 
     /** Import book use case boundary. */
     private final ImportBookUseCase importBookUseCase;
@@ -48,8 +49,7 @@ public final class TranslationController {
         }
 
         try {
-            final int maxPerPage =
-                    ConfigDataRetriever.getInt("page_length");
+            final int maxPerPage = pL;
 
             final ImportBookRequest req =
                     new ImportBookRequest(selected, maxPerPage);

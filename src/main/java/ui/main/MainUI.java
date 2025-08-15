@@ -92,8 +92,6 @@ public class MainUI extends JFrame {
     /** Page translator use case. */
     private final TranslatePageUseCase translatorUseCase;
 
-    /** Input language box. */
-
     /** Target language box. */
     private JComboBox<String> targetLangBox;
 

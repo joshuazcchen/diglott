@@ -63,14 +63,16 @@ public class DeepLTranslationHandler implements Translator {
      */
     @Override
     public void addWord(final String word) throws Exception {
-        if ("none".equals(deepLApiKey)) {
-            throw new Exception("Missing API Key");
+        // guard all missing-key cases, not just "none"
+        if (deepLApiKey == null || deepLApiKey.trim().isEmpty()
+                || "none".equals(deepLApiKey)) {
+            throw new IllegalStateException("Missing API Key");
         }
 
-        final String encodedKey = URLEncoder.encode(
-                deepLApiKey, StandardCharsets.UTF_8);
-        final String encodedWord = URLEncoder.encode(
-                word, StandardCharsets.UTF_8);
+        final String encodedKey =
+                URLEncoder.encode(deepLApiKey, StandardCharsets.UTF_8);
+        final String encodedWord =
+                URLEncoder.encode(word, StandardCharsets.UTF_8);
         final String targetLang = ConfigDataRetriever.get("target_language");
 
         final String urlParams = "auth_key=" + encodedKey
@@ -79,9 +81,9 @@ public class DeepLTranslationHandler implements Translator {
 
         final JSONObject responseJson = makeApiCall(urlParams);
 
-        final JSONArray translations =
-                responseJson.optJSONArray("translations");
-        if (translations != null && !translations.isEmpty()) {
+        final JSONArray translations = responseJson.optJSONArray(
+                "translations");
+        if (translations != null && translations.length() > 0) {
             final String translated =
                     translations.getJSONObject(0).getString("text");
 
